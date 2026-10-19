@@ -21,6 +21,49 @@ publicRouter.get('/events', async (_req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/live/heats
+ * Public: Returns live heats with athletes, lane numbers, and recorded results
+ */
+publicRouter.get('/live/heats', async (_req: Request, res: Response) => {
+  try {
+    const { data: heats, error } = await supabase
+      .from('heats')
+      .select(`
+        id,
+        heat_number,
+        stage,
+        status,
+        wind_reading,
+        events(id, name, code, gender, category),
+        heat_athletes(
+          id,
+          lane_number,
+          profiles(
+            id,
+            sslc_name,
+            usn,
+            bid_number,
+            squads(colleges(name, code))
+          ),
+          relay_teams(
+            id,
+            squads(colleges(name, code))
+          ),
+          track_results(time_seconds, reaction_time_ms, status, dq_rule),
+          field_attempts(round_number, attempt_type, mark_meters)
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) return res.status(400).json({ error: error.message });
+    return res.json({ heats: heats || [] });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * GET /api/live/results
  */
 publicRouter.get('/live/results', async (_req: Request, res: Response) => {
