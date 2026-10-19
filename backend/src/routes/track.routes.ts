@@ -28,6 +28,8 @@ trackRouter.get('/heats/:heatId', async (req: AuthenticatedRequest, res: Respons
       .select(`
         id,
         lane_number,
+        call_room_reported,
+        call_room_reported_at,
         profiles(id, sslc_name, usn, bid_number, squads(colleges(name, code))),
         relay_teams(id, squads(colleges(name, code))),
         track_results(
