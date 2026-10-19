@@ -10,6 +10,8 @@ import { accommodationRouter } from './routes/accommodation.routes';
 import { scheduleRouter } from './routes/schedule.routes';
 import { callRoomRouter } from './routes/callroom.routes';
 import { fieldRouter } from './routes/field.routes';
+import { trackRouter } from './routes/track.routes';
+import { leaderboardRouter } from './routes/leaderboard.routes';
 import { publicRouter } from './routes/public.routes';
 
 dotenv.config();
@@ -47,6 +49,8 @@ app.use('/api/accommodation', accommodationRouter);
 app.use('/api/schedule', scheduleRouter);
 app.use('/api/callroom', callRoomRouter);
 app.use('/api/field', fieldRouter);
+app.use('/api/track', trackRouter);
+app.use('/api/leaderboard', leaderboardRouter);
 app.use('/api', publicRouter);
 
 // Start Server

@@ -5,11 +5,20 @@ import React, { useState, useEffect } from 'react';
 interface Athlete {
   id: string; // heat_athlete_id
   lane_number: number;
-  profiles: {
+  profiles?: {
     id: string;
     sslc_name: string;
     usn: string;
     bid_number: number;
+    squads: {
+      colleges: {
+        name: string;
+        code: string;
+      };
+    };
+  };
+  relay_teams?: {
+    id: string;
     squads: {
       colleges: {
         name: string;
@@ -30,6 +39,14 @@ interface Athlete {
     attempt_number: number;
     result: string;
   }>;
+  track_results?: Array<{
+    id: string;
+    time_seconds: number;
+    reaction_time_ms: number;
+    wind_reading: number;
+    status: string;
+    dq_rule: string;
+  }>;
 }
 
 interface Heat {
@@ -37,6 +54,7 @@ interface Heat {
   heat_number: number;
   stage: string;
   status: string;
+  wind_reading?: number;
   events: {
     id: string;
     name: string;
@@ -53,7 +71,10 @@ export default function RefereeDeskPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [judgeName, setJudgeName] = useState<string>('');
 
-  const [events, setEvents] = useState<any[]>([]);
+  // Mode: 'field' or 'track'
+  const [disciplineMode, setDisciplineMode] = useState<'track' | 'field'>('track');
+
+  const [allEvents, setAllEvents] = useState<any[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [heats, setHeats] = useState<any[]>([]);
   const [selectedHeatId, setSelectedHeatId] = useState<string>('');
@@ -64,6 +85,7 @@ export default function RefereeDeskPage() {
   const [standings, setStandings] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Horizontal attempt entry state
   const [activeAthleteId, setActiveAthleteId] = useState<string>('');
@@ -72,15 +94,38 @@ export default function RefereeDeskPage() {
   const [windInput, setWindInput] = useState<string>('');
   const [attemptType, setAttemptType] = useState<string>('VALID');
 
+  // Track timing inputs state: athleteId -> { timeSeconds, reactionMs, status, dqRule }
+  const [trackInputs, setTrackInputs] = useState<Record<string, {
+    timeSeconds: string;
+    reactionMs: string;
+    status: string;
+    dqRule: string;
+  }>>({});
+
   // Vertical jump bar height state
   const [barHeights, setBarHeights] = useState<number[]>([1.60, 1.65, 1.70, 1.75, 1.80, 1.85]);
   const [newBarHeight, setNewBarHeight] = useState<string>('1.90');
 
   useEffect(() => {
     if (isLoggedIn && token) {
-      loadFieldEvents();
+      loadEvents();
     }
   }, [isLoggedIn, token]);
+
+  useEffect(() => {
+    if (allEvents.length > 0) {
+      const filtered = allEvents.filter((e) =>
+        disciplineMode === 'track'
+          ? (e.category.startsWith('track') || e.category === 'relay')
+          : e.category.startsWith('field')
+      );
+      if (filtered.length > 0) {
+        setSelectedEventId(filtered[0].id);
+      } else {
+        setSelectedEventId('');
+      }
+    }
+  }, [disciplineMode, allEvents]);
 
   useEffect(() => {
     if (selectedEventId) {
@@ -90,22 +135,20 @@ export default function RefereeDeskPage() {
 
   useEffect(() => {
     if (selectedHeatId && token) {
-      loadHeatScores(selectedHeatId);
+      if (disciplineMode === 'track') {
+        loadTrackHeat(selectedHeatId);
+      } else {
+        loadFieldHeat(selectedHeatId);
+      }
     }
-  }, [selectedHeatId, token]);
+  }, [selectedHeatId, token, disciplineMode]);
 
-  const loadFieldEvents = async () => {
+  const loadEvents = async () => {
     try {
       const res = await fetch('http://localhost:5000/api/events');
       const data = await res.json();
       if (res.ok) {
-        const fieldEvs = (data.events || []).filter((e: any) =>
-          e.category.startsWith('field')
-        );
-        setEvents(fieldEvs);
-        if (fieldEvs.length > 0) {
-          setSelectedEventId(fieldEvs[0].id);
-        }
+        setAllEvents(data.events || []);
       }
     } catch (e) {}
   };
@@ -126,7 +169,40 @@ export default function RefereeDeskPage() {
     } catch (e) {}
   };
 
-  const loadHeatScores = async (heatId: string) => {
+  const loadTrackHeat = async (heatId: string) => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const res = await fetch(`http://localhost:5000/api/track/heats/${heatId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setHeat(data.heat);
+        setAthletes(data.athletes || []);
+        // Initialize trackInputs
+        const initialMap: any = {};
+        (data.athletes || []).forEach((a: Athlete) => {
+          const r = a.track_results?.[0];
+          initialMap[a.id] = {
+            timeSeconds: r?.time_seconds ? r.time_seconds.toString() : '',
+            reactionMs: r?.reaction_time_ms ? r.reaction_time_ms.toString() : '',
+            status: r?.status || 'FINISHED',
+            dqRule: r?.dq_rule || '',
+          };
+        });
+        setTrackInputs(initialMap);
+      } else {
+        setErrorMessage(data.error || 'Failed to load track heat');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadFieldHeat = async (heatId: string) => {
     setLoading(true);
     setErrorMessage('');
     try {
@@ -154,7 +230,7 @@ export default function RefereeDeskPage() {
         setStandings(sData.standings || []);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to load scores');
+      setErrorMessage(err.message || 'Failed to load field heat');
     } finally {
       setLoading(false);
     }
@@ -175,14 +251,110 @@ export default function RefereeDeskPage() {
         return;
       }
       setToken(data.token);
-      setJudgeName(data.staff?.displayName || 'Field Referee');
+      setJudgeName(data.staff?.displayName || 'Referee');
       setIsLoggedIn(true);
     } catch (err: any) {
       setErrorMessage(err.message || 'Network error');
     }
   };
 
-  const handleRecordAttempt = async (e: React.FormEvent) => {
+  const handleSaveTrackResult = async (athleteId: string) => {
+    const input = trackInputs[athleteId];
+    if (!input) return;
+
+    try {
+      const res = await fetch('http://localhost:5000/api/track/result', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          heatAthleteId: athleteId,
+          timeSeconds: input.timeSeconds || null,
+          reactionTimeMs: input.reactionMs || null,
+          status: input.status,
+          dqRule: input.dqRule,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Failed to save time');
+      } else {
+        setSuccessMessage(`✓ Saved result for athlete in lane`);
+        loadTrackHeat(selectedHeatId);
+      }
+    } catch (e: any) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  const handleFinalizeHeat = async () => {
+    if (!heat || !confirm('Finalize this heat? Official times will be locked and points awarded.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:5000/api/track/finalize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          heatId: heat.id,
+          eventId: heat.events?.id,
+          stage: heat.stage,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Failed to finalize heat');
+      } else {
+        setSuccessMessage('🏆 Heat finalized successfully! Championship standings updated.');
+        loadTrackHeat(selectedHeatId);
+      }
+    } catch (e: any) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  const handleAdvanceQualifiers = async () => {
+    if (!heat || !confirm('Run World Athletics round progression? Top finishers and fastest times will be seeded into the Final.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:5000/api/track/qualify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          eventId: heat.events?.id,
+          currentStage: heat.stage,
+          nextStage: 'FINAL',
+          autoQPerHeat: 3,
+          timeQTotal: 2,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Failed to advance qualifiers');
+      } else {
+        alert(`Success! Generated Final heat with ${data.result?.total_qualified} qualified athletes (${data.result?.auto_qualified_count} 'Q' + ${data.result?.time_qualified_count} 'q').`);
+        loadEventHeats(heat.events?.id);
+      }
+    } catch (e: any) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  const handleRecordFieldAttempt = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeAthleteId) return;
 
@@ -208,8 +380,7 @@ export default function RefereeDeskPage() {
       } else {
         setMarkInput('');
         setWindInput('');
-        // advance round or next athlete
-        loadHeatScores(selectedHeatId);
+        loadFieldHeat(selectedHeatId);
       }
     } catch (e: any) {
       alert('Error: ' + e.message);
@@ -222,7 +393,6 @@ export default function RefereeDeskPage() {
     attemptNumber: number,
     currentResult?: string
   ) => {
-    // Cycle: '' -> 'O' -> 'X' -> '-' -> ''
     let nextResult = 'O';
     if (currentResult === 'O') nextResult = 'X';
     else if (currentResult === 'X') nextResult = '-';
@@ -244,7 +414,7 @@ export default function RefereeDeskPage() {
       });
 
       if (res.ok) {
-        loadHeatScores(selectedHeatId);
+        loadFieldHeat(selectedHeatId);
       }
     } catch (e) {}
   };
@@ -261,12 +431,12 @@ export default function RefereeDeskPage() {
     return (
       <div className="container" style={{ maxWidth: '440px', marginTop: '4rem' }}>
         <div className="glass-panel" style={{ padding: '2.5rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📐</div>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏱️</div>
           <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-            Field Events Judging Desk
+            Official Track &amp; Field Referee Desk
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            Field Referee / Official Passcode Login
+            Judge &amp; Referee Passcode Login
           </p>
 
           {errorMessage && (
@@ -290,13 +460,19 @@ export default function RefereeDeskPage() {
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-              Unlock Judging Desk →
+              Unlock Official Desk →
             </button>
           </form>
         </div>
       </div>
     );
   }
+
+  const filteredEvents = allEvents.filter((e) =>
+    disciplineMode === 'track'
+      ? (e.category.startsWith('track') || e.category === 'relay')
+      : e.category.startsWith('field')
+  );
 
   return (
     <div className="container" id="referee-desk-container">
@@ -315,17 +491,51 @@ export default function RefereeDeskPage() {
       >
         <div>
           <span style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', fontWeight: 700, textTransform: 'uppercase' }}>
-            World Athletics Rule TR 25 / TR 26 • Field Judging
+            World Athletics Official Judging &amp; Timing Desk
           </span>
           <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '0.2rem' }}>
-            Field Events &amp; Countback Scoring Station
+            Track Photo Finish &amp; Field Scoring Station
           </h1>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            Chief Judge: <strong style={{ color: '#fff' }}>{judgeName}</strong>
+            Chief Official: <strong style={{ color: '#fff' }}>{judgeName}</strong>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* Discipline Mode Tabs */}
+          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '3px', borderRadius: '8px' }}>
+            <button
+              onClick={() => setDisciplineMode('track')}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                background: disciplineMode === 'track' ? '#2563eb' : 'transparent',
+                color: '#fff',
+              }}
+            >
+              ⏱️ Track Events
+            </button>
+            <button
+              onClick={() => setDisciplineMode('field')}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                background: disciplineMode === 'field' ? '#059669' : 'transparent',
+                color: '#fff',
+              }}
+            >
+              📐 Field Events
+            </button>
+          </div>
+
           <button
             onClick={() => setIsLoggedIn(false)}
             className="btn btn-secondary"
@@ -344,21 +554,21 @@ export default function RefereeDeskPage() {
           marginBottom: '1.5rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem',
+          gap: '1.25rem',
           flexWrap: 'wrap',
         }}
       >
         <div>
           <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
-            Select Field Discipline:
+            Select {disciplineMode === 'track' ? 'Track Race' : 'Field Discipline'}:
           </label>
           <select
             className="input-field"
             value={selectedEventId}
             onChange={(e) => setSelectedEventId(e.target.value)}
-            style={{ minWidth: '220px' }}
+            style={{ minWidth: '240px' }}
           >
-            {events.map((ev) => (
+            {filteredEvents.map((ev) => (
               <option key={ev.id} value={ev.id}>
                 {ev.name} ({ev.gender.toUpperCase()})
               </option>
@@ -369,7 +579,7 @@ export default function RefereeDeskPage() {
         {heats.length > 0 && (
           <div>
             <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
-              Flight / Heat:
+              Heat / Round:
             </label>
             <select
               className="input-field"
@@ -378,21 +588,186 @@ export default function RefereeDeskPage() {
             >
               {heats.map((h) => (
                 <option key={h.id} value={h.id}>
-                  Flight {h.heat_number} ({h.stage})
+                  Heat {h.heat_number} ({h.stage})
                 </option>
               ))}
             </select>
           </div>
         )}
+
+        {heat && disciplineMode === 'track' && (
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.75rem' }}>
+            {heat.stage === 'HEATS' && (
+              <button
+                onClick={handleAdvanceQualifiers}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.85rem' }}
+              >
+                Advance Qualifiers (Q + q) →
+              </button>
+            )}
+            <button
+              onClick={handleFinalizeHeat}
+              className="btn btn-primary"
+              style={{ fontSize: '0.85rem', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' }}
+            >
+              ✓ Finalize &amp; Award Points
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Main Scoring Interface */}
+      {successMessage && (
+        <div style={{ background: '#064e3b', color: '#6ee7b7', padding: '0.75rem', borderRadius: '6px', marginBottom: '1.5rem', fontWeight: 600 }}>
+          {successMessage}
+        </div>
+      )}
+
+      {/* Main Mode Rendering */}
       {loading ? (
         <div className="glass-panel text-center" style={{ padding: '3rem' }}>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading flight attempts...</p>
+          <p style={{ color: 'var(--text-secondary)' }}>Loading participants and scores...</p>
+        </div>
+      ) : disciplineMode === 'track' ? (
+        /* TRACK EVENTS TIMING & PHOTO FINISH INTERFACE */
+        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff' }}>
+                Track Photo-Finish &amp; Electronic Timing Sheet ({heat?.events?.name} - Heat {heat?.heat_number})
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                Rule TR 16.8 False Start automatically flagged if reaction time &lt; 100ms.
+              </p>
+            </div>
+            <span
+              style={{
+                background: heat?.status === 'COMPLETED' ? '#065f46' : '#1e3a8a',
+                color: '#fff',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                padding: '4px 10px',
+                borderRadius: '6px',
+              }}
+            >
+              STATUS: {heat?.status}
+            </span>
+          </div>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', textAlign: 'left' }}>
+                  <th style={{ padding: '8px', width: '50px' }}>Lane</th>
+                  <th style={{ padding: '8px', width: '65px' }}>Bid #</th>
+                  <th style={{ padding: '8px' }}>Athlete / College</th>
+                  <th style={{ padding: '8px', width: '130px' }}>Reaction Time (ms)</th>
+                  <th style={{ padding: '8px', width: '150px' }}>Finish Time (sec)</th>
+                  <th style={{ padding: '8px', width: '140px' }}>Status</th>
+                  <th style={{ padding: '8px', textAlign: 'right', width: '90px' }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {athletes.map((ath) => {
+                  const input = trackInputs[ath.id] || { timeSeconds: '', reactionMs: '', status: 'FINISHED', dqRule: '' };
+                  const isFalseStart = input.reactionMs && parseInt(input.reactionMs, 10) < 100;
+
+                  return (
+                    <tr key={ath.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '8px', fontWeight: 900, color: '#38bdf8', fontSize: '1.1rem' }}>
+                        {ath.lane_number}
+                      </td>
+                      <td style={{ padding: '8px', fontWeight: 800, color: 'var(--accent-gold)' }}>
+                        #{ath.profiles?.bid_number || '---'}
+                      </td>
+                      <td style={{ padding: '8px' }}>
+                        <div style={{ fontWeight: 700, color: '#fff' }}>
+                          {ath.profiles?.sslc_name || ath.relay_teams?.squads?.colleges?.code}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {ath.profiles?.squads?.colleges?.name}
+                        </div>
+                      </td>
+
+                      <td style={{ padding: '8px' }}>
+                        <input
+                          type="number"
+                          className="input-field"
+                          placeholder="e.g. 145"
+                          value={input.reactionMs}
+                          onChange={(e) =>
+                            setTrackInputs({
+                              ...trackInputs,
+                              [ath.id]: { ...input, reactionMs: e.target.value },
+                            })
+                          }
+                          style={{
+                            width: '110px',
+                            borderColor: isFalseStart ? '#ef4444' : undefined,
+                            color: isFalseStart ? '#ef4444' : '#fff',
+                          }}
+                        />
+                        {isFalseStart && (
+                          <div style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700 }}>
+                            ⚠️ False Start (&lt;100ms)
+                          </div>
+                        )}
+                      </td>
+
+                      <td style={{ padding: '8px' }}>
+                        <input
+                          type="number"
+                          step="0.001"
+                          className="input-field"
+                          placeholder="e.g. 10.420"
+                          value={input.timeSeconds}
+                          onChange={(e) =>
+                            setTrackInputs({
+                              ...trackInputs,
+                              [ath.id]: { ...input, timeSeconds: e.target.value },
+                            })
+                          }
+                          style={{ width: '130px', fontWeight: 800 }}
+                        />
+                      </td>
+
+                      <td style={{ padding: '8px' }}>
+                        <select
+                          className="input-field"
+                          value={input.status}
+                          onChange={(e) =>
+                            setTrackInputs({
+                              ...trackInputs,
+                              [ath.id]: { ...input, status: e.target.value },
+                            })
+                          }
+                          style={{ width: '120px', fontSize: '0.8rem' }}
+                        >
+                          <option value="FINISHED">FINISHED</option>
+                          <option value="DNF">DNF (Did Not Finish)</option>
+                          <option value="DQ">DQ (Disqualified)</option>
+                          <option value="DNS">DNS (Did Not Start)</option>
+                        </select>
+                      </td>
+
+                      <td style={{ padding: '8px', textAlign: 'right' }}>
+                        <button
+                          onClick={() => handleSaveTrackResult(ath.id)}
+                          className="btn btn-secondary"
+                          style={{ fontSize: '0.8rem', padding: '4px 10px' }}
+                        >
+                          Save
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : isVertical ? (
-        /* Vertical Jumps: High Jump & Pole Vault Countback Matrix */
+        /* VERTICAL JUMPS: HIGH JUMP & POLE VAULT COUNTBACK MATRIX */
         <div>
           <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -405,7 +780,6 @@ export default function RefereeDeskPage() {
                 </p>
               </div>
 
-              {/* Add height button */}
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                 <input
                   type="number"
@@ -500,9 +874,8 @@ export default function RefereeDeskPage() {
           </div>
         </div>
       ) : (
-        /* Throws & Horizontal Jumps: 6 Rounds Entry */
+        /* THROWS & HORIZONTAL JUMPS: 6 ROUNDS ENTRY */
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem', marginBottom: '2rem' }}>
-          {/* Attempts Scorecard */}
           <div className="glass-panel" style={{ padding: '1.5rem' }}>
             <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '1rem', color: '#fff' }}>
               Horizontal Flight Scorecard ({heat?.events?.name})
@@ -585,7 +958,7 @@ export default function RefereeDeskPage() {
               Athlete: <strong style={{ color: '#fff' }}>{athletes.find((a) => a.id === activeAthleteId)?.profiles?.sslc_name || 'Select above'}</strong>
             </div>
 
-            <form onSubmit={handleRecordAttempt}>
+            <form onSubmit={handleRecordFieldAttempt}>
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '3px' }}>
                   Round:
@@ -681,8 +1054,8 @@ export default function RefereeDeskPage() {
         </div>
       )}
 
-      {/* Official Standings with Rule TR 26.8 Countback Table */}
-      {standings.length > 0 && (
+      {/* Standings Table for Field Events */}
+      {disciplineMode === 'field' && standings.length > 0 && (
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span>🏆</span> Official Standings &amp; Countback Tie-Breakers (Rule TR 26.8)
