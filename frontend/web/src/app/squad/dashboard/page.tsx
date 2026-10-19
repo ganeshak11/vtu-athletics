@@ -132,6 +132,24 @@ export default async function SquadDashboardPage() {
             Settle Entry Fees →
           </Link>
         </div>
+
+        <div className="glass-card" id="card-print-badges">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+            <div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 700, textTransform: 'uppercase' }}>
+                Stage 4 — Accreditation
+              </div>
+              <h2 style={{ fontSize: '1.3rem', marginTop: '0.25rem' }}>Passes &amp; QR Badges</h2>
+            </div>
+            <div style={{ fontSize: '1.8rem' }}>🪪</div>
+          </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+            Print official athlete ID cards with QR codes, chest bid numbers, and event lists for entry gate &amp; hostel check-in.
+          </p>
+          <Link href="/squad/cards" className="btn btn-primary" style={{ width: '100%', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' }} id="btn-print-cards">
+            Print Athlete Cards 🖨️ →
+          </Link>
+        </div>
       </div>
 
       {/* Roster Guidelines Alert */}

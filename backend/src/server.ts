@@ -6,6 +6,8 @@ import { squadRouter } from './routes/squad.routes';
 import { adminRouter } from './routes/admin.routes';
 import { financeRouter } from './routes/finance.routes';
 import { accreditationRouter } from './routes/accreditation.routes';
+import { accommodationRouter } from './routes/accommodation.routes';
+import { scheduleRouter } from './routes/schedule.routes';
 import { publicRouter } from './routes/public.routes';
 
 dotenv.config();
@@ -39,6 +41,8 @@ app.use('/api/squad', squadRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/finance', financeRouter);
 app.use('/api/accreditation', accreditationRouter);
+app.use('/api/accommodation', accommodationRouter);
+app.use('/api/schedule', scheduleRouter);
 app.use('/api', publicRouter);
 
 // Start Server
