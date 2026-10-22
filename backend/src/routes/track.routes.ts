@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { authenticate, requireRole, AuthenticatedRequest } from '../middleware/auth';
+import { invalidateCache } from '../middleware/cache';
 
 export const trackRouter = Router();
 
@@ -138,17 +139,33 @@ trackRouter.post('/finalize', async (req: AuthenticatedRequest, res: Response) =
     }
 
     // 1. Mark heat as completed
-    await supabase.from('heats').update({ status: 'COMPLETED' }).eq('id', heatId);
+    const { error: heatErr } = await supabase
+      .from('heats')
+      .update({ status: 'COMPLETED' })
+      .eq('id', heatId);
+
+    if (heatErr) {
+      return res.status(400).json({ error: `Failed to mark heat as completed: ${heatErr.message}` });
+    }
 
     // 2. If it is a final, automatically award team championship points (7-5-4-3-2-1)
     let pointsAwarded = null;
     if (stage === 'FINAL') {
-      const { data: ptsData } = await supabase.rpc('allocate_event_points', {
+      const { data: ptsData, error: ptsErr } = await supabase.rpc('allocate_event_points', {
         p_event_id: eventId,
         p_heat_id: heatId,
       });
+
+      if (ptsErr) {
+        return res.status(400).json({ error: `Heat marked completed, but points allocation failed: ${ptsErr.message}` });
+      }
       pointsAwarded = ptsData;
     }
+
+    // Invalidate live results and leaderboard caches
+    invalidateCache('live');
+    invalidateCache('leaderboard');
+    invalidateCache('schedule');
 
     return res.json({ success: true, heatId, status: 'COMPLETED', pointsAwarded });
   } catch (err: any) {

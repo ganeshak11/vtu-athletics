@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,687 +9,1041 @@ import {
   SafeAreaView,
   Alert,
   ActivityIndicator,
-  Modal,
+  Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import QRCode from 'react-native-qrcode-svg';
 
-// Change to your backend host LAN IP or domain when testing on physical phone
-const API_URL = 'http://10.0.2.2:5000'; // Standard Android emulator localhost alias, or http://localhost:5000
+const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5000' : 'http://localhost:5000';
 
-interface ScanRecord {
-  clientScanUuid: string;
-  athleteId: string;
-  mode: 'accreditation' | 'accommodation';
-  timestamp: string;
-  hostelId?: string;
-  roomAssigned?: string;
-  cautionDeposit?: string;
-}
+type StaffRole = 'accreditation_volunteer' | 'warden' | 'food_volunteer';
+type MealType = 'BREAKFAST' | 'LUNCH' | 'SNACKS' | 'DINNER';
 
 export default function App() {
+  const [appRole, setAppRole] = useState<'athlete' | 'staff'>('athlete');
+
+  // =========================================================================
+  // ATHLETE PORTAL STATE
+  // =========================================================================
+  const [athleteInput, setAthleteInput] = useState('');
+  const [athleteToken, setAthleteToken] = useState<string | null>(null);
+  const [athleteData, setAthleteData] = useState<any | null>(null);
+  const [athleteLoading, setAthleteLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'pass' | 'schedule' | 'results' | 'meals'>('pass');
+
+  // =========================================================================
+  // STAFF SCANNER STATE
+  // =========================================================================
   const [permission, requestPermission] = useCameraPermissions();
   const [isScanning, setIsScanning] = useState(true);
-  const [mode, setMode] = useState<'accreditation' | 'accommodation'>('accreditation');
-  
-  // Auth state
-  const [token, setToken] = useState<string | null>(null);
-  const [staffRole, setStaffRole] = useState<'accreditation_volunteer' | 'warden'>('accreditation_volunteer');
+  const [staffRole, setStaffRole] = useState<StaffRole>('food_volunteer');
+  const [activeMeal, setActiveMeal] = useState<MealType>('LUNCH');
+  const [staffToken, setStaffToken] = useState<string | null>(null);
   const [pin, setPin] = useState('1234');
-  const [staffName, setStaffName] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Scanner state
-  const [manualInput, setManualInput] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isStaffLoggedIn, setIsStaffLoggedIn] = useState(false);
+  const [scannerLoading, setScannerLoading] = useState(false);
   const [lastScanResult, setLastScanResult] = useState<any | null>(null);
-  const [offlineQueue, setOfflineQueue] = useState<ScanRecord[]>([]);
   const [torchOn, setTorchOn] = useState(false);
 
-  // Hostel specific state
-  const [hostels, setHostels] = useState<any[]>([]);
-  const [selectedHostelId, setSelectedHostelId] = useState<string>('');
-  const [roomAssigned, setRoomAssigned] = useState('Room 101');
-
   useEffect(() => {
-    loadOfflineQueue();
+    loadSavedAthleteSession();
   }, []);
 
-  useEffect(() => {
-    if (isLoggedIn && token) {
-      syncOfflineQueue();
-      if (mode === 'accommodation') {
-        fetchHostels();
+  const loadSavedAthleteSession = async () => {
+    try {
+      const savedToken = await AsyncStorage.getItem('@vtu_athlete_token');
+      if (savedToken) {
+        setAthleteToken(savedToken);
+        fetchAthleteDetails(savedToken);
       }
+    } catch (e) {
+      console.warn('Failed to load saved athlete session', e);
     }
-  }, [isLoggedIn, token, mode]);
-
-  const loadOfflineQueue = async () => {
-    try {
-      const saved = await AsyncStorage.getItem('@vtu_mobile_queue');
-      if (saved) setOfflineQueue(JSON.parse(saved));
-    } catch (e) {}
   };
 
-  const saveOfflineQueue = async (queue: ScanRecord[]) => {
-    setOfflineQueue(queue);
-    try {
-      await AsyncStorage.setItem('@vtu_mobile_queue', JSON.stringify(queue));
-    } catch (e) {}
-  };
-
-  const fetchHostels = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/accommodation/hostels`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setHostels(data.hostels || []);
-        if (data.hostels?.length > 0 && !selectedHostelId) {
-          setSelectedHostelId(data.hostels[0].id);
-        }
-      }
-    } catch (e) {}
-  };
-
-  const handlePinLogin = async () => {
-    if (!pin) {
-      Alert.alert('Error', 'Please enter your access PIN.');
+  // =========================================================================
+  // ATHLETE ACTIONS
+  // =========================================================================
+  const handleAthleteLogin = async () => {
+    if (!athleteInput.trim()) {
+      Alert.alert('Required', 'Please enter your USN (e.g. 1BM22IS073) or Chest/Bib Number (e.g. 101).');
       return;
     }
-    setLoading(true);
+
+    setAthleteLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/athlete/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: athleteInput.trim() }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        Alert.alert('Login Failed', data.error || 'Could not verify athlete.');
+        return;
+      }
+
+      setAthleteToken(data.token);
+      await AsyncStorage.setItem('@vtu_athlete_token', data.token);
+      await fetchAthleteDetails(data.token);
+    } catch (err: any) {
+      Alert.alert('Connection Error', `Could not reach server at ${API_URL}: ${err.message}`);
+    } finally {
+      setAthleteLoading(false);
+    }
+  };
+
+  const fetchAthleteDetails = async (token: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/athlete/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAthleteData(data);
+      }
+    } catch (err) {
+      console.warn('Error fetching athlete profile:', err);
+    }
+  };
+
+  const handleAthleteLogout = async () => {
+    setAthleteToken(null);
+    setAthleteData(null);
+    await AsyncStorage.removeItem('@vtu_athlete_token');
+  };
+
+  // =========================================================================
+  // STAFF ACTIONS
+  // =========================================================================
+  const handleStaffLogin = async () => {
     try {
       const res = await fetch(`${API_URL}/api/auth/staff/pin-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: staffRole, pin }),
+        body: JSON.stringify({ pin, role: staffRole }),
       });
       const data = await res.json();
-      if (res.ok && data.token) {
-        setToken(data.token);
-        setStaffName(data.staff?.displayName || 'Volunteer');
-        setIsLoggedIn(true);
-        if (staffRole === 'warden') setMode('accommodation');
-      } else {
+      if (!res.ok) {
         Alert.alert('Login Failed', data.error || 'Invalid PIN');
+        return;
       }
+      setStaffToken(data.token);
+      setIsStaffLoggedIn(true);
     } catch (err: any) {
-      Alert.alert('Network Error', 'Could not connect to VTU API server at ' + API_URL);
-    } finally {
-      setLoading(false);
+      Alert.alert('Network Error', err.message);
     }
   };
 
-  const generateUuid = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
-  };
-
-  const processBarcodeScan = async (rawString: string) => {
-    if (!isScanning || loading) return;
+  const handleProcessScan = async (rawCode: string) => {
     setIsScanning(false);
+    let athleteId = rawCode.trim();
+    if (athleteId.startsWith('vtu-athlete:')) {
+      athleteId = athleteId.replace('vtu-athlete:', '');
+    }
 
-    let athleteId = rawString.trim();
+    setScannerLoading(true);
     try {
-      if (rawString.includes('{')) {
-        const parsed = JSON.parse(rawString);
-        if (parsed.id) athleteId = parsed.id;
-      }
-    } catch (e) {}
+      let endpoint = '/api/accreditation/scan';
+      let body: any = { athleteId, clientScanUuid: Date.now().toString() };
 
-    await sendScanRecord(athleteId);
-
-    // Auto resume scanner after 2.5 seconds
-    setTimeout(() => {
-      setIsScanning(true);
-    }, 2500);
-  };
-
-  const sendScanRecord = async (athleteId: string) => {
-    const clientScanUuid = generateUuid();
-    setLoading(true);
-
-    const record: ScanRecord = {
-      clientScanUuid,
-      athleteId,
-      mode,
-      timestamp: new Date().toISOString(),
-      hostelId: selectedHostelId,
-      roomAssigned,
-      cautionDeposit: '500.00',
-    };
-
-    try {
-      let endpoint = `${API_URL}/api/accreditation/scan`;
-      let body: any = {
-        clientScanUuid,
-        athleteId,
-        deviceTimestamp: record.timestamp,
-      };
-
-      if (mode === 'accommodation') {
-        endpoint = `${API_URL}/api/accommodation/checkin`;
-        body = {
-          clientScanUuid,
-          athleteId,
-          hostelId: selectedHostelId,
-          roomAssigned,
-          cautionDeposit: 500,
-          cautionReceiptNo: `APP-${Date.now().toString().slice(-4)}`,
-          deviceTimestamp: record.timestamp,
-        };
+      if (staffRole === 'warden') {
+        endpoint = '/api/accommodation/checkin';
+        body = { athleteId, hostelId: 'default', roomAssigned: 'Room 101', cautionDepositCollected: 500 };
+      } else if (staffRole === 'food_volunteer') {
+        endpoint = '/api/catering/scan';
+        body = { athleteId, mealType: activeMeal, clientScanUuid: `scan-${Date.now()}` };
       }
 
-      const res = await fetch(endpoint, {
+      const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${staffToken}`,
         },
         body: JSON.stringify(body),
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        Alert.alert('Scan Alert', data.error || 'Verification rejected');
-        setLastScanResult({ error: data.error });
-      } else {
-        setLastScanResult(data.result);
-      }
-    } catch (e) {
-      // Offline fallback: save to local queue
-      const updated = [...offlineQueue, record];
-      await saveOfflineQueue(updated);
-      Alert.alert('Offline Mode', 'Network unavailable. Scan stored in offline queue and will sync automatically.');
-      setLastScanResult({
-        offline: true,
-        athlete_id: athleteId,
-        sslc_name: 'Queued Offline',
-      });
+      setLastScanResult({ success: res.ok && data.success !== false, data });
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
     } finally {
-      setLoading(false);
+      setScannerLoading(false);
     }
   };
 
-  const syncOfflineQueue = async () => {
-    if (offlineQueue.length === 0 || !token) return;
+  // =========================================================================
+  // RENDER: ATHLETE PORTAL VIEW
+  // =========================================================================
+  if (appRole === 'athlete') {
+    if (!athleteToken || !athleteData) {
+      return (
+        <SafeAreaView style={styles.container}>
+          <StatusBar style="light" />
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>VTU SportsOS</Text>
+            <TouchableOpacity onPress={() => setAppRole('staff')} style={styles.switchButton}>
+              <Text style={styles.switchButtonText}>Staff Scanner ➔</Text>
+            </TouchableOpacity>
+          </View>
 
-    const remaining = [...offlineQueue];
-    for (let i = 0; i < offlineQueue.length; i++) {
-      const item = offlineQueue[i];
-      try {
-        const endpoint =
-          item.mode === 'accommodation'
-            ? `${API_URL}/api/accommodation/checkin`
-            : `${API_URL}/api/accreditation/scan`;
+          <View style={styles.loginCard}>
+            <Text style={styles.badgeLabel}>ATHLETE PASS & MEAL CARD</Text>
+            <Text style={styles.welcomeText}>Welcome, Athlete!</Text>
+            <Text style={styles.helperText}>
+              Enter your USN or Chest/Bib number to access your Digital ID, gate accreditation QR, meal coupons, and live event alerts.
+            </Text>
 
-        const body =
-          item.mode === 'accommodation'
-            ? {
-                clientScanUuid: item.clientScanUuid,
-                athleteId: item.athleteId,
-                hostelId: item.hostelId,
-                roomAssigned: item.roomAssigned,
-                cautionDeposit: 500,
-                cautionReceiptNo: 'OFFLINE-SYNC',
-                deviceTimestamp: item.timestamp,
-              }
-            : {
-                clientScanUuid: item.clientScanUuid,
-                athleteId: item.athleteId,
-                deviceTimestamp: item.timestamp,
-              };
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. 1BM22IS073 or 101"
+              placeholderTextColor="#888"
+              value={athleteInput}
+              onChangeText={setAthleteInput}
+              autoCapitalize="characters"
+            />
 
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        });
-
-        if (res.ok) {
-          remaining.shift();
-        }
-      } catch (e) {
-        break;
-      }
-    }
-
-    await saveOfflineQueue(remaining);
-  };
-
-  // 1. PIN Login Screen
-  if (!isLoggedIn) {
-    return (
-      <SafeAreaView style={styles.darkContainer}>
-        <StatusBar style="light" />
-        <View style={styles.loginCard}>
-          <Text style={styles.loginIcon}>⚡</Text>
-          <Text style={styles.loginTitle}>VTU SportsOS Scanner</Text>
-          <Text style={styles.loginSubtitle}>Select scanner role and enter your staff PIN</Text>
-
-          <View style={styles.rolePickerRow}>
             <TouchableOpacity
-              style={[
-                styles.roleButton,
-                staffRole === 'accreditation_volunteer' && styles.roleButtonActive,
-              ]}
-              onPress={() => setStaffRole('accreditation_volunteer')}
+              style={[styles.primaryButton, athleteLoading && { opacity: 0.6 }]}
+              onPress={handleAthleteLogin}
+              disabled={athleteLoading}
             >
-              <Text style={styles.roleButtonText}>Gate Scanner</Text>
+              {athleteLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.primaryButtonText}>Access My Athlete Pass</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      );
+    }
+
+    const { athlete, events, heatAssignments, notifications, todayMeals } = athleteData;
+    const hasUrgentNotification = notifications?.some((n: any) => n.type === 'URGENT');
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" />
+
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.headerTitle}>{athlete.name}</Text>
+            <Text style={styles.headerSubtitle}>
+              {athlete.college?.code || 'VTU'} • Chest #{athlete.bidNumber || 'Pending'}
+            </Text>
+          </View>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={() => fetchAthleteDetails(athleteToken)} style={styles.iconButton}>
+              <Text style={styles.iconButtonText}>🔄</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleAthleteLogout} style={styles.logoutButton}>
+              <Text style={styles.logoutButtonText}>Exit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {hasUrgentNotification && (
+          <View style={styles.urgentBanner}>
+            <Text style={styles.urgentBannerTitle}>🚨 CALL ROOM ALERT</Text>
+            <Text style={styles.urgentBannerText}>
+              {notifications.find((n: any) => n.type === 'URGENT')?.message}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'pass' && styles.tabItemActive]}
+            onPress={() => setActiveTab('pass')}
+          >
+            <Text style={[styles.tabItemText, activeTab === 'pass' && styles.tabItemTextActive]}>🪪 ID Pass</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'meals' && styles.tabItemActive]}
+            onPress={() => setActiveTab('meals')}
+          >
+            <Text style={[styles.tabItemText, activeTab === 'meals' && styles.tabItemTextActive]}>🍽️ Meals</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'schedule' && styles.tabItemActive]}
+            onPress={() => setActiveTab('schedule')}
+          >
+            <Text style={[styles.tabItemText, activeTab === 'schedule' && styles.tabItemTextActive]}>
+              📅 Heats ({heatAssignments?.length || 0})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabItem, activeTab === 'results' && styles.tabItemActive]}
+            onPress={() => setActiveTab('results')}
+          >
+            <Text style={[styles.tabItemText, activeTab === 'results' && styles.tabItemTextActive]}>🏆 Results</Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {/* TAB 1: PASS */}
+          {activeTab === 'pass' && (
+            <View style={styles.card}>
+              <View style={styles.passHeader}>
+                <Text style={styles.passCollege}>{athlete.college?.name}</Text>
+                <View style={[
+                  styles.statusPill,
+                  athlete.accreditationStatus === 'ACCREDITED' ? styles.statusGreen : styles.statusYellow
+                ]}>
+                  <Text style={styles.statusPillText}>{athlete.accreditationStatus}</Text>
+                </View>
+              </View>
+
+              <View style={styles.qrContainer}>
+                <QRCode
+                  value={athlete.qrPayload || `vtu-athlete:${athlete.id}`}
+                  size={200}
+                  color="#000"
+                  backgroundColor="#fff"
+                />
+                <Text style={styles.qrInstruction}>
+                  Show this QR code at Stadium Gate, Hostel Desk & Mess Food Counters.
+                </Text>
+              </View>
+
+              <View style={styles.detailGrid}>
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>CHEST NUMBER</Text>
+                  <Text style={styles.detailValueLarge}>#{athlete.bidNumber || 'TBD'}</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>USN</Text>
+                  <Text style={styles.detailValue}>{athlete.usn}</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>BLOOD GROUP</Text>
+                  <Text style={styles.detailValue}>{athlete.bloodGroup || 'O+'}</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>EVENTS REGISTERED</Text>
+                  <Text style={styles.detailValue}>{events?.length || 0} Events</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* TAB 2: MEALS STATUS */}
+          {activeTab === 'meals' && (
+            <View>
+              <Text style={styles.sectionHeading}>Today's Meal Coupon Card</Text>
+              <Text style={styles.helperText}>
+                Present your QR code at the catering mess counter. Food volunteers will scan it to verify and dispense your plate.
+              </Text>
+
+              <View style={styles.mealCard}>
+                <View style={styles.mealRow}>
+                  <Text style={styles.mealTitle}>☕ Breakfast (7:00 AM - 9:30 AM)</Text>
+                  <View style={[styles.mealStatusPill, todayMeals?.breakfast ? styles.mealServed : styles.mealPending]}>
+                    <Text style={styles.mealStatusText}>{todayMeals?.breakfast ? '✓ CLAIMED' : 'PENDING'}</Text>
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.mealCard}>
+                <View style={styles.mealRow}>
+                  <Text style={styles.mealTitle}>🍛 Lunch (12:30 PM - 3:00 PM)</Text>
+                  <View style={[styles.mealStatusPill, todayMeals?.lunch ? styles.mealServed : styles.mealPending]}>
+                    <Text style={styles.mealStatusText}>{todayMeals?.lunch ? '✓ CLAIMED' : 'PENDING'}</Text>
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.mealCard}>
+                <View style={styles.mealRow}>
+                  <Text style={styles.mealTitle}>🍪 High Tea / Snacks (4:30 PM - 5:30 PM)</Text>
+                  <View style={[styles.mealStatusPill, todayMeals?.snacks ? styles.mealServed : styles.mealPending]}>
+                    <Text style={styles.mealStatusText}>{todayMeals?.snacks ? '✓ CLAIMED' : 'PENDING'}</Text>
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.mealCard}>
+                <View style={styles.mealRow}>
+                  <Text style={styles.mealTitle}>🍲 Dinner (7:30 PM - 10:00 PM)</Text>
+                  <View style={[styles.mealStatusPill, todayMeals?.dinner ? styles.mealServed : styles.mealPending]}>
+                    <Text style={styles.mealStatusText}>{todayMeals?.dinner ? '✓ CLAIMED' : 'PENDING'}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* TAB 3: SCHEDULE */}
+          {activeTab === 'schedule' && (
+            <View>
+              <Text style={styles.sectionHeading}>My Event Schedule & Lane Draw</Text>
+              {heatAssignments?.map((ha: any, idx: number) => {
+                const heat = ha.heats;
+                return (
+                  <View key={idx} style={styles.heatCard}>
+                    <View style={styles.heatHeaderRow}>
+                      <Text style={styles.heatEventTitle}>{heat?.events?.name}</Text>
+                      <View style={styles.heatStageBadge}>
+                        <Text style={styles.heatStageText}>{heat?.stage}</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.laneHighlight}>Heat #{heat?.heat_number} • Lane/Order #{ha.lane_number}</Text>
+                    <Text style={styles.heatStatusText}>Status: {heat?.status}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+
+          {/* TAB 4: RESULTS */}
+          {activeTab === 'results' && (
+            <View>
+              <Text style={styles.sectionHeading}>My Recorded Times & Marks</Text>
+              {heatAssignments?.map((ha: any, idx: number) => {
+                const tr = ha.track_results;
+                const vja = ha.vertical_jump_attempts;
+                return (
+                  <View key={idx} style={styles.heatCard}>
+                    <Text style={styles.heatEventTitle}>{ha.heats?.events?.name}</Text>
+                    {tr && (
+                      <View style={styles.resultBox}>
+                        <Text style={styles.resultLabel}>Track Official Time:</Text>
+                        <Text style={styles.resultValue}>{tr.time_seconds}s</Text>
+                      </View>
+                    )}
+                    {vja && vja.length > 0 && (
+                      <View style={styles.resultBox}>
+                        <Text style={styles.resultLabel}>High Jump Attempts:</Text>
+                        <Text style={styles.attemptsList}>
+                          {vja.map((a: any) => `${a.bar_height_meters}m: ${a.result}`).join(' | ')}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // =========================================================================
+  // RENDER: STAFF SCANNER VIEW (GATE, HOSTEL & MESS VOLUNTEERS)
+  // =========================================================================
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="light" />
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Staff Scanner Hub</Text>
+        <TouchableOpacity onPress={() => setAppRole('athlete')} style={styles.switchButton}>
+          <Text style={styles.switchButtonText}>Athlete Pass ➔</Text>
+        </TouchableOpacity>
+      </View>
+
+      {!isStaffLoggedIn ? (
+        <View style={styles.loginCard}>
+          <Text style={styles.badgeLabel}>OFFICIAL STAFF ACCESS</Text>
+          <Text style={styles.welcomeText}>Volunteer Scanner Desk</Text>
+
+          <View style={styles.roleToggleRow}>
+            <TouchableOpacity
+              style={[styles.roleTab, staffRole === 'food_volunteer' && styles.roleTabActive]}
+              onPress={() => setStaffRole('food_volunteer')}
+            >
+              <Text style={styles.roleTabText}>🍽️ Mess Counter</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[
-                styles.roleButton,
-                staffRole === 'warden' && styles.roleButtonActive,
-              ]}
+              style={[styles.roleTab, staffRole === 'accreditation_volunteer' && styles.roleTabActive]}
+              onPress={() => setStaffRole('accreditation_volunteer')}
+            >
+              <Text style={styles.roleTabText}>Gate Scanner</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.roleTab, staffRole === 'warden' && styles.roleTabActive]}
               onPress={() => setStaffRole('warden')}
             >
-              <Text style={styles.roleButtonText}>Hostel Warden</Text>
+              <Text style={styles.roleTabText}>Hostel Warden</Text>
             </TouchableOpacity>
           </View>
 
           <TextInput
-            style={styles.pinInput}
-            placeholder="PIN (Default: 1234)"
-            placeholderTextColor="#64748b"
-            keyboardType="numeric"
-            maxLength={6}
+            style={styles.input}
+            placeholder="Volunteer PIN (default: 1234)"
+            placeholderTextColor="#888"
             secureTextEntry
+            keyboardType="numeric"
             value={pin}
             onChangeText={setPin}
           />
 
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={handlePinLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.primaryButtonText}>Unlock Scanner Camera →</Text>
-            )}
+          <TouchableOpacity style={styles.primaryButton} onPress={handleStaffLogin}>
+            <Text style={styles.primaryButtonText}>Unlock Camera Scanner</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    );
-  }
-
-  // 2. Camera Permission Screen
-  if (!permission?.granted) {
-    return (
-      <SafeAreaView style={styles.darkContainer}>
-        <View style={styles.loginCard}>
-          <Text style={styles.loginIcon}>📷</Text>
-          <Text style={styles.loginTitle}>Camera Access Required</Text>
-          <Text style={styles.loginSubtitle}>
-            VTU SportsOS requires camera access to scan athlete QR code passes.
-          </Text>
-          <TouchableOpacity style={styles.primaryButton} onPress={requestPermission}>
-            <Text style={styles.primaryButtonText}>Grant Camera Permission</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // 3. Scanner Camera & Operational View
-  return (
-    <SafeAreaView style={styles.darkContainer}>
-      <StatusBar style="light" />
-
-      {/* Top Header */}
-      <View style={styles.headerRow}>
-        <View>
-          <Text style={styles.headerTag}>
-            {mode === 'accreditation' ? 'ENTRY GATE ACCREDITATION' : 'HOSTEL CHECK-IN'}
-          </Text>
-          <Text style={styles.headerStaff}>{staffName}</Text>
-        </View>
-
-        <View style={styles.headerActions}>
-          {offlineQueue.length > 0 && (
-            <TouchableOpacity style={styles.queueBadge} onPress={syncOfflineQueue}>
-              <Text style={styles.queueBadgeText}>Queue: {offlineQueue.length} 🔄</Text>
-            </TouchableOpacity>
+      ) : (
+        <View style={styles.cameraContainer}>
+          {/* Active Meal Switcher for Mess Volunteers */}
+          {staffRole === 'food_volunteer' && (
+            <View style={styles.mealSwitcherRow}>
+              {(['BREAKFAST', 'LUNCH', 'SNACKS', 'DINNER'] as MealType[]).map((m) => (
+                <TouchableOpacity
+                  key={m}
+                  style={[styles.mealSwitchBtn, activeMeal === m && styles.mealSwitchBtnActive]}
+                  onPress={() => setActiveMeal(m)}
+                >
+                  <Text style={[styles.mealSwitchText, activeMeal === m && styles.mealSwitchTextActive]}>
+                    {m}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           )}
 
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => setTorchOn(!torchOn)}
-          >
-            <Text style={styles.headerButtonText}>{torchOn ? '🔦 ON' : '🔦 OFF'}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+          {permission?.granted ? (
+            <CameraView
+              style={StyleSheet.absoluteFill}
+              facing="back"
+              enableTorch={torchOn}
+              onBarcodeScanned={isScanning ? ({ data }) => handleProcessScan(data) : undefined}
+            />
+          ) : (
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyText}>Camera permission required.</Text>
+              <TouchableOpacity style={styles.primaryButton} onPress={requestPermission}>
+                <Text style={styles.primaryButtonText}>Grant Permission</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-      {/* Camera Live View */}
-      <View style={styles.cameraContainer}>
-        <CameraView
-          style={StyleSheet.absoluteFill}
-          enableTorch={torchOn}
-          barcodeScannerSettings={{
-            barcodeTypes: ['qr', 'code128', 'ean13'],
-          }}
-          onBarcodeScanned={
-            isScanning
-              ? ({ data }) => processBarcodeScan(data)
-              : undefined
-          }
-        />
+          {/* Scan Result Overlay Modal/Banner */}
+          {lastScanResult && (
+            <View style={[styles.resultBanner, lastScanResult.success ? styles.bannerGreen : styles.bannerRed]}>
+              <Text style={styles.bannerTitle}>
+                {lastScanResult.success ? 'MEAL GRANTED ✓' : 'DUPLICATE BLOCKED ⚠️'}
+              </Text>
+              <Text style={styles.bannerMessage}>
+                {lastScanResult.data?.athlete_name || 'Athlete'} (#{lastScanResult.data?.bid_number || '---'})
+              </Text>
+              <Text style={styles.bannerSub}>
+                {lastScanResult.data?.college_name || ''}
+              </Text>
+              <Text style={styles.bannerDetail}>
+                {lastScanResult.data?.message}
+              </Text>
 
-        {/* Viewfinder Target Box */}
-        <View style={styles.viewfinderBox}>
-          <View style={[styles.corner, styles.cornerTL]} />
-          <View style={[styles.corner, styles.cornerTR]} />
-          <View style={[styles.corner, styles.cornerBL]} />
-          <View style={[styles.corner, styles.cornerBR]} />
-        </View>
+              <TouchableOpacity style={styles.nextAthleteBtn} onPress={() => { setLastScanResult(null); setIsScanning(true); }}>
+                <Text style={styles.nextAthleteBtnText}>Scan Next Plate ➔</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-        {!isScanning && (
-          <View style={styles.scanningOverlay}>
-            <ActivityIndicator size="large" color="#38bdf8" />
-            <Text style={styles.scanningText}>Verifying pass with server...</Text>
-          </View>
-        )}
-      </View>
-
-      {/* Feedback & Result Card */}
-      {lastScanResult && (
-        <View
-          style={[
-            styles.resultCard,
-            lastScanResult.error
-              ? styles.resultError
-              : lastScanResult.already_accredited || lastScanResult.already_checked_in
-              ? styles.resultWarn
-              : styles.resultSuccess,
-          ]}
-        >
-          <Text style={styles.resultBadge}>
-            {lastScanResult.error
-              ? '❌ REJECTED'
-              : lastScanResult.already_accredited
-              ? '⚠️ ALREADY ACCREDITED'
-              : lastScanResult.already_checked_in
-              ? '⚠️ ALREADY CHECKED-IN'
-              : '✅ VERIFIED ENTRY'}
-          </Text>
-          <Text style={styles.resultTitle}>
-            CHEST #{lastScanResult.bid_number || '---'} • {lastScanResult.sslc_name}
-          </Text>
-          <Text style={styles.resultCollege}>
-            {lastScanResult.college_name} ({lastScanResult.squad_code})
-          </Text>
-          {lastScanResult.room_assigned && (
-            <Text style={styles.resultRoom}>
-              Room: {lastScanResult.room_assigned} • Deposit: ₹{lastScanResult.caution_deposit}
+          <View style={styles.scannerOverlay}>
+            <Text style={styles.scannerHint}>
+              {staffRole === 'food_volunteer' ? `Scanning for: ${activeMeal}` : 'Point camera at Athlete QR Code'}
             </Text>
-          )}
+            <View style={styles.scannerActions}>
+              <TouchableOpacity style={styles.actionPill} onPress={() => setTorchOn(!torchOn)}>
+                <Text style={styles.actionPillText}>{torchOn ? 'Flash OFF' : 'Flash ON'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.actionPill} onPress={() => { setLastScanResult(null); setIsScanning(true); }}>
+                <Text style={styles.actionPillText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       )}
-
-      {/* Manual Input Fallback */}
-      <View style={styles.bottomBar}>
-        <TextInput
-          style={styles.manualInput}
-          placeholder="Manual Athlete ID or USN..."
-          placeholderTextColor="#94a3b8"
-          value={manualInput}
-          onChangeText={setManualInput}
-        />
-        <TouchableOpacity
-          style={styles.manualSubmitButton}
-          onPress={() => {
-            if (manualInput) {
-              sendScanRecord(manualInput.trim());
-              setManualInput('');
-            }
-          }}
-        >
-          <Text style={styles.manualSubmitText}>Verify</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  darkContainer: {
+  container: {
     flex: 1,
     backgroundColor: '#0a0f1d',
   },
-  loginCard: {
-    margin: 24,
-    marginTop: 80,
-    padding: 24,
-    backgroundColor: '#111827',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#1f2937',
-    alignItems: 'center',
-  },
-  loginIcon: {
-    fontSize: 40,
-    marginBottom: 12,
-  },
-  loginTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#f8fafc',
-    marginBottom: 6,
-  },
-  loginSubtitle: {
-    fontSize: 13,
-    color: '#94a3b8',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  rolePickerRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 20,
-    width: '100%',
-  },
-  roleButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#334155',
-    alignItems: 'center',
-    backgroundColor: '#1e293b',
-  },
-  roleButtonActive: {
-    borderColor: '#38bdf8',
-    backgroundColor: '#0369a1',
-  },
-  roleButtonText: {
-    color: '#f8fafc',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  pinInput: {
-    width: '100%',
-    backgroundColor: '#0f172a',
-    borderWidth: 1,
-    borderColor: '#334155',
-    borderRadius: 10,
-    color: '#fff',
-    fontSize: 20,
-    textAlign: 'center',
-    paddingVertical: 14,
-    letterSpacing: 4,
-    marginBottom: 20,
-  },
-  primaryButton: {
-    width: '100%',
-    backgroundColor: '#2563eb',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  primaryButtonText: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  headerRow: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: '#1a233a',
+    backgroundColor: '#0f172a',
   },
-  headerTag: {
-    fontSize: 11,
-    color: '#38bdf8',
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  headerStaff: {
-    fontSize: 15,
-    fontWeight: '700',
+  headerTitle: {
     color: '#ffffff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  headerSubtitle: {
+    color: '#94a3b8',
+    fontSize: 13,
+    marginTop: 2,
   },
   headerActions: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+  },
+  switchButton: {
+    backgroundColor: '#2563eb',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  switchButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  iconButton: {
+    backgroundColor: '#1e293b',
+    padding: 8,
+    borderRadius: 8,
+  },
+  iconButtonText: {
+    fontSize: 16,
+  },
+  logoutButton: {
+    backgroundColor: '#334155',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  logoutButtonText: {
+    color: '#cbd5e1',
+    fontSize: 12,
+  },
+  loginCard: {
+    margin: 20,
+    backgroundColor: '#0f172a',
+    padding: 24,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#1e293b',
+  },
+  badgeLabel: {
+    color: '#38bdf8',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  welcomeText: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  helperText: {
+    color: '#94a3b8',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: '#1e293b',
+    color: '#ffffff',
+    padding: 14,
+    borderRadius: 10,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginBottom: 16,
+  },
+  primaryButton: {
+    backgroundColor: '#2563eb',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  primaryButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  urgentBanner: {
+    backgroundColor: '#ef4444',
+    padding: 12,
+    marginHorizontal: 16,
+    marginTop: 10,
+    borderRadius: 10,
+  },
+  urgentBannerTitle: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  urgentBannerText: {
+    color: '#ffffff',
+    fontSize: 13,
+    marginTop: 2,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#0f172a',
+    borderBottomWidth: 1,
+    borderBottomColor: '#1e293b',
+    paddingHorizontal: 8,
+    marginTop: 10,
+  },
+  tabItem: {
+    flex: 1,
+    paddingVertical: 12,
     alignItems: 'center',
   },
-  queueBadge: {
-    backgroundColor: '#f59e0b',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+  tabItemActive: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#38bdf8',
   },
-  queueBadgeText: {
-    color: '#0f172a',
-    fontSize: 11,
-    fontWeight: '800',
+  tabItemText: {
+    color: '#64748b',
+    fontSize: 13,
+    fontWeight: '600',
   },
-  headerButton: {
-    backgroundColor: '#1e293b',
+  tabItemTextActive: {
+    color: '#38bdf8',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 40,
+  },
+  card: {
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#1e293b',
+  },
+  passHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  passCollege: {
+    color: '#94a3b8',
+    fontSize: 14,
+    fontWeight: '600',
+    flex: 1,
+  },
+  statusPill: {
     paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusGreen: {
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+  },
+  statusYellow: {
+    backgroundColor: 'rgba(234, 179, 8, 0.2)',
+  },
+  statusPillText: {
+    color: '#22c55e',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  qrContainer: {
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  qrInstruction: {
+    color: '#64748b',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  detailGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#1e293b',
+    paddingTop: 16,
+  },
+  detailItem: {
+    width: '50%',
+    marginBottom: 12,
+  },
+  detailLabel: {
+    color: '#64748b',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  detailValue: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  detailValueLarge: {
+    color: '#38bdf8',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 2,
+  },
+  sectionHeading: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    marginTop: 4,
+  },
+  mealCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    marginBottom: 12,
+  },
+  mealRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  mealTitle: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  mealStatusPill: {
+    paddingHorizontal: 12,
     paddingVertical: 6,
+    borderRadius: 8,
+  },
+  mealServed: {
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+  },
+  mealPending: {
+    backgroundColor: 'rgba(100, 116, 139, 0.2)',
+  },
+  mealStatusText: {
+    color: '#22c55e',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  heatCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    marginBottom: 12,
+  },
+  heatHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  heatEventTitle: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  heatStageBadge: {
+    backgroundColor: '#1e293b',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 6,
   },
-  headerButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
+  heatStageText: {
+    color: '#38bdf8',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  laneHighlight: {
+    color: '#facc15',
+    fontWeight: '600',
+    fontSize: 14,
+    marginTop: 6,
+  },
+  heatStatusText: {
+    color: '#94a3b8',
+    fontSize: 13,
+    marginTop: 2,
+  },
+  resultBox: {
+    backgroundColor: '#1e293b',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  resultLabel: {
+    color: '#94a3b8',
+    fontSize: 11,
+  },
+  resultValue: {
+    color: '#38bdf8',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 2,
+  },
+  attemptsList: {
+    color: '#ffffff',
+    fontSize: 13,
+    marginTop: 4,
   },
   cameraContainer: {
     flex: 1,
-    position: 'relative',
+  },
+  mealSwitcherRow: {
+    flexDirection: 'row',
+    backgroundColor: '#0f172a',
+    padding: 8,
+    gap: 6,
+    zIndex: 10,
+  },
+  mealSwitchBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    backgroundColor: '#1e293b',
+    borderRadius: 6,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  viewfinderBox: {
-    width: 250,
-    height: 250,
-    position: 'relative',
+  mealSwitchBtnActive: {
+    backgroundColor: '#2563eb',
   },
-  corner: {
-    position: 'absolute',
-    width: 24,
-    height: 24,
-    borderColor: '#38bdf8',
-  },
-  cornerTL: { top: 0, left: 0, borderTopWidth: 4, borderLeftWidth: 4 },
-  cornerTR: { top: 0, right: 0, borderTopWidth: 4, borderRightWidth: 4 },
-  cornerBL: { bottom: 0, left: 0, borderBottomWidth: 4, borderLeftWidth: 4 },
-  cornerBR: { bottom: 0, right: 0, borderBottomWidth: 4, borderRightWidth: 4 },
-  scanningOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scanningText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 10,
-  },
-  resultCard: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1.5,
-  },
-  resultSuccess: {
-    backgroundColor: '#064e3b',
-    borderColor: '#10b981',
-  },
-  resultWarn: {
-    backgroundColor: '#451a03',
-    borderColor: '#f59e0b',
-  },
-  resultError: {
-    backgroundColor: '#4c0519',
-    borderColor: '#f43f5e',
-  },
-  resultBadge: {
+  mealSwitchText: {
+    color: '#94a3b8',
     fontSize: 11,
-    fontWeight: '800',
-    color: '#fff',
-    marginBottom: 4,
+    fontWeight: 'bold',
   },
-  resultTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+  mealSwitchTextActive: {
     color: '#ffffff',
   },
-  resultCollege: {
-    fontSize: 13,
-    color: '#cbd5e1',
+  resultBanner: {
+    position: 'absolute',
+    top: 70,
+    left: 16,
+    right: 16,
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    zIndex: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+  },
+  bannerGreen: {
+    backgroundColor: '#15803d',
+  },
+  bannerRed: {
+    backgroundColor: '#b91c1c',
+  },
+  bannerTitle: {
+    color: '#ffffff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  bannerMessage: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  bannerSub: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 14,
     marginTop: 2,
   },
-  resultRoom: {
-    fontSize: 12,
-    color: '#38bdf8',
-    marginTop: 4,
-    fontWeight: '700',
+  bannerDetail: {
+    color: '#ffffff',
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: 'center',
   },
-  bottomBar: {
+  nextAthleteBtn: {
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 14,
+  },
+  nextAthleteBtnText: {
+    color: '#0f172a',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  scannerOverlay: {
+    position: 'absolute',
+    bottom: 30,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+  },
+  scannerHint: {
+    color: '#ffffff',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    fontSize: 13,
+    marginBottom: 16,
+  },
+  scannerActions: {
     flexDirection: 'row',
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#1e293b',
-    backgroundColor: '#0f172a',
+    gap: 12,
+  },
+  actionPill: {
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  actionPillText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  roleToggleRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
     gap: 8,
   },
-  manualInput: {
+  roleTab: {
     flex: 1,
+    paddingVertical: 10,
     backgroundColor: '#1e293b',
+    alignItems: 'center',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    color: '#ffffff',
-    fontSize: 13,
   },
-  manualSubmitButton: {
+  roleTabActive: {
     backgroundColor: '#2563eb',
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    justifyContent: 'center',
   },
-  manualSubmitText: {
+  roleTabText: {
     color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  emptyCard: {
+    backgroundColor: '#0f172a',
+    padding: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    margin: 20,
+  },
+  emptyText: {
+    color: '#94a3b8',
+    fontSize: 14,
+    marginBottom: 12,
   },
 });

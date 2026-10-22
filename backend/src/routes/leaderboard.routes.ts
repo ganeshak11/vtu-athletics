@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import { supabase } from '../config/supabase';
+import { cacheResponse } from '../middleware/cache';
 
 export const leaderboardRouter = Router();
 
@@ -7,7 +8,7 @@ export const leaderboardRouter = Router();
  * GET /api/leaderboard/standings
  * Public: Returns Men's, Women's, and Combined Overall championship standings with medal counts
  */
-leaderboardRouter.get('/standings', async (_req, res: Response) => {
+leaderboardRouter.get('/standings', cacheResponse(10), async (_req, res: Response) => {
   try {
     const { data, error } = await supabase.rpc('get_championship_standings');
     if (error) return res.status(400).json({ error: error.message });
@@ -21,7 +22,7 @@ leaderboardRouter.get('/standings', async (_req, res: Response) => {
  * GET /api/leaderboard/college/:collegeId
  * Public: Detailed points and medals breakdown for a college
  */
-leaderboardRouter.get('/college/:collegeId', async (req, res: Response) => {
+leaderboardRouter.get('/college/:collegeId', cacheResponse(15), async (req, res: Response) => {
   try {
     const { collegeId } = req.params;
 

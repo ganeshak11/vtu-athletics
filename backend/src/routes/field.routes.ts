@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { authenticate, requireRole, AuthenticatedRequest } from '../middleware/auth';
+import { invalidateCache } from '../middleware/cache';
 
 export const fieldRouter = Router();
 
@@ -133,6 +134,50 @@ fieldRouter.get('/standings/:heatId', async (req: AuthenticatedRequest, res: Res
 
     if (error) return res.status(400).json({ error: error.message });
     return res.json(data);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/field/finalize
+ * Finalize field flight, mark heat COMPLETED, and award points if FINAL stage
+ */
+fieldRouter.post('/finalize', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { heatId, eventId, stage } = req.body;
+
+    if (!heatId || !eventId) {
+      return res.status(400).json({ error: 'heatId and eventId are required.' });
+    }
+
+    const { error: heatErr } = await supabase
+      .from('heats')
+      .update({ status: 'COMPLETED' })
+      .eq('id', heatId);
+
+    if (heatErr) {
+      return res.status(400).json({ error: `Failed to mark flight as completed: ${heatErr.message}` });
+    }
+
+    let pointsAwarded = null;
+    if (stage === 'FINAL') {
+      const { data: ptsData, error: ptsErr } = await supabase.rpc('allocate_event_points', {
+        p_event_id: eventId,
+        p_heat_id: heatId,
+      });
+
+      if (ptsErr) {
+        return res.status(400).json({ error: `Flight marked completed, but points allocation failed: ${ptsErr.message}` });
+      }
+      pointsAwarded = ptsData;
+    }
+
+    invalidateCache('live');
+    invalidateCache('leaderboard');
+    invalidateCache('schedule');
+
+    return res.json({ success: true, heatId, status: 'COMPLETED', pointsAwarded });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }

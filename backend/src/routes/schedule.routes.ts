@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { authenticate, requireRole, AuthenticatedRequest } from '../middleware/auth';
+import { cacheResponse, invalidateCache } from '../middleware/cache';
 
 export const scheduleRouter = Router();
 
@@ -8,7 +9,7 @@ export const scheduleRouter = Router();
  * GET /api/schedule/sessions
  * Public / Authenticated: Returns full schedule with sessions and events
  */
-scheduleRouter.get('/sessions', async (_req, res: Response) => {
+scheduleRouter.get('/sessions', cacheResponse(15), async (_req, res: Response) => {
   try {
     const { data: sessions, error } = await supabase
       .from('schedule_sessions')
@@ -42,7 +43,7 @@ scheduleRouter.get('/sessions', async (_req, res: Response) => {
  * GET /api/schedule/heats/:eventId
  * Public / Authenticated: Get all heats and lane assignments for a specific event
  */
-scheduleRouter.get('/heats/:eventId', async (req, res: Response) => {
+scheduleRouter.get('/heats/:eventId', cacheResponse(10), async (req, res: Response) => {
   try {
     const { eventId } = req.params;
     const stage = (req.query.stage as string) || 'HEATS';

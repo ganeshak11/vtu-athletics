@@ -1,7 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'super-secure-vtu-athletics-jwt-secret-key-2026';
+const JWT_SECRET: string = process.env.JWT_SECRET || '';
+if (!JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('FATAL: JWT_SECRET environment variable is required. Set it in backend/.env');
+  } else {
+    console.warn('Warning: JWT_SECRET environment variable is not set. Using dev fallback.');
+  }
+}
+const EFFECTIVE_JWT_SECRET: string = JWT_SECRET || 'vtu-athletics-dev-secret-change-in-production';
 
 export type UserRole =
   | 'squad_manager'
@@ -11,7 +19,9 @@ export type UserRole =
   | 'warden'
   | 'call_room_official'
   | 'referee'
-  | 'spectator';
+  | 'spectator'
+  | 'athlete'
+  | 'food_volunteer';
 
 export interface TokenPayload {
   role: UserRole;
@@ -29,7 +39,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export function generateToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, EFFECTIVE_JWT_SECRET, { expiresIn: '7d' });
 }
 
 export function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction) {
@@ -40,7 +50,7 @@ export function authenticate(req: AuthenticatedRequest, res: Response, next: Nex
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    const decoded = jwt.verify(token, EFFECTIVE_JWT_SECRET) as unknown as TokenPayload;
     req.user = decoded;
     next();
   } catch {
