@@ -1,0 +1,73 @@
+.stat-box-content {
+  padding: 1.5rem !important;
+}
+
+.stat-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-box-title {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.stat-box-icon {
+  color: var(--accent-primary);
+  background: var(--bg-tertiary);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Accent Variants */
+.stat-accent-blue {
+  border-top: 4px solid var(--accent-blue);
+  background: var(--accent-blue-bg);
+}
+.stat-accent-emerald {
+  border-top: 4px solid var(--accent-emerald);
+  background: var(--accent-emerald-bg);
+}
+.stat-accent-amber {
+  border-top: 4px solid var(--accent-amber);
+  background: var(--accent-amber-bg);
+}
+.stat-accent-violet {
+  border-top: 4px solid var(--accent-violet);
+  background: var(--accent-violet-bg);
+}
+
+.stat-box-body {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.stat-box-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.stat-box-trend {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stat-box-trend.positive {
+  color: var(--success);
+}
+
+.stat-box-trend.negative {
+  color: var(--danger);
+}

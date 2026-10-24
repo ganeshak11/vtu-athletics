@@ -90,9 +90,10 @@ export async function getSquadFeeBreakdownAction(): Promise<{
  * Submits an offline UPI payment transaction for verification by the host college finance desk.
  */
 export async function submitPaymentAction(formData: FormData): Promise<{ success: boolean; error?: string }> {
-  const session = await requireSquad();
+  try {
+    const session = await requireSquad();
 
-  const utrNumber = (formData.get('utrNumber') as string || '').trim();
+    const utrNumber = (formData.get('utrNumber') as string || '').trim();
   const amountSubmitted = parseInt(formData.get('amountSubmitted') as string, 10);
   const screenshotData = formData.get('screenshotData') as string;
 
@@ -104,8 +105,61 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
     return { success: false, error: 'Amount submitted must be greater than zero.' };
   }
 
-  if (!screenshotData) {
+  if (!screenshotData && !formData.get('screenshot')) {
     return { success: false, error: 'Please upload the payment transaction screenshot.' };
+  }
+
+  // Upload screenshot to Supabase Storage Bucket ('payment-proofs')
+  let screenshotUrl = screenshotData || '';
+  const screenshotFile = formData.get('screenshot') as File | null;
+
+  try {
+    await supabaseAdmin.storage.createBucket('payment-proofs', { public: true }).catch(() => {});
+
+    if (screenshotFile && screenshotFile.size > 0 && typeof screenshotFile.arrayBuffer === 'function') {
+      const bytes = await screenshotFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const ext = screenshotFile.name.split('.').pop() || 'png';
+      const storagePath = `${session.squadId}/${Date.now()}_utr_${utrNumber}.${ext}`;
+
+      const { data: uploadResult, error: uploadErr } = await supabaseAdmin.storage
+        .from('payment-proofs')
+        .upload(storagePath, buffer, {
+          contentType: screenshotFile.type || 'image/png',
+          upsert: true,
+        });
+
+      if (!uploadErr && uploadResult) {
+        const { data: pubData } = supabaseAdmin.storage
+          .from('payment-proofs')
+          .getPublicUrl(uploadResult.path);
+        screenshotUrl = pubData.publicUrl;
+      }
+    } else if (screenshotData && screenshotData.startsWith('data:image')) {
+      const match = screenshotData.match(/^data:([^;]+);base64,(.+)$/);
+      if (match) {
+        const mime = match[1];
+        const buffer = Buffer.from(match[2], 'base64');
+        const ext = mime.split('/')[1] || 'png';
+        const storagePath = `${session.squadId}/${Date.now()}_utr_${utrNumber}.${ext}`;
+
+        const { data: uploadResult, error: uploadErr } = await supabaseAdmin.storage
+          .from('payment-proofs')
+          .upload(storagePath, buffer, {
+            contentType: mime,
+            upsert: true,
+          });
+
+        if (!uploadErr && uploadResult) {
+          const { data: pubData } = supabaseAdmin.storage
+            .from('payment-proofs')
+            .getPublicUrl(uploadResult.path);
+          screenshotUrl = pubData.publicUrl;
+        }
+      }
+    }
+  } catch (storageErr) {
+    console.error('Payment screenshot storage upload warning:', storageErr);
   }
 
   // Get expected fee
@@ -113,14 +167,20 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
     p_squad_id: session.squadId,
   });
 
-  const amountExpected = feeData.total_amount;
+  const amountExpected = feeData?.total_amount || 0;
+  if (amountExpected <= 0) {
+    return {
+      success: false,
+      error: 'Cannot submit payment for an empty squad roster. Please register athletes before settling fees.',
+    };
+  }
 
   const { error } = await supabaseAdmin.from('payments').insert({
     squad_id: session.squadId,
     amount_submitted: amountSubmitted,
     amount_expected: amountExpected,
     utr_number: utrNumber,
-    screenshot_url: screenshotData,
+    screenshot_url: screenshotUrl,
     status: 'SUBMITTED',
   });
 
@@ -131,11 +191,15 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
     return { success: false, error: error.message };
   }
 
-  revalidatePath('/squad/payment');
-  revalidatePath('/squad/dashboard');
-  revalidatePath('/finance');
+    revalidatePath('/squad/payment');
+    revalidatePath('/squad/dashboard');
+    revalidatePath('/finance');
 
-  return { success: true };
+    return { success: true };
+  } catch (err: any) {
+    console.error('submitPaymentAction error:', err);
+    return { success: false, error: err?.message || 'Failed to submit payment.' };
+  }
 }
 
 /**

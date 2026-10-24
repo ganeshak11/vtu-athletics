@@ -17,7 +17,7 @@ export async function requireAuth(allowedRoles?: UserRole[]): Promise<SessionDat
     if (session.role === 'squad_manager') {
       redirect('/squad/dashboard');
     } else if (session.role === 'meet_admin') {
-      redirect('/admin/dashboard');
+      redirect('/admin');
     } else {
       redirect('/');
     }

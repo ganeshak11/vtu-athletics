@@ -26,7 +26,7 @@ export default async function SquadRelayPage() {
   const relayTeams = await getSquadRelayTeamsAction();
 
   return (
-    <div className="container" id="squad-relay-page">
+    <div id="squad-relay-page" style={{ width: '100%', maxWidth: '100%' }}>
       <RelayManager
         relayTeams={relayTeams}
         athletes={athletes || []}

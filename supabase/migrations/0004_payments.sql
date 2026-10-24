@@ -112,9 +112,9 @@ DECLARE
 BEGIN
   -- Read current meet fee settings
   SELECT
-    fee_per_regular_event,
-    fee_per_relay_team,
-    fee_per_marathon
+    COALESCE(fee_per_regular_event, 100),
+    COALESCE(fee_per_relay_team, 100),
+    COALESCE(fee_per_marathon, 100)
   INTO
     v_regular_fee,
     v_relay_fee,
@@ -126,19 +126,16 @@ BEGIN
   SELECT
     COUNT(*) FILTER (WHERE r.kind = 'regular'),
     COUNT(*) FILTER (WHERE r.kind = 'reserve'),
-    COUNT(*) FILTER (WHERE r.kind = 'half_marathon')
+    COUNT(*) FILTER (WHERE r.kind = 'half_marathon'),
+    COUNT(*) FILTER (WHERE r.kind = 'relay')
   INTO
     v_regular_count,
     v_reserve_count,
-    v_hm_count
+    v_hm_count,
+    v_relay_count
   FROM registrations r
   JOIN profiles p ON r.profile_id = p.id
   WHERE p.squad_id = p_squad_id;
-
-  -- Count relay teams fielded by this squad
-  SELECT COUNT(*) INTO v_relay_count
-  FROM relay_teams
-  WHERE squad_id = p_squad_id;
 
   v_total_amount := (v_regular_count * v_regular_fee) +
                     (v_relay_count * v_relay_fee) +

@@ -1,6 +1,6 @@
 import { requireSquad } from '@/lib/auth-guard';
 import { supabaseAdmin } from '@/lib/supabase';
-import { listSquadAthletesAction, getAvailableEventsAction } from '@/app/actions/athletes';
+import { listSquadAthletesAction, getAvailableEventsAction, getSquadRelayCountAction } from '@/app/actions/athletes';
 import AthletesManager from './AthletesManager';
 
 export const metadata = {
@@ -19,6 +19,7 @@ export default async function SquadAthletesPage() {
 
   const athletes = await listSquadAthletesAction();
   const events = await getAvailableEventsAction();
+  const relayCount = await getSquadRelayCountAction();
 
   // Transform registrations to match interface
   const formattedAthletes = athletes.map((a: any) => ({
@@ -32,13 +33,14 @@ export default async function SquadAthletesPage() {
   }));
 
   return (
-    <div className="container" id="squad-athletes-page">
+    <div id="squad-athletes-page" style={{ width: '100%', maxWidth: '100%' }}>
       <AthletesManager
         initialAthletes={formattedAthletes}
         availableEvents={events}
         rosterLocked={squad?.roster_locked || false}
         squadCode={squad?.squad_code || session.squadCode || ''}
         gender={session.gender as 'men' | 'women'}
+        relayCount={relayCount}
       />
     </div>
   );

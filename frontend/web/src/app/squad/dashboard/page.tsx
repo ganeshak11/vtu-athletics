@@ -1,9 +1,13 @@
 import { requireSquad } from '@/lib/auth-guard';
 import { supabaseAdmin } from '@/lib/supabase';
+import { listSquadAthletesAction, getAvailableEventsAction, getSquadRelayCountAction } from '@/app/actions/athletes';
+import AthletesManager from '../athletes/AthletesManager';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Squad Roster Dashboard — VTU SportsOS',
+  title: 'Institution Contingent Portal — VTU SportsOS',
 };
 
 export default async function SquadDashboardPage() {
@@ -12,164 +16,182 @@ export default async function SquadDashboardPage() {
   // Fetch squad details from DB
   const { data: squad } = await supabaseAdmin
     .from('squads')
-    .select('id, gender, squad_code, ped_name, ped_phone, ped_email, roster_locked, payment_status, bid_block_start, bid_block_end, colleges(name, code, district)')
+    .select('id, gender, squad_code, ped_name, ped_phone, ped_email, roster_locked, payment_status, colleges(name, code, district)')
     .eq('id', session.squadId)
     .single();
 
   const college = Array.isArray(squad?.colleges) ? squad.colleges[0] : squad?.colleges;
   const isMen = squad?.gender === 'men';
 
+  // Fetch athletes, events catalogue, and relay quota
+  const athletes = await listSquadAthletesAction();
+  const events = await getAvailableEventsAction();
+  const relayCount = await getSquadRelayCountAction();
+
+  const formattedAthletes = athletes.map((a: any) => ({
+    ...a,
+    registrations: a.registrations.map((r: any) => ({
+      id: r.id,
+      kind: r.kind,
+      event_id: r.event_id,
+      events: Array.isArray(r.events) ? r.events[0] : r.events,
+    })),
+  }));
+
   return (
-    <div className="container" id="squad-dashboard-container">
-      {/* Top Banner */}
-      <div
-        className="glass-panel"
-        style={{
-          padding: '2rem',
-          marginBottom: '2rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1.5rem',
-        }}
-      >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-            <span style={{ fontSize: '1.8rem' }}>{isMen ? '🚹' : '🚺'}</span>
-            <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>
-              {college?.name || session.collegeName}
-            </h1>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            <span>
-              Squad Code: <strong style={{ color: '#fff' }}>{squad?.squad_code}</strong>
-            </span>
-            <span>•</span>
-            <span>
-              Division: <strong style={{ color: isMen ? 'var(--accent-cyan)' : 'var(--accent-rose)' }}>{squad?.gender?.toUpperCase()}</strong>
-            </span>
-            <span>•</span>
-            <span>
-              District: <strong>{college?.district || 'Karnataka'}</strong>
-            </span>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span className={`badge badge-${squad?.payment_status?.toLowerCase() || 'draft'}`}>
-            Payment: {squad?.payment_status}
-          </span>
-          <span
-            style={{
-              padding: '0.35rem 0.8rem',
-              borderRadius: '9999px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              background: squad?.roster_locked ? 'rgba(244, 63, 94, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-              color: squad?.roster_locked ? '#f43f5e' : '#34d399',
-              border: `1px solid ${squad?.roster_locked ? 'rgba(244, 63, 94, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-              textTransform: 'uppercase',
-            }}
-          >
-            {squad?.roster_locked ? '🔒 Roster Locked' : '🔓 Roster Open'}
-          </span>
-        </div>
-      </div>
-
-      {/* Roster & Registration Action Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
-        <div className="glass-card" id="card-athletes-roster">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', fontWeight: 700, textTransform: 'uppercase' }}>
-                Stage 1 — Athlete Roster
+    <div id="squad-dashboard-container" style={{ width: '100%', maxWidth: '100%' }}>
+      {/* Top Banner: Institution Info */}
+      <Card style={{ marginBottom: '2rem' }}>
+        <CardContent style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '2.25rem' }}>{isMen ? '🚹' : '🚺'}</span>
+              <div>
+                <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  {college?.name || session.collegeName}
+                </h1>
+                <div style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  VTU Affiliated Institution &bull; {isMen ? "Men's Division" : "Women's Division"}
+                </div>
               </div>
-              <h2 style={{ fontSize: '1.3rem', marginTop: '0.25rem' }}>Individual Athletes</h2>
             </div>
-            <div style={{ fontSize: '1.8rem' }}>👟</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+              <span>
+                College Code: <strong style={{ color: 'var(--text-primary)' }}>{college?.code || session.collegeCode || squad?.squad_code}</strong>
+              </span>
+              <span>&bull;</span>
+              <span>
+                Squad Code: <strong style={{ color: 'var(--accent-primary)' }}>{squad?.squad_code}</strong>
+              </span>
+              <span>&bull;</span>
+              <span>
+                Host Campus: <strong>Dr. ACS College of Engineering, Bengaluru</strong>
+              </span>
+            </div>
           </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-            Register student athletes with USN, SSLC name, blood group, and select up to 2 regular events + 1 reserve event.
-          </p>
-          <Link href="/squad/athletes" className="btn btn-primary" style={{ width: '100%' }} id="btn-manage-athletes">
-            Manage Athletes & Events →
-          </Link>
-        </div>
 
-        <div className="glass-card" id="card-relay-team">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <Badge variant={squad?.payment_status === 'VERIFIED' ? 'success' : 'warning'}>
+              Payment: {squad?.payment_status || 'DRAFT'}
+            </Badge>
+            <Badge variant={squad?.roster_locked ? 'danger' : 'success'}>
+              {squad?.roster_locked ? '🔒 Roster Locked' : '🔓 Roster Open'}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ATHLETE ROSTER & REGISTRATION MANAGER */}
+      <section style={{ marginBottom: '3rem' }}>
+        <AthletesManager
+          initialAthletes={formattedAthletes}
+          availableEvents={events}
+          rosterLocked={squad?.roster_locked || false}
+          squadCode={squad?.squad_code || session.squadCode || ''}
+          gender={session.gender as 'men' | 'women'}
+          relayCount={relayCount}
+          collegeName={college?.name || session.collegeName}
+          paymentStatus={squad?.payment_status}
+        />
+      </section>
+
+      {/* QUICK PORTAL OPERATIONS CARDS */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        <Card className="hover-lift">
+          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', fontWeight: 700, textTransform: 'uppercase' }}>
-                Stage 2 — Team Relay
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>💳 Entry Fee Settlement</h3>
+                <span style={{ fontSize: '1.4rem' }}>UPI</span>
               </div>
-              <h2 style={{ fontSize: '1.3rem', marginTop: '0.25rem' }}>4x100m &amp; 4x400m Teams</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem', lineHeight: '1.5' }}>
+                Scan the college host UPI QR code, settle participation fees (₹100/event, reserve free), and submit transaction UTR proof.
+              </p>
             </div>
-            <div style={{ fontSize: '1.8rem' }}>🤝</div>
-          </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-            Assign 4 running members and up to 2 reserve runners for your squad&apos;s relay entries.
-          </p>
-          <Link href="/squad/relay" className="btn btn-secondary" style={{ width: '100%' }} id="btn-manage-relay">
-            Compose Relay Squads →
-          </Link>
-        </div>
+            <Link href="/squad/payment">
+              <button
+                type="button"
+                style={{
+                  width: '100%',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--accent-primary)',
+                  padding: '0.65rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.875rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                View Payment &amp; QR Code &rarr;
+              </button>
+            </Link>
+          </CardContent>
+        </Card>
 
-        <div className="glass-card" id="card-payment-fee">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <Card className="hover-lift">
+          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', fontWeight: 700, textTransform: 'uppercase' }}>
-                Stage 3 — Settlement
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>🤝 4x100m Relay Board</h3>
+                <span style={{ fontSize: '1.4rem' }}>🏃</span>
               </div>
-              <h2 style={{ fontSize: '1.3rem', marginTop: '0.25rem' }}>Entry Fee Payment</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem', lineHeight: '1.5' }}>
+                Review assigned 4 running baton members and reserve runners for your squad&apos;s relay team.
+              </p>
             </div>
-            <div style={{ fontSize: '1.8rem' }}>💳</div>
-          </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-            View computed fee breakdown (₹100/event), scan host UPI QR code, and submit UTR with transaction receipt.
-          </p>
-          <Link href="/squad/payment" className="btn btn-secondary" style={{ width: '100%' }} id="btn-view-payment">
-            Settle Entry Fees →
-          </Link>
-        </div>
+            <Link href="/squad/relay">
+              <button
+                type="button"
+                style={{
+                  width: '100%',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--accent-primary)',
+                  padding: '0.65rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.875rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                Review Relay Team &rarr;
+              </button>
+            </Link>
+          </CardContent>
+        </Card>
 
-        <div className="glass-card" id="card-print-badges">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+        <Card className="hover-lift">
+          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 700, textTransform: 'uppercase' }}>
-                Stage 4 — Accreditation
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>🪪 Athlete Badges</h3>
+                <span style={{ fontSize: '1.4rem' }}>🖨️</span>
               </div>
-              <h2 style={{ fontSize: '1.3rem', marginTop: '0.25rem' }}>Passes &amp; QR Badges</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem', lineHeight: '1.5' }}>
+                Generate and print official printable athlete ID cards with QR codes and bib numbers for stadium gate &amp; call room.
+              </p>
             </div>
-            <div style={{ fontSize: '1.8rem' }}>🪪</div>
-          </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-            Print official athlete ID cards with QR codes, chest bid numbers, and event lists for entry gate &amp; hostel check-in.
-          </p>
-          <Link href="/squad/cards" className="btn btn-primary" style={{ width: '100%', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' }} id="btn-print-cards">
-            Print Athlete Cards 🖨️ →
-          </Link>
-        </div>
-      </div>
-
-      {/* Roster Guidelines Alert */}
-      <div
-        className="glass-panel"
-        style={{
-          padding: '1.5rem 2rem',
-          borderLeft: '4px solid var(--accent-gold)',
-        }}
-      >
-        <h3 style={{ fontSize: '1.05rem', color: '#fff', marginBottom: '0.5rem' }}>
-          📋 VTU Athletics Rules & Quotas for this Squad:
-        </h3>
-        <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', paddingLeft: '1.25rem', lineHeight: '1.7' }}>
-          <li>Maximum <strong>2 regular individual events</strong> per athlete.</li>
-          <li>Maximum <strong>1 reserve event</strong> per athlete (free of charge).</li>
-          <li>Relay runners and Half Marathon entries do not consume individual event quotas.</li>
-          <li>Once fee payment is submitted, roster is automatically locked. Any changes require Meet Director approval.</li>
-          <li>Bib/Chest numbers will be generated automatically after the registration deadline closes.</li>
-        </ul>
+            <Link href="/squad/cards">
+              <button
+                type="button"
+                style={{
+                  width: '100%',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--accent-primary)',
+                  padding: '0.65rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.875rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                Print Athlete Cards &rarr;
+              </button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

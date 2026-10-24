@@ -41,7 +41,7 @@ export default async function SquadCardsPage() {
     .order('bid_number', { ascending: true, nullsFirst: false });
 
   return (
-    <div className="container" id="cards-page-container">
+    <div id="cards-page-container" style={{ width: '100%', maxWidth: '100%' }}>
       {/* Navigation breadcrumb */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }} className="no-print">
         <div>

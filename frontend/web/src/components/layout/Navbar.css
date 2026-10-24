@@ -1,0 +1,344 @@
+/* ==============================================================================
+   AUTHENTIC INDIAN UNIVERSITY & GOVERNMENT DIRECTORATE PORTAL STYLES
+   ============================================================================== */
+
+.univ-portal-header-wrapper {
+  width: 100%;
+  background: #ffffff;
+  position: relative;
+  z-index: 500;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* 1. Top Govt / Accessibility Strip */
+.univ-utility-bar {
+  background: #061a33;
+  color: #cbd5e1;
+  font-size: 0.725rem;
+  padding: 0.35rem 3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.univ-utility-inner {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.univ-utility-left,
+.univ-utility-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.univ-utility-sep {
+  color: #475569;
+}
+
+.gov-emblem-tag {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+/* 2. Official University & College Identity Banner */
+.univ-main-banner {
+  background: #ffffff;
+  padding: 1rem 3rem;
+  border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+}
+
+.univ-banner-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.univ-left-emblem,
+.univ-right-emblem {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+}
+
+.univ-logo-img {
+  height: 86px;
+  max-width: 160px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.univ-logo-img:hover {
+  transform: scale(1.02);
+}
+
+/* Center Titles Hierarchy */
+.univ-center-titles {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.univ-kannada-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #b45309;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.1rem;
+}
+
+.univ-english-name {
+  font-size: clamp(1.2rem, 2.2vw, 1.85rem);
+  font-weight: 900;
+  color: #0b2545;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.univ-sub-state {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  margin-top: 0.15rem;
+}
+
+.univ-host-clg {
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-top: 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.univ-accreditation-pill {
+  font-size: 0.725rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+.univ-meet-badge {
+  display: inline-block;
+  margin-top: 0.4rem;
+  background: #0b2545;
+  color: #ffffff;
+  padding: 0.25rem 1rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 3. Solid Institutional Navigation Bar */
+.univ-main-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: #0b2545;
+  border-bottom: 3px solid #b45309;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.univ-nav-inner {
+  width: 100%;
+  padding: 0 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+}
+
+.univ-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+}
+
+.univ-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.85rem 1rem;
+  color: #f1f5f9;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -3px;
+  transition: all 0.15s ease;
+}
+
+.univ-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-bottom-color: #f59e0b;
+}
+
+.univ-nav-link.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-bottom-color: #f59e0b;
+  font-weight: 700;
+}
+
+.univ-nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.univ-btn-portal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: all 0.15s ease;
+}
+
+.univ-btn-squad {
+  background: #1e3a8a;
+  color: #ffffff;
+  border: 1px solid #3b82f6;
+}
+.univ-btn-squad:hover {
+  background: #2563eb;
+}
+
+.univ-btn-admin {
+  background: #ffffff;
+  color: #0b2545;
+  border: 1px solid #ffffff;
+}
+.univ-btn-admin:hover {
+  background: #f1f5f9;
+}
+
+.univ-mobile-hamburger {
+  display: none;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #ffffff;
+  font-size: 1.25rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 4. Scrolling Directorate Circulars Ticker */
+.univ-ticker-strip {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  overflow: hidden;
+}
+
+.univ-ticker-badge {
+  background: #b45309;
+  color: #ffffff;
+  padding: 0 1.25rem;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.univ-ticker-content {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-left: 1.5rem;
+}
+
+.univ-ticker-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker-slide 32s linear infinite;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.univ-ticker-track span {
+  margin-right: 2.5rem;
+}
+
+@keyframes ticker-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Mobile Drawer */
+.univ-mobile-dropdown {
+  display: flex;
+  flex-direction: column;
+  background: #0b2545;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #1e3a8a;
+}
+
+.univ-mobile-link {
+  padding: 0.65rem 0.5rem;
+  color: #ffffff;
+  font-size: 0.9rem;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 992px) {
+  .univ-utility-bar,
+  .univ-main-banner,
+  .univ-nav-inner {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .univ-logo-img {
+    height: 60px;
+    max-width: 100px;
+  }
+  .univ-english-name {
+    font-size: 1.1rem;
+  }
+  .univ-host-clg {
+    font-size: 0.95rem;
+  }
+  .univ-meet-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+  }
+  .univ-nav-menu {
+    display: none;
+  }
+  .univ-mobile-hamburger {
+    display: block;
+  }
+}

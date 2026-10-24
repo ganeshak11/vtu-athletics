@@ -12,36 +12,89 @@ export interface AuthResponse {
 }
 
 /**
- * Squad Manager Login: Authenticates a squad via Squad Code + Passphrase.
- * Squad codes are formatted as COLLEGE-M or COLLEGE-G (e.g. MITM-M).
+ * Institution / Squad Manager Login:
+ * Authenticates with 3 prompts:
+ * 1. College Code (e.g. BMSCE, RVCE, MITM)
+ * 2. Division / Gender (Male or Female)
+ * 3. Secret Passphrase
  */
 export async function loginSquad(formData: FormData): Promise<AuthResponse> {
-  const squadCode = (formData.get('squadCode') as string || '').trim().toUpperCase();
+  let collegeCode = (formData.get('collegeCode') as string || formData.get('squadCode') as string || '').trim().toUpperCase();
+  let rawGender = (formData.get('gender') as string || '').trim().toLowerCase();
   const passphrase = (formData.get('passphrase') as string || '').trim();
 
-  if (!squadCode || !passphrase) {
-    return { success: false, error: 'Please enter both squad code and passphrase.' };
+  let gender = rawGender === 'male' || rawGender === 'men' ? 'men' : (rawGender === 'female' || rawGender === 'women' ? 'women' : '');
+
+  // If gender wasn't passed directly, check if squadCode has -M or -G/-W suffix
+  if (!gender) {
+    if (collegeCode.endsWith('-M')) {
+      gender = 'men';
+      collegeCode = collegeCode.slice(0, -2);
+    } else if (collegeCode.endsWith('-W') || collegeCode.endsWith('-G')) {
+      gender = 'women';
+      collegeCode = collegeCode.slice(0, -2);
+    }
   }
 
-  // Fetch squad and associated college
-  const { data: squad, error: squadErr } = await supabaseAdmin
-    .from('squads')
-    .select('id, college_id, gender, squad_code, passphrase_hash, colleges(id, name, code, district)')
-    .eq('squad_code', squadCode)
-    .single();
+  if (!collegeCode || !passphrase) {
+    return { success: false, error: 'Please enter College Code and Passphrase.' };
+  }
 
-  if (squadErr || !squad) {
-    return { success: false, error: 'Invalid squad code or passphrase.' };
+  if (!gender) {
+    gender = 'men';
+  }
+
+  // 1. Try finding college first by code
+  const { data: college } = await supabaseAdmin
+    .from('colleges')
+    .select('id, name, code, district')
+    .ilike('code', collegeCode)
+    .maybeSingle();
+
+  let squad = null;
+  if (college) {
+    const { data: matchedSquad } = await supabaseAdmin
+      .from('squads')
+      .select('id, college_id, gender, squad_code, passphrase_hash')
+      .eq('college_id', college.id)
+      .eq('gender', gender)
+      .maybeSingle();
+    squad = matchedSquad;
+  }
+
+  // 2. Fallback: match by direct squad_code (e.g. BMSCE-M or BMSCE-G)
+  if (!squad) {
+    const codeVariant = `${collegeCode}-${gender === 'men' ? 'M' : 'G'}`;
+    const codeVariantW = `${collegeCode}-W`;
+    const { data: matchedSquad } = await supabaseAdmin
+      .from('squads')
+      .select('id, college_id, gender, squad_code, passphrase_hash, colleges(id, name, code, district)')
+      .or(`squad_code.eq.${collegeCode},squad_code.eq.${codeVariant},squad_code.eq.${codeVariantW}`)
+      .maybeSingle();
+    squad = matchedSquad;
+  }
+
+  if (!squad) {
+    return { success: false, error: 'Invalid college code, division, or passphrase.' };
   }
 
   const isValid = await verifyPassphrase(passphrase, squad.passphrase_hash);
   if (!isValid) {
-    return { success: false, error: 'Invalid squad code or passphrase.' };
+    return { success: false, error: 'Invalid college code, division, or passphrase.' };
   }
 
-  const college = Array.isArray(squad.colleges) ? squad.colleges[0] : squad.colleges;
-  const collegeName = college?.name || squad.squad_code;
-  const collegeCode = college?.code || '';
+  let fullCollege = college;
+  if (!fullCollege && squad.college_id) {
+    const { data: col } = await supabaseAdmin
+      .from('colleges')
+      .select('id, name, code, district')
+      .eq('id', squad.college_id)
+      .maybeSingle();
+    fullCollege = col;
+  }
+
+  const collegeName = fullCollege?.name || squad.squad_code;
+  const colCode = fullCollege?.code || collegeCode;
 
   // Establish session
   const session = await getSession();
@@ -51,10 +104,10 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
   session.squadId = squad.id;
   session.collegeId = squad.college_id;
   session.collegeName = collegeName;
-  session.collegeCode = collegeCode;
+  session.collegeCode = colCode;
   session.gender = squad.gender as 'men' | 'women';
   session.squadCode = squad.squad_code;
-  session.displayName = `${collegeName} (${squad.gender.toUpperCase()})`;
+  session.displayName = `${collegeName} (${squad.gender === 'men' ? 'Men' : 'Women'})`;
 
   await session.save();
 
@@ -104,10 +157,10 @@ export async function loginAdmin(formData: FormData): Promise<AuthResponse> {
   await session.save();
 
   if (staffMember.role === 'finance_desk') {
-    return { success: true, redirectTo: '/finance' };
+    return { success: true, redirectTo: '/admin/payments' };
   }
 
-  return { success: true, redirectTo: '/admin/colleges' };
+  return { success: true, redirectTo: '/admin' };
 }
 
 /**

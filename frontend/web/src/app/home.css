@@ -1,0 +1,486 @@
+/* ==============================================================================
+   AUTHENTIC INDIAN UNIVERSITY & GOVERNMENT PORTAL STYLES (PURE VANILLA CSS)
+   ============================================================================== */
+
+.landing-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* 1. Main Portal Command Grid (65% Official Notices / 35% Login Desks) */
+.gov-main-grid-section {
+  width: 100%;
+  padding: 2.25rem 3rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.gov-main-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+/* Left Column: Official Notification & Meet Communique */
+.gov-notice-panel {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.gov-panel-header {
+  background: #0b2545;
+  color: #ffffff;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid #b45309;
+}
+
+.gov-panel-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.gov-panel-tag {
+  font-size: 0.725rem;
+  background: #b45309;
+  color: #ffffff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.gov-panel-body {
+  padding: 1.5rem;
+}
+
+.gov-communique-head {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.gov-dept-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #1e3a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gov-meet-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.2;
+  margin: 0.35rem 0;
+  letter-spacing: -0.01em;
+}
+
+.gov-venue-sub {
+  font-size: 0.875rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.gov-communique-text {
+  font-size: 0.925rem;
+  color: #334155;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+/* Key Parameters Matrix Table */
+.gov-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #cbd5e1;
+}
+
+.gov-matrix-table th {
+  background: #f1f5f9;
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  font-weight: 700;
+  color: #1e293b;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #cbd5e1;
+}
+
+.gov-matrix-table td {
+  padding: 0.65rem 0.85rem;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #cbd5e1;
+}
+
+.gov-matrix-table tr:last-child td {
+  border-bottom: none;
+}
+
+.gov-matrix-table td:last-child,
+.gov-matrix-table th:last-child {
+  border-right: none;
+}
+
+/* Circulars & Downloads Box */
+.gov-downloads-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.gov-downloads-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0b2545;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gov-download-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gov-download-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  transition: all 0.15s ease;
+}
+
+.gov-download-link:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+/* Right Column: Portal Access Desks */
+.gov-desks-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.gov-desk-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.gov-desk-header {
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+.gov-desk-header.navy {
+  background: #1e3a8a;
+  border-bottom: 2px solid #3b82f6;
+}
+
+.gov-desk-header.dark {
+  background: #0f172a;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.gov-desk-header.gold {
+  background: #b45309;
+  border-bottom: 2px solid #f59e0b;
+}
+
+.gov-desk-body {
+  padding: 1.25rem 1rem;
+}
+
+.gov-desk-desc {
+  font-size: 0.825rem;
+  color: #475569;
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+.gov-desk-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  font-size: 0.775rem;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.gov-desk-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.gov-desk-btn {
+  display: block;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: all 0.15s ease;
+}
+
+.gov-desk-btn.btn-navy {
+  background: #1e3a8a;
+  color: #ffffff;
+}
+.gov-desk-btn.btn-navy:hover {
+  background: #0f2744;
+}
+
+.gov-desk-btn.btn-dark {
+  background: #0f172a;
+  color: #ffffff;
+}
+.gov-desk-btn.btn-dark:hover {
+  background: #1e293b;
+}
+
+/* 2. Structured Information Section (Rules, Schedule, Stadium, Host) */
+.gov-tabs-section {
+  width: 100%;
+  padding: 2.5rem 3rem 3.5rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.gov-section-header-bar {
+  border-left: 4px solid #1e3a8a;
+  padding-left: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.gov-section-category {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #b45309;
+  letter-spacing: 0.05em;
+}
+
+.gov-section-heading {
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-top: 0.15rem;
+}
+
+.gov-section-subline {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+}
+
+/* Rules Grid */
+.gov-rules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.gov-rule-card {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 1.5rem;
+}
+
+.gov-rule-card-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0b2545;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.gov-rule-list {
+  font-size: 0.85rem;
+  color: #334155;
+  line-height: 1.6;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Host College Grid */
+.gov-host-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.gov-host-text h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.gov-host-text p {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+.gov-host-stats-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.gov-host-stat-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.85rem 1.25rem;
+}
+
+.gov-host-stat-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #1e3a8a;
+}
+
+.gov-host-stat-lbl {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* 3. Official Directorate Footer */
+.gov-footer {
+  background: #091a2e;
+  color: #cbd5e1;
+  padding: 3rem 3rem 1.5rem;
+  border-top: 3px solid #b45309;
+}
+
+.gov-footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gov-footer-col h4 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #f59e0b;
+  margin-bottom: 1rem;
+}
+
+.gov-footer-col p,
+.gov-footer-col li {
+  font-size: 0.825rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.gov-footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gov-footer-col a {
+  color: #cbd5e1;
+  text-decoration: none;
+}
+.gov-footer-col a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.gov-footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 992px) {
+  .gov-main-grid-section,
+  .gov-tabs-section,
+  .gov-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .gov-main-grid {
+    grid-template-columns: 1fr;
+  }
+  .gov-rules-grid {
+    grid-template-columns: 1fr;
+  }
+  .gov-host-grid {
+    grid-template-columns: 1fr;
+  }
+  .gov-footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .gov-footer-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -11,7 +11,7 @@ export default async function SquadPaymentPage() {
   const { breakdown, payments } = await getSquadFeeBreakdownAction();
 
   return (
-    <div className="container" id="squad-payment-page">
+    <div id="squad-payment-page" style={{ width: '100%', maxWidth: '100%' }}>
       <PaymentClient
         breakdown={breakdown}
         payments={payments}

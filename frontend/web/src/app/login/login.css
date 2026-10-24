@@ -1,0 +1,315 @@
+/* ==============================================================================
+   VTU SPORTSOS &bull; LOGIN PORTAL & LAUNCHPAD STYLES (PURE VANILLA CSS)
+   ============================================================================== */
+
+.login-container {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.login-top-bar {
+  max-width: 580px;
+  margin: 0 auto 1.5rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-back-link {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2563eb;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.2s ease;
+}
+
+.login-back-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.login-event-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.login-card-wrapper {
+  max-width: 580px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.login-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.login-header {
+  text-align: center;
+  padding: 2rem 2rem 1.25rem;
+}
+
+.login-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.login-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.login-logo-divider {
+  width: 1px;
+  height: 32px;
+  background-color: #cbd5e1;
+}
+
+.login-college-name {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.login-subtitle {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.login-body {
+  padding: 0 2rem 2.25rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-label {
+  display: block;
+  font-size: 0.775rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+
+.login-input-group {
+  position: relative;
+  width: 100%;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  padding-right: 2.75rem;
+  border-radius: 12px;
+  border: 2px solid #2563eb;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.login-input::placeholder {
+  text-transform: none;
+  font-weight: 400;
+  color: #94a3b8;
+  letter-spacing: normal;
+}
+
+.login-input:focus {
+  background-color: #ffffff;
+  outline: none;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.login-clear-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.login-clear-btn:hover {
+  color: #475569;
+}
+
+.login-error-alert {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 0.95rem 1.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-submit-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.35);
+}
+
+.login-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Quick Demo Shortcuts Launchpad */
+.login-launchpad-section {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.login-launchpad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.login-launchpad-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.login-launchpad-hint {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.login-launchpad-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  max-height: 270px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.login-shortcut-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.login-shortcut-card:hover {
+  background: #ffffff;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.login-shortcut-icon {
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.login-shortcut-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.login-shortcut-name {
+  font-size: 0.775rem;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-shortcut-code {
+  font-size: 0.7rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-footer-text {
+  text-align: center;
+  font-size: 0.775rem;
+  color: #64748b;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 540px) {
+  .login-launchpad-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   blood_group TEXT NOT NULL,
   college_joining_date DATE NOT NULL,
   sem_start_date DATE NOT NULL,
+  aadhaar_number TEXT, -- 12 digit Aadhaar number
+  photo_url TEXT, -- Athlete passport photo in athlete-photos bucket
   bid_number INT, -- Assigned automatically upon registration closure
   accreditation_status TEXT NOT NULL DEFAULT 'REGISTERED'
     CHECK (accreditation_status IN ('REGISTERED', 'ACCREDITED', 'WITHDRAWN')),
