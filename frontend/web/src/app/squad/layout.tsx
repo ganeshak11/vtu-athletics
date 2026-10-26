@@ -38,9 +38,6 @@ export default async function SquadLayout({
             <Link href="/squad/payment" className="univ-nav-link">
               <span>💳 Fee Settlement</span>
             </Link>
-            <Link href="/squad/cards" className="univ-nav-link">
-              <span>🪪 ID Cards &amp; Badges</span>
-            </Link>
           </div>
 
           <div className="univ-nav-auth">
@@ -49,25 +46,34 @@ export default async function SquadLayout({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                color: '#f8fafc',
-                fontSize: '0.8rem',
+                color: '#1e3a8a',
+                fontSize: '0.825rem',
                 fontWeight: 700,
-                padding: '0.35rem 0.75rem',
-                background: 'rgba(255, 255, 255, 0.12)',
-                borderRadius: '4px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                padding: '0.35rem 0.85rem',
+                background: '#eff6ff',
+                borderRadius: '8px',
+                border: '1px solid #bfdbfe',
               }}
             >
               <span>🏛️ {session.collegeName || session.collegeCode}</span>
-              <span style={{ color: '#fbbf24', marginLeft: '0.25rem' }}>
+              <span style={{ color: '#b45309', marginLeft: '0.25rem' }}>
                 ({isMen ? "Men's Section" : "Women's Section"})
               </span>
             </div>
             <form action={logoutAction}>
               <button
                 type="submit"
-                className="univ-btn-portal univ-btn-admin"
-                style={{ padding: '0.4rem 0.85rem', fontSize: '0.75rem', cursor: 'pointer' }}
+                className="univ-btn-portal"
+                style={{
+                  padding: '0.4rem 0.85rem',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  background: '#fef2f2',
+                  color: '#b91c1c',
+                  border: '1px solid #fecaca',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                }}
               >
                 Sign Out
               </button>

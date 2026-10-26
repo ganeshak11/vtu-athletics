@@ -488,7 +488,7 @@ export default function AthletesManager({
                               <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
                                 {athlete.sslc_name}
                               </div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }} suppressHydrationWarning>
                                 Joined: {new Date(athlete.college_joining_date).toLocaleDateString()}
                               </div>
                             </div>

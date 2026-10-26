@@ -69,7 +69,8 @@ export const Navbar: React.FC = () => {
       {/* 4. SCROLLING DIRECTORATE CIRCULARS NOTICE TICKER */}
       <div className="univ-ticker-strip">
         <div className="univ-ticker-badge">
-          <span>⚡ LATEST CIRCULARS &amp; NOTICES</span>
+          <span className="univ-ticker-pulse" />
+          <span>LIVE CIRCULARS &amp; NOTICES</span>
         </div>
         <div className="univ-ticker-content">
           <div className="univ-ticker-track">

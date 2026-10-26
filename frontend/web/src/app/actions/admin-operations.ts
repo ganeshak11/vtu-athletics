@@ -43,6 +43,7 @@ export async function getAdminDashboardStatsAction(): Promise<AdminDashboardStat
   const { data: settings } = await supabaseAdmin
     .from('meet_settings')
     .select('registration_open, registration_closed_at')
+    .limit(1)
     .maybeSingle();
 
   // Total Athletes
@@ -99,9 +100,10 @@ export async function toggleRegistrationStatusAction(): Promise<{
   const { data: currentSettings } = await supabaseAdmin
     .from('meet_settings')
     .select('id, registration_open')
+    .limit(1)
     .maybeSingle();
 
-  const currentOpen = currentSettings?.registration_open ?? true;
+  const currentOpen = currentSettings ? currentSettings.registration_open : true;
   const newStatus = !currentOpen;
 
   const updatePayload: any = {
@@ -115,13 +117,43 @@ export async function toggleRegistrationStatusAction(): Promise<{
     updatePayload.registration_closed_at = null;
   }
 
-  const { error } = await supabaseAdmin
-    .from('meet_settings')
-    .update(updatePayload)
-    .match({ id: currentSettings?.id });
+  // Guaranteed WHERE filter for meet_settings update
+  let updateError = null;
+  if (currentSettings?.id) {
+    const { error } = await supabaseAdmin
+      .from('meet_settings')
+      .update(updatePayload)
+      .eq('id', currentSettings.id);
+    updateError = error;
+  } else {
+    // If no row returned from maybeSingle, check if any row exists or insert default
+    const { data: existingRows } = await supabaseAdmin
+      .from('meet_settings')
+      .select('id')
+      .limit(1);
 
-  if (error) {
-    return { success: false, isOpen: currentOpen, error: error.message };
+    if (existingRows && existingRows.length > 0) {
+      const { error } = await supabaseAdmin
+        .from('meet_settings')
+        .update(updatePayload)
+        .eq('id', existingRows[0].id);
+      updateError = error;
+    } else {
+      const { error } = await supabaseAdmin
+        .from('meet_settings')
+        .insert({
+          ...updatePayload,
+          meet_name: 'VTU Inter-Collegiate Athletics Meet 2026',
+          venue: 'VTU Campus Stadium',
+          host_upi_id: 'vtuathletics@upi',
+          host_account_name: 'VTU Sports Board',
+        });
+      updateError = error;
+    }
+  }
+
+  if (updateError) {
+    return { success: false, isOpen: currentOpen, error: updateError.message };
   }
 
   // If closing registration, also lock all squad rosters
@@ -129,7 +161,7 @@ export async function toggleRegistrationStatusAction(): Promise<{
     await supabaseAdmin
       .from('squads')
       .update({ roster_locked: true, updated_at: new Date().toISOString() })
-      .neq('id', '00000000-0000-0000-0000-000000000000');
+      .not('id', 'is', null);
   }
 
   await logAudit(
@@ -162,6 +194,7 @@ export async function generateBibNumbersAction(): Promise<{
   const { data: settings } = await supabaseAdmin
     .from('meet_settings')
     .select('registration_open')
+    .limit(1)
     .maybeSingle();
 
   if (settings?.registration_open) {

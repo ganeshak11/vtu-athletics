@@ -144,7 +144,7 @@ export default function StaffManager({ initialStaff }: Props) {
                       {member.is_active ? 'ACTIVE' : 'INACTIVE'}
                     </span>
                   </td>
-                  <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }} suppressHydrationWarning>
                     {new Date(member.created_at).toLocaleDateString()}
                   </td>
                 </tr>

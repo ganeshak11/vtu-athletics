@@ -211,7 +211,8 @@ squadRouter.get('/payment/fee', async (req: AuthenticatedRequest, res: Response)
     const { data: settings } = await supabase
       .from('meet_settings')
       .select('host_upi_id, host_account_name')
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     const { data: payments } = await supabase
       .from('payments')

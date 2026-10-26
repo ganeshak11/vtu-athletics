@@ -13,8 +13,25 @@ interface Props {
   squadCode: string;
 }
 
+function formatDate(dateStr: string): string {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
 export default function PaymentClient({ breakdown, payments, squadCode }: Props) {
-  const [amount, setAmount] = useState(breakdown.totalAmount.toString());
+  const payableTarget = breakdown.balanceDue > 0 ? breakdown.balanceDue : (breakdown.totalPaid > 0 ? 0 : breakdown.totalAmount);
+  const [amount, setAmount] = useState(payableTarget.toString());
   const [utr, setUtr] = useState('');
   const [screenshotData, setScreenshotData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,11 +39,12 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
   const [success, setSuccess] = useState(false);
 
   const isZeroSquad = breakdown.totalAmount <= 0;
+  const isFullySettled = breakdown.balanceDue === 0 && breakdown.totalPaid > 0 && breakdown.squadPaymentStatus === 'VERIFIED';
 
   // UPI deep link URI
   const upiUri = `upi://pay?pa=${breakdown.hostUpiId}&pn=${encodeURIComponent(
     breakdown.hostAccountName
-  )}&am=${breakdown.totalAmount}&cu=INR&tn=${encodeURIComponent(`VTU Athletics ${squadCode}`)}`;
+  )}&am=${payableTarget}&cu=INR&tn=${encodeURIComponent(`VTU Athletics ${squadCode}`)}`;
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -34,6 +52,14 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
 
     if (file.size > 5 * 1024 * 1024) {
       alert('Screenshot file size must be less than 5MB.');
+      e.target.value = '';
+      return;
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type.toLowerCase())) {
+      alert('Invalid file format. Please upload JPG, PNG, WebP or PDF receipt.');
+      e.target.value = '';
       return;
     }
 
@@ -157,29 +183,55 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.5rem', alignItems: 'center' }}>
-                <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>Total Fee Due:</span>
-                <span style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Total Roster Fee:</span>
+                <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   ₹{breakdown.totalAmount}
+                </span>
+              </div>
+
+              {breakdown.totalPaid > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--success)', fontWeight: 600 }}>
+                    Verified Payments Settled:
+                  </span>
+                  <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--success)' }}>
+                    -₹{breakdown.totalPaid}
+                  </span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '2px solid var(--border-color)', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>Net Balance Due:</span>
+                <span style={{ fontSize: '1.75rem', fontWeight: 800, color: breakdown.balanceDue > 0 ? 'var(--accent-primary)' : 'var(--success)' }}>
+                  ₹{breakdown.balanceDue}
                 </span>
               </div>
             </div>
 
-            {/* UPI QR Display */}
-            <div style={{ textAlign: 'center', background: '#ffffff', padding: '1.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'inline-block' }}>
-                <QRCode value={upiUri} size={180} />
+            {isFullySettled ? (
+              <div style={{ padding: '1rem', borderRadius: 'var(--radius-sm)', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', color: 'var(--success)', textAlign: 'center', fontWeight: 600 }}>
+                ✓ All entry fees for your current squad roster are fully verified and settled.
               </div>
-              <div style={{ marginTop: '0.75rem', color: '#0f172a', fontWeight: 800, fontSize: '0.95rem' }}>
-                Scan to Pay via UPI (GPay / PhonePe / Paytm / BHIM)
-              </div>
-              <div style={{ color: '#475569', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                UPI ID: <code style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>{breakdown.hostUpiId}</code>
-              </div>
-            </div>
+            ) : (
+              <>
+                {/* UPI QR Display */}
+                <div style={{ textAlign: 'center', background: '#ffffff', padding: '1.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'inline-block' }}>
+                    <QRCode value={upiUri} size={180} />
+                  </div>
+                  <div style={{ marginTop: '0.75rem', color: '#0f172a', fontWeight: 800, fontSize: '0.95rem' }}>
+                    Scan to Pay Balance via UPI (GPay / PhonePe / Paytm / BHIM)
+                  </div>
+                  <div style={{ color: '#475569', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                    UPI ID: <code style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>{breakdown.hostUpiId}</code>
+                  </div>
+                </div>
 
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, textAlign: 'center' }}>
-              Beneficiary: <strong>{breakdown.hostAccountName}</strong> &bull; Please add squad remark <strong>{squadCode}</strong> in your UPI transfer description.
-            </p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, textAlign: 'center' }}>
+                  Beneficiary: <strong>{breakdown.hostAccountName}</strong> &bull; Please add squad remark <strong>{squadCode}</strong> in your UPI transfer description.
+                </p>
+              </>
+            )}
 
           </CardContent>
         </Card>
@@ -194,6 +246,12 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
               Submitting payment receipt locks your squad roster and initiates financial verification with the host desk.
             </p>
+
+            {isFullySettled && (
+              <div style={{ padding: '0.85rem 1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: 'var(--radius-sm)', color: 'var(--success)', fontSize: '0.9rem' }}>
+                ✓ Squad Roster Fees Settled. No pending balance due.
+              </div>
+            )}
 
             {error && (
               <div style={{ padding: '0.85rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 'var(--radius-sm)', color: 'var(--danger)', fontSize: '0.85rem' }}>
@@ -217,7 +275,7 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                   style={inputStyle}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  disabled={isZeroSquad}
+                  disabled={isZeroSquad || isFullySettled}
                 />
               </div>
 
@@ -317,7 +375,9 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                 ) : (
                   payments.map((p) => (
                     <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{new Date(p.created_at).toLocaleString()}</td>
+                      <td style={{ padding: '1rem', fontSize: '0.9rem' }} suppressHydrationWarning>
+                        {formatDate(p.created_at)}
+                      </td>
                       <td style={{ padding: '1rem' }}>
                         <code style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>{p.utr_number}</code>
                       </td>

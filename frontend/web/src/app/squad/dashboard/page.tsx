@@ -165,31 +165,28 @@ export default async function SquadDashboardPage() {
           <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>🪪 Athlete Badges</h3>
-                <span style={{ fontSize: '1.4rem' }}>🖨️</span>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>🪪 Official Accreditation</h3>
+                <span style={{ fontSize: '1.4rem' }}>🛡️</span>
               </div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem', lineHeight: '1.5' }}>
-                Generate and print official printable athlete ID cards with QR codes and bib numbers for stadium gate &amp; call room.
+                Official security QR-coded ID badges and serialized chest bib numbers are generated and printed exclusively by the VTU Meet Directorate Admin Desk upon campus reporting.
               </p>
             </div>
-            <Link href="/squad/cards">
-              <button
-                type="button"
-                style={{
-                  width: '100%',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--accent-primary)',
-                  padding: '0.65rem',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.875rem',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                Print Athlete Cards &rarr;
-              </button>
-            </Link>
+            <div
+              style={{
+                width: '100%',
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                color: '#1d4ed8',
+                padding: '0.65rem',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '0.825rem',
+                fontWeight: 700,
+                textAlign: 'center'
+              }}
+            >
+              Issued by Directorate at Venue
+            </div>
           </CardContent>
         </Card>
       </div>

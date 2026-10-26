@@ -59,7 +59,7 @@ export default function AuditClient({ logs }: Props) {
 
                 return (
                   <tr key={log.id}>
-                    <td style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                    <td style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap' }} suppressHydrationWarning>
                       {log.created_at ? new Date(log.created_at).toLocaleString() : 'Just now'}
                     </td>
                     <td>

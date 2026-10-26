@@ -113,6 +113,17 @@ export async function saveRelayTeamAction(
 ): Promise<{ success: boolean; error?: string }> {
   const session = await requireSquad();
 
+  // Check if registration is globally closed
+  const { data: meetSettings } = await supabaseAdmin
+    .from('meet_settings')
+    .select('registration_open')
+    .limit(1)
+    .maybeSingle();
+
+  if (meetSettings && meetSettings.registration_open === false) {
+    return { success: false, error: 'Registration is officially closed. Relay teams cannot be modified.' };
+  }
+
   const { data: squad } = await supabaseAdmin
     .from('squads')
     .select('roster_locked')
@@ -121,6 +132,18 @@ export async function saveRelayTeamAction(
 
   if (squad?.roster_locked) {
     return { success: false, error: 'Cannot modify relay team while roster is locked.' };
+  }
+
+  // IDOR Protection: Verify relayTeamId belongs to the current squad
+  const { data: verifiedTeam } = await supabaseAdmin
+    .from('relay_teams')
+    .select('id')
+    .eq('id', relayTeamId)
+    .eq('squad_id', session.squadId)
+    .maybeSingle();
+
+  if (!verifiedTeam) {
+    return { success: false, error: 'Unauthorized: This relay team does not belong to your institution squad.' };
   }
 
   const selectedRunners = [leg1, leg2, leg3, leg4].filter(Boolean);
@@ -133,7 +156,22 @@ export async function saveRelayTeamAction(
     return { success: false, error: 'An athlete cannot be assigned to multiple positions in the same relay.' };
   }
 
-  // Clear existing members for this team
+  // Tenant Isolation: Verify all selected athletes belong to this squad
+  if (allSelected.length > 0) {
+    const { data: squadAthletes } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('squad_id', session.squadId)
+      .in('id', allSelected);
+
+    const validIds = new Set((squadAthletes || []).map((p: any) => p.id));
+    const hasForeign = allSelected.some((id) => !validIds.has(id));
+    if (hasForeign) {
+      return { success: false, error: 'Unauthorized: Selected athletes must be registered under your institution squad.' };
+    }
+  }
+
+  // Clear existing members for this verified team
   await supabaseAdmin.from('relay_members').delete().eq('relay_team_id', relayTeamId);
 
   // Insert legs

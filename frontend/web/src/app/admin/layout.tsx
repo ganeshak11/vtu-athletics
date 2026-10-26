@@ -50,14 +50,23 @@ export default async function AdminLayout({
           </div>
 
           <div className="univ-nav-auth">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#f59e0b', fontSize: '0.8rem', fontWeight: 700, padding: '0.35rem 0.75rem', background: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#0f172a', fontSize: '0.825rem', fontWeight: 700, padding: '0.35rem 0.85rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
               <span>🛡️ {session.displayName || 'Meet Director'}</span>
             </div>
             <form action={logoutAction}>
               <button
                 type="submit"
-                className="univ-btn-portal univ-btn-admin"
-                style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', cursor: 'pointer' }}
+                className="univ-btn-portal"
+                style={{
+                  padding: '0.4rem 0.85rem',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  background: '#fef2f2',
+                  color: '#b91c1c',
+                  border: '1px solid #fecaca',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                }}
               >
                 Sign Out
               </button>

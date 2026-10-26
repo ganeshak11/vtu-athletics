@@ -19,6 +19,17 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
   try {
     const session = await requireSquad();
 
+    // Check if registration is globally closed
+    const { data: meetSettings } = await supabaseAdmin
+      .from('meet_settings')
+      .select('registration_open')
+      .limit(1)
+      .maybeSingle();
+
+    if (meetSettings && meetSettings.registration_open === false) {
+      return { success: false, error: 'Championship registrations are officially closed by the VTU Directorate.' };
+    }
+
     // Check if squad roster is locked
     const { data: squad } = await supabaseAdmin
       .from('squads')
@@ -106,6 +117,38 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     return { success: false, error: 'Reserve event must be distinct from regular events.' };
   }
 
+  // Fetch existing squad profiles for quota validations
+  const { data: squadProfiles } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('squad_id', session.squadId);
+  const squadProfileIds = (squadProfiles || []).map((p: any) => p.id);
+
+  // Enforce VTU / AFI Rule: Max 2 athletes per college squad in any single regular event
+  if (squadProfileIds.length > 0) {
+    const regularEventIds = [event1Id, event2Id].filter(Boolean);
+    for (const evId of regularEventIds) {
+      const { count: evCount } = await supabaseAdmin
+        .from('registrations')
+        .select('id', { count: 'exact', head: true })
+        .in('profile_id', squadProfileIds)
+        .eq('event_id', evId)
+        .eq('kind', 'regular');
+
+      if ((evCount || 0) >= 2) {
+        const { data: evDetail } = await supabaseAdmin
+          .from('events')
+          .select('name')
+          .eq('id', evId)
+          .single();
+        return {
+          success: false,
+          error: `VTU Quota Exceeded: Your college already has the maximum of 2 athletes registered in '${evDetail?.name || 'this event'}'.`,
+        };
+      }
+    }
+  }
+
   // 4x100m Relay Quota Enforcement (Max 4 athletes per college squad)
   let relayEventId: string | null = null;
   if (isRelay) {
@@ -118,18 +161,11 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 
     if (relayEvent) {
       relayEventId = relayEvent.id;
-      // Count existing relay registrations for this squad
-      const { data: squadProfiles } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('squad_id', session.squadId);
-      const profileIds = (squadProfiles || []).map((p: any) => p.id);
-
-      if (profileIds.length > 0) {
+      if (squadProfileIds.length > 0) {
         const { count: relayCount } = await supabaseAdmin
           .from('registrations')
           .select('id', { count: 'exact', head: true })
-          .in('profile_id', profileIds)
+          .in('profile_id', squadProfileIds)
           .eq('event_id', relayEvent.id);
 
         if ((relayCount || 0) >= 4) {
@@ -142,25 +178,41 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     }
   }
 
-  // Upload Student Photo to Supabase Storage Bucket ('athlete-photos')
+  // Upload Student Photo to Supabase Storage Bucket ('athlete-photos') with strict validation
   let photoUrl: string | null = null;
   const photoFile = formData.get('photo') as File | null;
   const photoData = formData.get('photoData') as string | null;
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const ALLOWED_MIME_TYPES: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+  };
 
   try {
     // Ensure bucket exists
     await supabaseAdmin.storage.createBucket('athlete-photos', { public: true }).catch(() => {});
 
     if (photoFile && photoFile.size > 0 && typeof photoFile.arrayBuffer === 'function') {
+      if (photoFile.size > MAX_FILE_SIZE) {
+        return { success: false, error: 'Photo size exceeds the maximum limit of 5MB.' };
+      }
+      const rawMime = (photoFile.type || 'image/jpeg').toLowerCase();
+      const safeExt = ALLOWED_MIME_TYPES[rawMime];
+      if (!safeExt) {
+        return { success: false, error: 'Invalid photo format. Only JPG, PNG, and WebP images are permitted.' };
+      }
+
       const bytes = await photoFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      const ext = photoFile.name.split('.').pop() || 'jpg';
-      const storagePath = `${session.squadId}/${Date.now()}_${usn}.${ext}`;
+      const storagePath = `${session.squadId}/${Date.now()}_${usn}.${safeExt}`;
 
       const { data: uploadResult, error: uploadErr } = await supabaseAdmin.storage
         .from('athlete-photos')
         .upload(storagePath, buffer, {
-          contentType: photoFile.type || 'image/jpeg',
+          contentType: rawMime,
           upsert: true,
         });
 
@@ -173,10 +225,18 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     } else if (photoData && photoData.startsWith('data:image')) {
       const match = photoData.match(/^data:([^;]+);base64,(.+)$/);
       if (match) {
-        const mime = match[1];
+        const mime = match[1].toLowerCase();
+        const safeExt = ALLOWED_MIME_TYPES[mime];
+        if (!safeExt) {
+          return { success: false, error: 'Invalid photo format. Only JPG, PNG, and WebP images are permitted.' };
+        }
+
         const buffer = Buffer.from(match[2], 'base64');
-        const ext = mime.split('/')[1] || 'jpg';
-        const storagePath = `${session.squadId}/${Date.now()}_${usn}.${ext}`;
+        if (buffer.length > MAX_FILE_SIZE) {
+          return { success: false, error: 'Photo size exceeds the maximum limit of 5MB.' };
+        }
+
+        const storagePath = `${session.squadId}/${Date.now()}_${usn}.${safeExt}`;
 
         const { data: uploadResult, error: uploadErr } = await supabaseAdmin.storage
           .from('athlete-photos')
@@ -294,6 +354,17 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
  */
 export async function deleteAthleteAction(profileId: string): Promise<{ success: boolean; error?: string }> {
   const session = await requireSquad();
+
+  // Check if registration is globally closed
+  const { data: meetSettings } = await supabaseAdmin
+    .from('meet_settings')
+    .select('registration_open')
+    .limit(1)
+    .maybeSingle();
+
+  if (meetSettings && meetSettings.registration_open === false) {
+    return { success: false, error: 'Registration is officially closed. Contact the Meet Director to request athlete removals.' };
+  }
 
   const { data: squad } = await supabaseAdmin
     .from('squads')

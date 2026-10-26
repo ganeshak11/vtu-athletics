@@ -146,7 +146,7 @@ export default function AdminDashboardClient({ initialStats }: Props) {
           </div>
           {stats.registrationClosedAt && (
             <div style={{ fontSize: '0.75rem', color: '#64748b', borderLeft: '1px solid #e2e8f0', paddingLeft: '1rem' }}>
-              Closed on: <strong style={{ color: '#0f172a' }}>{new Date(stats.registrationClosedAt).toLocaleString()}</strong>
+              Closed on: <strong style={{ color: '#0f172a' }} suppressHydrationWarning>{new Date(stats.registrationClosedAt).toLocaleString()}</strong>
             </div>
           )}
         </div>

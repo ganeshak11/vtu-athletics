@@ -266,7 +266,7 @@ export default function AmendmentsManager({ athletes, initialAmendments }: Props
               ) : (
                 amendments.map((a) => (
                   <tr key={a.id}>
-                    <td>{new Date(a.created_at).toLocaleString()}</td>
+                    <td suppressHydrationWarning>{new Date(a.created_at).toLocaleString()}</td>
                     <td>
                       <span
                         style={{
