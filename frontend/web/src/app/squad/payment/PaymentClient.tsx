@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import QRCode from 'react-qr-code';
 import { submitPaymentAction, FeeBreakdown, PaymentRecord } from '@/app/actions/payment';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -214,22 +213,58 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
               </div>
             ) : (
               <>
-                {/* UPI QR Display */}
-                <div style={{ textAlign: 'center', background: '#ffffff', padding: '1.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'inline-block' }}>
-                    <QRCode value={upiUri} size={180} />
+                {/* Institutional Banking & Electronic Settlement Card */}
+                <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '1.2rem' }}>🏛️</span>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>Directorate Electronic Transfer Desk</div>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b' }}>State Bank of India / NEFT / RTGS / UPI</div>
+                    </div>
                   </div>
-                  <div style={{ marginTop: '0.75rem', color: '#0f172a', fontWeight: 800, fontSize: '0.95rem' }}>
-                    Scan to Pay Balance via UPI (GPay / PhonePe / Paytm / BHIM)
-                  </div>
-                  <div style={{ color: '#475569', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                    UPI ID: <code style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>{breakdown.hostUpiId}</code>
-                  </div>
-                </div>
 
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, textAlign: 'center' }}>
-                  Beneficiary: <strong>{breakdown.hostAccountName}</strong> &bull; Please add squad remark <strong>{squadCode}</strong> in your UPI transfer description.
-                </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.35rem 0', borderBottom: '1px dashed #e2e8f0' }}>
+                      <span style={{ color: '#64748b' }}>Beneficiary Account:</span>
+                      <strong style={{ color: '#0f172a', textAlign: 'right' }}>{breakdown.hostAccountName}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.35rem 0', borderBottom: '1px dashed #e2e8f0', alignItems: 'center' }}>
+                      <span style={{ color: '#64748b' }}>Host UPI VPA:</span>
+                      <code style={{ fontWeight: 700, color: 'var(--accent-primary)', background: '#e0f2fe', padding: '2px 6px', borderRadius: '4px' }}>
+                        {breakdown.hostUpiId}
+                      </code>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.35rem 0', borderBottom: '1px dashed #e2e8f0' }}>
+                      <span style={{ color: '#64748b' }}>Mandatory Remark:</span>
+                      <strong style={{ color: '#0f172a' }}>{squadCode}</strong>
+                    </div>
+                  </div>
+
+                  <a
+                    href={upiUri}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      padding: '0.6rem 1rem',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'var(--accent-primary)',
+                      color: '#ffffff',
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                      textAlign: 'center',
+                      marginTop: '0.25rem'
+                    }}
+                  >
+                    ⚡ Open UPI App Directly
+                  </a>
+
+                  <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0, textAlign: 'center', lineHeight: 1.4 }}>
+                    Enter <strong>{squadCode}</strong> in the payment remarks/narration. After transferring, copy the 12-digit UTR and upload the receipt on the right.
+                  </p>
+                </div>
               </>
             )}
 

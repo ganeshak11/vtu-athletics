@@ -378,7 +378,7 @@ export default function PaymentsClient({ squads }: Props) {
                 </div>
                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', maxHeight: '220px', overflowY: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
-                    <thead style={{ background: '#f8fafc', position: 'sticky', top: 0, zIndex: 1 }}>
+                    <thead style={{ background: '#f8fafc', position: 'sticky', top: 0, zIndex: 10 }}>
                       <tr>
                         <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>Athlete Name</th>
                         <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>USN</th>

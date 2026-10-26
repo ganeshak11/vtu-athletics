@@ -165,7 +165,7 @@ export default function StaffManager({ initialStaff }: Props) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 100,
+            zIndex: 9999,
             padding: '1.5rem',
           }}
           id="modal-add-staff-overlay"

@@ -307,7 +307,7 @@ export default function CollegesManager({ initialColleges }: Props) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 100,
+            zIndex: 9999,
             padding: '1.5rem',
           }}
           id="modal-add-college-overlay"

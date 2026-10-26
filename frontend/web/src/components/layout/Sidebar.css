@@ -6,6 +6,14 @@
   border-top: none;
   border-bottom: none;
   border-left: none;
+  position: relative;
+  z-index: var(--z-sidebar, 30);
+}
+
+.sidebar.sticky {
+  position: sticky;
+  top: 60px;
+  z-index: var(--z-sidebar, 30);
 }
 
 .sidebar-header {
