@@ -15,7 +15,7 @@ interface EventItem {
 const SCHEDULE_DATA: Record<number, { title: string; date: string; events: EventItem[] }> = {
   1: {
     title: 'Day 1 — Inaugural Sprints & Field Explosiveness',
-    date: 'Day 1 • Morning & Afternoon Sessions',
+    date: 'Tuesday, Dec 8, 2026 • Morning & Afternoon Sessions',
     events: [
       { time: '07:30 AM', callRoom: '07:05 AM', name: '100m Sprint Preliminary Heats', division: 'Men', stage: 'Heats', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
       { time: '08:15 AM', callRoom: '07:50 AM', name: '100m Sprint Preliminary Heats', division: 'Women', stage: 'Heats', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
@@ -31,7 +31,7 @@ const SCHEDULE_DATA: Record<number, { title: string; date: string; events: Event
   },
   2: {
     title: 'Day 2 — Middle Distance & Horizontal Power',
-    date: 'Day 2 • Morning & Afternoon Sessions',
+    date: 'Wednesday, Dec 9, 2026 • Morning & Afternoon Sessions',
     events: [
       { time: '07:00 AM', callRoom: '06:35 AM', name: '1500m Timed Finals', division: 'Men', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
       { time: '07:45 AM', callRoom: '07:20 AM', name: '1500m Timed Finals', division: 'Women', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
@@ -46,7 +46,7 @@ const SCHEDULE_DATA: Record<number, { title: string; date: string; events: Event
   },
   3: {
     title: 'Day 3 — Hurdles & Strategic Leaps',
-    date: 'Day 3 • Morning & Afternoon Sessions',
+    date: 'Thursday, Dec 10, 2026 • Morning & Afternoon Sessions',
     events: [
       { time: '07:30 AM', callRoom: '07:05 AM', name: '110m Hurdles Final', division: 'Men', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
       { time: '08:00 AM', callRoom: '07:35 AM', name: '100m Hurdles Final', division: 'Women', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
@@ -61,7 +61,7 @@ const SCHEDULE_DATA: Record<number, { title: string; date: string; events: Event
   },
   4: {
     title: 'Day 4 — Endurance, Relays & Championship Valedictory',
-    date: 'Day 4 • Final Championship Decider',
+    date: 'Friday, Dec 11, 2026 • Final Championship Decider',
     events: [
       { time: '06:00 AM', callRoom: '05:30 AM', name: '21km Half Marathon (Campus Highway Loop)', division: 'Men', stage: 'Final', venue: 'Main Gate Start / Stadium Finish', type: 'Track' },
       { time: '06:15 AM', callRoom: '05:45 AM', name: '21km Half Marathon (Campus Highway Loop)', division: 'Women', stage: 'Final', venue: 'Main Gate Start / Stadium Finish', type: 'Track' },
@@ -95,25 +95,30 @@ export default function ScheduleView() {
         
         {/* Day Tabs */}
         <div style={{ display: 'flex', gap: '0.5rem', background: '#ffffff', padding: '0.35rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
-          {[1, 2, 3, 4].map((day) => (
+          {[
+            { day: 1, label: 'Day 1 • Dec 8' },
+            { day: 2, label: 'Day 2 • Dec 9' },
+            { day: 3, label: 'Day 3 • Dec 10' },
+            { day: 4, label: 'Day 4 • Dec 11' },
+          ].map(({ day, label }) => (
             <button
               key={day}
               type="button"
               onClick={() => setActiveDay(day)}
               style={{
-                padding: '0.55rem 1.25rem',
+                padding: '0.55rem 1.15rem',
                 borderRadius: '8px',
                 border: 'none',
                 background: activeDay === day ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
                 color: activeDay === day ? '#ffffff' : '#475569',
                 fontWeight: activeDay === day ? 800 : 600,
-                fontSize: '0.875rem',
+                fontSize: '0.85rem',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 boxShadow: activeDay === day ? '0 2px 8px rgba(37,99,235,0.25)' : 'none',
               }}
             >
-              Day {day}
+              {label}
             </button>
           ))}
         </div>

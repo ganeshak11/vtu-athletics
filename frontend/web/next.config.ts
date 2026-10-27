@@ -1,8 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Allow LAN access for mobile PWA testing
-  allowedDevOrigins: ['*'],
+  allowedDevOrigins: ['*', '*.ngrok-free.dev', '*.ngrok.io', 'manmade-navigator-hurled.ngrok-free.dev'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb',

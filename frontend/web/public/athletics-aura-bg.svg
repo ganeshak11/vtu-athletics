@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" fill="none">
+  <defs>
+    <!-- Subtle technical dot grid pattern -->
+    <pattern id="dot-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="16" cy="16" r="1" fill="#cbd5e1" opacity="0.45" />
+    </pattern>
+
+    <!-- Linear gradient for track lane sweeps -->
+    <linearGradient id="grey-track-fade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.35" />
+      <stop offset="60%" stop-color="#cbd5e1" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#f1f5f9" stop-opacity="0.05" />
+    </linearGradient>
+
+    <!-- Gradient for velocity lines -->
+    <linearGradient id="speed-line-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.0" />
+      <stop offset="50%" stop-color="#94a3b8" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#cbd5e1" stop-opacity="0.0" />
+    </linearGradient>
+  </defs>
+
+  <!-- 1. Pure Crisp White Background -->
+  <rect width="1600" height="800" fill="#ffffff" />
+
+  <!-- 2. Subtle Precision Dot Matrix -->
+  <rect width="1600" height="800" fill="url(#dot-grid)" />
+
+  <!-- 3. TOP-RIGHT: 8-Lane Olympic Running Track Curves -->
+  <g id="top-right-track-arena" opacity="0.85">
+    <!-- Outer Track Boundary -->
+    <circle cx="1450" cy="-60" r="720" stroke="#cbd5e1" stroke-width="2" />
+    
+    <!-- 8 Running Track Lanes (Concentric Staggered Curves) -->
+    <circle cx="1450" cy="-60" r="670" stroke="#94a3b8" stroke-width="1.75" stroke-dasharray="10 8" />
+    <circle cx="1450" cy="-60" r="625" stroke="#cbd5e1" stroke-width="1.5" />
+    <circle cx="1450" cy="-60" r="580" stroke="#94a3b8" stroke-width="1.75" stroke-dasharray="10 8" />
+    <circle cx="1450" cy="-60" r="535" stroke="#cbd5e1" stroke-width="1.5" />
+    <circle cx="1450" cy="-60" r="490" stroke="#94a3b8" stroke-width="1.75" stroke-dasharray="10 8" />
+    <circle cx="1450" cy="-60" r="445" stroke="#cbd5e1" stroke-width="1.5" />
+    <circle cx="1450" cy="-60" r="400" stroke="#94a3b8" stroke-width="1.75" stroke-dasharray="10 8" />
+    <circle cx="1450" cy="-60" r="355" stroke="#cbd5e1" stroke-width="2" />
+
+    <!-- Lane Numbers along track arc -->
+    <text x="890" y="240" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1">LANE 8</text>
+    <text x="930" y="275" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1">LANE 6</text>
+    <text x="970" y="310" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1">LANE 4</text>
+    <text x="1010" y="345" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1">LANE 2</text>
+    <text x="1050" y="380" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="11" font-weight="700" letter-spacing="1">LANE 1</text>
+
+    <!-- Staggered Finish Tick Marks -->
+    <line x1="880" y1="230" x2="895" y2="250" stroke="#64748b" stroke-width="2.5" />
+    <line x1="920" y1="265" x2="935" y2="285" stroke="#64748b" stroke-width="2.5" />
+    <line x1="960" y1="300" x2="975" y2="320" stroke="#64748b" stroke-width="2.5" />
+    <line x1="1000" y1="335" x2="1015" y2="355" stroke="#64748b" stroke-width="2.5" />
+  </g>
+
+  <!-- 4. BOTTOM-LEFT: Stadium Radius Curves & Velocity Vector Grid -->
+  <g id="bottom-left-stadium" opacity="0.8">
+    <circle cx="-80" cy="880" r="780" stroke="#e2e8f0" stroke-width="1.5" />
+    <circle cx="-80" cy="880" r="710" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="12 10" />
+    <circle cx="-80" cy="880" r="640" stroke="#e2e8f0" stroke-width="1.5" />
+    <circle cx="-80" cy="880" r="570" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="8 6" />
+    <circle cx="-80" cy="880" r="500" stroke="#e2e8f0" stroke-width="2" />
+    <circle cx="-80" cy="880" r="430" stroke="#cbd5e1" stroke-width="1.5" />
+    <circle cx="-80" cy="880" r="360" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="6 6" />
+
+    <!-- Velocity Sprint Ticks -->
+    <line x1="320" y1="520" x2="340" y2="540" stroke="#94a3b8" stroke-width="2" />
+    <line x1="390" y1="460" x2="410" y2="480" stroke="#94a3b8" stroke-width="2" />
+    <line x1="460" y1="400" x2="480" y2="420" stroke="#94a3b8" stroke-width="2" />
+  </g>
+
+  <!-- 5. GRAND STADIUM PARABOLIC FLIGHT ARCS (Field Events Trajectories) -->
+  <g id="field-trajectories" opacity="0.7">
+    <path d="M 120,780 Q 800,120 1480,780" stroke="#cbd5e1" stroke-width="1.75" stroke-dasharray="14 10" />
+    <path d="M 180,790 Q 800,190 1420,790" stroke="#e2e8f0" stroke-width="1.5" />
+    <path d="M 260,800 Q 800,260 1340,800" stroke="#cbd5e1" stroke-width="1.25" stroke-dasharray="8 6" />
+  </g>
+
+  <!-- 6. HIGH-VELOCITY 30-DEGREE SPRINT ACCELERATION STRIATIONS -->
+  <g id="sprint-lines" stroke="url(#speed-line-grad)" stroke-width="1.5">
+    <line x1="100" y1="120" x2="450" y2="-40" />
+    <line x1="160" y1="180" x2="510" y2="20" />
+    <line x1="220" y1="240" x2="570" y2="80" />
+    <line x1="1100" y1="780" x2="1480" y2="600" />
+    <line x1="1160" y1="840" x2="1540" y2="660" />
+  </g>
+
+  <!-- 7. ATHLETIC GEOMETRIC ACCENTS & COORDINATE LABELS -->
+  <g id="technical-accents" opacity="0.65">
+    <!-- Crosshairs / Calibration Targets -->
+    <g transform="translate(140, 180)">
+      <circle cx="0" cy="0" r="14" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 3" />
+      <line x1="-18" y1="0" x2="18" y2="0" stroke="#94a3b8" stroke-width="1" />
+      <line x1="0" y1="-18" x2="0" y2="18" stroke="#94a3b8" stroke-width="1" />
+      <circle cx="0" cy="0" r="2.5" fill="#64748b" />
+      <text x="24" y="4" fill="#94a3b8" font-family="system-ui, monospace" font-size="9" font-weight="600">STAD-400M // SEC-A</text>
+    </g>
+
+    <g transform="translate(1460, 680)">
+      <circle cx="0" cy="0" r="14" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 3" />
+      <line x1="-18" y1="0" x2="18" y2="0" stroke="#94a3b8" stroke-width="1" />
+      <line x1="0" y1="-18" x2="0" y2="18" stroke="#94a3b8" stroke-width="1" />
+      <circle cx="0" cy="0" r="2.5" fill="#64748b" />
+      <text x="-135" y="4" fill="#94a3b8" font-family="system-ui, monospace" font-size="9" font-weight="600">VTU-TRACK-CAL // TR-08</text>
+    </g>
+
+    <!-- Speed Chevron Cheats -->
+    <path d="M 680,60 L 700,75 L 680,90" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 700,60 L 720,75 L 700,90" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 720,60 L 740,75 L 720,90" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>

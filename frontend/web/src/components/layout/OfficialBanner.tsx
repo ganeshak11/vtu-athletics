@@ -6,75 +6,54 @@ interface Props {
   portalBadge?: string;
 }
 
-export function OfficialBanner({
-  portalBadge = '26TH INTER-COLLEGIATE ATHLETICS CHAMPIONSHIP 2026',
-}: Props) {
+export function OfficialBanner({ portalBadge }: Props) {
   return (
-    <div className="univ-portal-header-wrapper">
-      {/* 1. TOP GOVT / ACCESSIBILITY UTILITY BAR */}
-      <div className="univ-utility-bar">
-        <div className="univ-utility-inner">
-          <div className="univ-utility-left">
-            <span className="gov-emblem-tag">ಕನ್ನಡ | English</span>
-            <span className="univ-utility-sep">|</span>
-            <span>Government of Karnataka &bull; State Public University</span>
-            <span className="univ-utility-sep">|</span>
-            <span>Directorate of Physical Education &amp; Sports</span>
-          </div>
-          <div className="univ-utility-right">
-            <span>📞 Helpdesk: 0831-2498172</span>
-            <span className="univ-utility-sep">|</span>
-            <span>✉️ sports@vtu.ac.in</span>
-          </div>
+    <div className="univ-main-banner">
+      <div className="univ-banner-inner">
+        {/* Left: Host College Crest */}
+        <div className="univ-left-emblem">
+          <Link href="/" title="Dr. ACS College of Engineering, Bengaluru (Host)">
+            <img
+              src="/acsce-logo.png"
+              alt="Dr. ACS College of Engineering Emblem"
+              className="univ-logo-img"
+            />
+          </Link>
         </div>
-      </div>
 
-      {/* 2. OFFICIAL UNIVERSITY & COLLEGE IDENTITY BANNER */}
-      <div className="univ-main-banner">
-        <div className="univ-banner-inner">
-          {/* Left: Host College Crest */}
-          <div className="univ-left-emblem">
-            <Link href="/" title="Dr. ACS College of Engineering, Bengaluru (Host)">
-              <img
-                src="/acsce-logo.png"
-                alt="Dr. ACS College of Engineering Emblem"
-                className="univ-logo-img"
-              />
-            </Link>
+        {/* Center: University & College Institutional Typography */}
+        <div className="univ-center-titles">
+          <div className="univ-kannada-name">
+            ವಿಶ್ವೇಶ್ವರಯ್ಯ ತಾಂತ್ರಿಕ ವಿಶ್ವವಿದ್ಯಾಲಯ, ಬೆಳಗಾವಿ
           </div>
-
-          {/* Center: University & College Institutional Typography */}
-          <div className="univ-center-titles">
-            <div className="univ-kannada-name">
-              ವಿಶ್ವೇಶ್ವರಯ್ಯ ತಾಂತ್ರಿಕ ವಿಶ್ವವಿದ್ಯಾಲಯ, ಬೆಳಗಾವಿ
-            </div>
-            <div className="univ-english-name">
-              VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI
-            </div>
-            <div className="univ-sub-state">
-              (A State Public University of Government of Karnataka &bull; Estd. 1998)
-            </div>
-            <div className="univ-host-clg">
-              DR. ACS COLLEGE OF ENGINEERING, BENGALURU
-            </div>
-            <div className="univ-accreditation-pill">
-              Approved by AICTE, New Delhi &bull; Affiliated to VTU &bull; NAAC &lsquo;A&rsquo; Grade &amp; NBA Accredited
-            </div>
+          <div className="univ-english-name">
+            VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI
+          </div>
+          <div className="univ-sub-state">
+            (A State Public University of Government of Karnataka &bull; Estd. 1998)
+          </div>
+          <div className="univ-host-clg">
+            DR. ACS COLLEGE OF ENGINEERING, BENGALURU
+          </div>
+          <div className="univ-accreditation-pill">
+            Approved by AICTE, New Delhi &bull; Affiliated to VTU &bull; NAAC &lsquo;A&rsquo; Grade &amp; NBA Accredited
+          </div>
+          {portalBadge && (
             <div className="univ-meet-badge">
               {portalBadge}
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Right: VTU University Crest */}
-          <div className="univ-right-emblem">
-            <Link href="/" title="Visvesvaraya Technological University (VTU) Belagavi">
-              <img
-                src="/vtu.png"
-                alt="Visvesvaraya Technological University Official Emblem"
-                className="univ-logo-img"
-              />
-            </Link>
-          </div>
+        {/* Right: VTU University Crest */}
+        <div className="univ-right-emblem">
+          <Link href="/" title="Visvesvaraya Technological University (VTU) Belagavi">
+            <img
+              src="/vtu.png"
+              alt="Visvesvaraya Technological University Official Emblem"
+              className="univ-logo-img"
+            />
+          </Link>
         </div>
       </div>
     </div>

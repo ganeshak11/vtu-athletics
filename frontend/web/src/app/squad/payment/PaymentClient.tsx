@@ -93,6 +93,20 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
       return;
     }
 
+    // Confirmation to prevent accidental premature roster locking
+    const confirmed = window.confirm(
+      "⚠️ CONFIRM ROSTER LOCK:\n\n" +
+      "Submitting payment will PERMANENTLY LOCK your squad nominations.\n\n" +
+      "Have you registered ALL your student-athletes, reserve disciplines, and relay squads?\n\n" +
+      "• Click OK to lock nominations & submit payment proof.\n" +
+      "• Click Cancel if you still need to add or edit athletes."
+    );
+
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('utrNumber', utr.trim());
     formData.append('amountSubmitted', amount);
@@ -278,9 +292,51 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
           </CardHeader>
           <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              Submitting payment receipt locks your squad roster and initiates financial verification with the host desk.
-            </p>
+            {/* Prominent Roster Lock Alert */}
+            {!isFullySettled && (
+              <div style={{
+                padding: '1rem 1.15rem',
+                background: '#fffbeb',
+                border: '1.5px solid #fde68a',
+                borderRadius: '12px',
+                color: '#92400e',
+                fontSize: '0.875rem',
+                lineHeight: 1.5,
+                display: 'flex',
+                gap: '0.75rem',
+                alignItems: 'flex-start',
+              }}>
+                <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>⚠️</span>
+                <div>
+                  <strong style={{ display: 'block', marginBottom: '0.2rem', color: '#78350f', fontSize: '0.925rem' }}>
+                    IMPORTANT: Ensure Entire Squad is Registered Before Paying
+                  </strong>
+                  Submitting payment proof <strong>permanently locks your squad nominations</strong>. Once locked, athlete entries, events, and relay compositions cannot be modified directly.
+                  <div style={{ marginTop: '0.45rem', fontSize: '0.8rem', color: '#b45309' }}>
+                    Need to add more athletes first? <Link href="/squad/athletes" style={{ color: '#1d4ed8', fontWeight: 700, textDecoration: 'underline' }}>Return to Athlete Nominations &rarr;</Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Emergency & Amendment Protocol Notice */}
+            <div style={{
+              padding: '0.85rem 1rem',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '10px',
+              fontSize: '0.8rem',
+              color: '#475569',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.6rem',
+              lineHeight: 1.45,
+            }}>
+              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>🚨</span>
+              <div>
+                <strong>Accidental Lock or Emergency Changes?</strong> If you accidentally submitted payment before finishing, or need an emergency athlete medical substitution, contact the <strong>VTU Meet Directorate Desk</strong>. The Administrator can unlock your roster or approve official late entries.
+              </div>
+            </div>
 
             {isFullySettled && (
               <div style={{ padding: '0.85rem 1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: 'var(--radius-sm)', color: 'var(--success)', fontSize: '0.9rem' }}>
@@ -357,24 +413,28 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
 
               <button
                 type="submit"
-                disabled={loading || isZeroSquad}
+                disabled={loading || isZeroSquad || isFullySettled}
                 id="btn-submit-payment-proof"
                 style={{
                   width: '100%',
                   marginTop: '0.5rem',
-                  background: isZeroSquad ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
-                  color: isZeroSquad ? 'var(--text-muted)' : '#fff',
+                  background: isZeroSquad || isFullySettled ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
+                  color: isZeroSquad || isFullySettled ? 'var(--text-muted)' : '#fff',
                   border: 'none',
                   padding: '0.9rem',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '1rem',
                   fontWeight: 800,
-                  cursor: loading || isZeroSquad ? 'not-allowed' : 'pointer',
-                  opacity: loading || isZeroSquad ? 0.6 : 1,
-                  boxShadow: isZeroSquad ? 'none' : '0 4px 14px var(--accent-glow)'
+                  cursor: loading || isZeroSquad || isFullySettled ? 'not-allowed' : 'pointer',
+                  opacity: loading || isZeroSquad || isFullySettled ? 0.6 : 1,
+                  boxShadow: isZeroSquad || isFullySettled ? 'none' : '0 4px 14px var(--accent-glow)'
                 }}
               >
-                {loading ? 'Submitting Receipt...' : `Submit Payment for Verification (₹${amount}) →`}
+                {loading 
+                  ? 'Submitting Receipt...' 
+                  : isFullySettled 
+                    ? '✓ Entry Fees Fully Settled' 
+                    : `Submit Payment for Verification (₹${amount}) →`}
               </button>
             </form>
 

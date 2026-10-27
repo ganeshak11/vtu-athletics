@@ -12,8 +12,8 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="univ-portal-header-wrapper">
-      {/* 1 & 2. OFFICIAL TOP BANNER WITH ACSCE & VTU EMBLEMS */}
-      <OfficialBanner portalBadge="26TH INTER-COLLEGIATE ATHLETICS CHAMPIONSHIP 2026 & ALL INDIA SELECTION TRIALS" />
+      {/* OFFICIAL TOP BANNER WITH LARGE ACSCE & VTU EMBLEMS */}
+      <OfficialBanner />
 
       {/* 3. SOLID INSTITUTIONAL NAVIGATION BAR (Navy & Gold Trim) */}
       <nav className="univ-main-nav">
@@ -39,7 +39,7 @@ export const Navbar: React.FC = () => {
               <span>🏫 Host Institution</span>
             </a>
             <a href="#gallery" className="univ-nav-link">
-              <span>🏆 Sports Heritage</span>
+              <span>📸 Championship Gallery</span>
             </a>
           </div>
 
@@ -90,7 +90,7 @@ export const Navbar: React.FC = () => {
           <a href="#schedule" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📅 Event Schedule</a>
           <a href="#venue" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📍 Stadium &amp; Transit</a>
           <a href="#host-college" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏫 Host Institution</a>
-          <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏆 Sports Heritage</a>
+          <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📸 Championship Gallery</a>
           <div style={{ borderTop: '1px solid #1e3a8a', margin: '0.5rem 0' }} />
           <Link href="/login/squad" className="univ-mobile-link" style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>
             🏛️ Institution Squad Login

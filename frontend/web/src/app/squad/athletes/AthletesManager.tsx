@@ -298,8 +298,8 @@ export default function AthletesManager({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-            <Link href="/" style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', fontWeight: 600 }}>
-              &larr; Championship Home
+            <Link href="/squad/dashboard" style={{ color: 'var(--accent-primary)', fontSize: '0.9rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              &larr; Back to Contingent Overview
             </Link>
           </div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
@@ -368,6 +368,33 @@ export default function AthletesManager({
           )}
         </div>
       </div>
+
+      {/* Emergency Guidance Banner when Locked */}
+      {rosterLocked && (
+        <div style={{
+          padding: '1rem 1.25rem',
+          background: '#fff7ed',
+          border: '1.5px solid #ffedd5',
+          borderRadius: '12px',
+          color: '#9a3412',
+          fontSize: '0.875rem',
+          lineHeight: 1.5,
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.75rem',
+        }}>
+          <span style={{ fontSize: '1.35rem', flexShrink: 0 }}>🔒</span>
+          <div>
+            <strong style={{ display: 'block', color: '#7c2d12', marginBottom: '0.2rem' }}>
+              Squad Roster is Locked Post-Payment
+            </strong>
+            Nominated entries are locked to allow Directorate heat generation and bib number serial allocation.
+            <div style={{ fontSize: '0.8rem', color: '#c2410c', marginTop: '0.35rem' }}>
+              <strong>Emergency late addition or medical injury substitution?</strong> Contact the <strong>VTU Meet Directorate / Helpdesk</strong>. Once an administrator unlocks your squad or approves an amendment, you can register the athlete and settle any differential balance due.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Metrics Row (Identical to Prototype) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
