@@ -10,7 +10,7 @@
  * 6. Hostel Accommodation Desk (₹500 Deposit, Gender Segregation)
  * 7. World Athletics Rule 166.4 Serpentine Heat Seeding (Preferred Lane Order 4,5,3,6,2,7,1,8)
  * 8. Call Room Marshaling (Spike Check <=9mm, Automatic DNS for No-Shows)
- * 9. Electronic Photo-Finish Track Timing & Rule TR 16.8 False Start DQ (<100ms)
+ * 9. Electronic Track Timing & Rule TR 16.8 False Start DQ (<100ms)
  * 10. Field Vertical Jump Scoring with World Athletics Rule TR 26.8 Countback Matrix
  * 11. Team Championship Points Allocation (7-5-4-3-2-1 Points System)
  * 12. Public Stadium Broadcast Arena & Merit/Participation Certificates

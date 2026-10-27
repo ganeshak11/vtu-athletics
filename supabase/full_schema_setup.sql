@@ -2119,7 +2119,7 @@ VALUES (
 ON CONFLICT DO NOTHING;
 -- ==============================================================================
 -- Migration: 0011_track_results.sql
--- Description: Track Events Timing, Photo Finish & Automatic Round Qualification
+-- Description: Track Events Timing & Automatic Round Qualification
 --              1. track_results table (electronic timing down to 1/1000s, reaction time, DQ)
 --              2. submit_track_result RPC
 --              3. qualify_next_round RPC (Automatic 'Q' per heat + Time 'q' qualifiers)

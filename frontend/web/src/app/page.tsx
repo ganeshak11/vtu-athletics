@@ -62,8 +62,8 @@ export default function HomePage() {
               <span className="stat-label">Track &amp; Field Disciplines</span>
             </div>
             <div className="stat-item">
-              <span className="stat-value">Lynx</span>
-              <span className="stat-label">Electronic Photo-Finish</span>
+              <span className="stat-value">8-Lane</span>
+              <span className="stat-label">Synthetic Athletic Track</span>
             </div>
             <div className="stat-item">
               <span className="stat-value">₹100</span>
@@ -169,7 +169,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <span className="check">✓</span>
-                    <span>Lynx electronic photo-finish and ultrasonic wind gauge standards</span>
+                    <span>AFI certified electronic track timing and ultrasonic wind gauge standards</span>
                   </li>
                   <li>
                     <span className="check">✓</span>
@@ -408,8 +408,8 @@ export default function HomePage() {
                   <div className="host-stat-lbl">Grade Accredited &amp; NBA Approved</div>
                 </div>
                 <div className="host-stat-box">
-                  <div className="host-stat-val">Lynx</div>
-                  <div className="host-stat-lbl">Electronic Photo-Finish Operations</div>
+                  <div className="host-stat-val">8-Lane</div>
+                  <div className="host-stat-lbl">Synthetic Track &amp; Field Arena</div>
                 </div>
               </div>
 

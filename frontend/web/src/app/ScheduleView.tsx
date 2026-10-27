@@ -25,8 +25,8 @@ const SCHEDULE_DATA: Record<number, { title: string; date: string; events: Event
       { time: '11:00 AM', callRoom: '10:35 AM', name: '400m Heats', division: 'Women', stage: 'Heats', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
       { time: '02:30 PM', callRoom: '02:05 PM', name: '100m Semi-Finals', division: 'Men', stage: 'Semi-Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
       { time: '03:15 PM', callRoom: '02:50 PM', name: 'Shot Put (4.00 kg) Final', division: 'Women', stage: 'Final', venue: 'Throwing Ring A', type: 'Field' },
-      { time: '04:00 PM', callRoom: '03:35 PM', name: '100m Grand Final (Lynx Timing)', division: 'Women', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
-      { time: '04:15 PM', callRoom: '03:50 PM', name: '100m Grand Final (Lynx Timing)', division: 'Men', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
+      { time: '04:00 PM', callRoom: '03:35 PM', name: '100m Grand Final', division: 'Women', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
+      { time: '04:15 PM', callRoom: '03:50 PM', name: '100m Grand Final', division: 'Men', stage: 'Final', venue: 'Main 8-Lane Synthetic Track', type: 'Track' },
     ],
   },
   2: {

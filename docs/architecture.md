@@ -370,7 +370,7 @@ progressive_height_attempts
 ```
 
 **Ranking rules by category:**
-- **Track** (`seconds`): ascending (lowest time wins). Ties broken by photo finish (thousandths).
+- **Track** (`seconds`): ascending (lowest time wins). Ties broken by thousandths of a second.
 - **Field throws & horizontal jumps**: descending `best_mark = MAX(valid attempts)`. Ties broken by second-best mark, then third-best.
 - **High Jump / Pole Vault**: highest bar cleared, then fewest total failures at that height, then fewest total failures overall. (Standard IAAF countback.)
 - **Relay**: same as track (ascending time). Points go to college, not individual athletes.
@@ -524,7 +524,7 @@ supabase/migrations/
 ├── 0010_call_room.sql                   -- call_room_logs (6 statuses),
 │                                           reserve substitution procedure
 │
-├── 0011_track_results.sql               -- photo finish import,
+├── 0011_track_results.sql               -- track timing import,
 │                                           track ranking (ascending time)
 │
 ├── 0012_field_results.sql               -- field_attempts (foul/pass/valid),
@@ -547,10 +547,10 @@ supabase/migrations/
 | # | Question | Impact |
 | :--- | :--- | :--- |
 | 1 | **How many days until the meet?** | Determines whether all 14 modules are realistic or we cut to a critical-path slice. |
-| 2 | **What timing equipment does the host actually use?** | "FinishLynx LIF" is an assumption. Many VTU meets use hand timing. Get a real sample file NOW. If hand timing, the photo finish parser is unnecessary and we save a module. |
+| 2 | **What timing equipment does the host actually use?** | Many VTU meets use electronic gate or hand timing. Get a real sample file NOW. |
 | 3 | **Are relay events 4x100m only, or 4x100m + 4x400m?** | Affects relay team entity and event catalogue. |
 | 4 | **How many reserves per relay team?** | 0, 1, or 2? Affects `relay_members` constraints. |
-| 5 | **Is the 21km Half Marathon confirmed?** | Road events have no heats, no lanes, no photo finish. Manual time entry only. |
+| 5 | **Is the 21km Half Marathon confirmed?** | Road events have no heats, no lanes. Manual time entry only. |
 | 6 | **What is the host's UPI ID and bank details?** | Needed for the payment screen. |
 | 7 | **Does the host want SMS/WhatsApp alerts or is in-app sufficient?** | Determines whether we need a messaging API integration. |
 | 8 | **Will results be entered per-heat or only for finals?** | If only finals, round advancement logic can be deferred entirely. |

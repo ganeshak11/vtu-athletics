@@ -13,13 +13,13 @@ Managing a university-level athletics championship involves coordinating:
 - 100+ participating engineering colleges across Karnataka
 - 1,000+ student-athletes competing in 40+ track, field, and combined disciplines
 - Dozens of accredited physical education directors (PEDs), coaches, and team managers
-- World Athletics / IAAF accredited technical officials and FinishLynx electronic photo finish timing teams
+- World Athletics / AFI accredited technical officials and electronic track timing teams
 - Campus logistics: hostel block assignments, thousands of daily meals, and physical accreditation
 - Real-time scorekeeping, live public feeds, and university championship trophy computations
 
 Traditionally, these operations relied on disconnected paper entry forms, manual Excel merges, WhatsApp broadcasts, printed heat sheets, and delayed physical notice boards. This led to lost entries, duplicate meal redemption, room overbooking, late reporting at call rooms, and slow result compilation.
 
-**VTU SportsOS** replaces all disconnected processes with a single, synchronized digital operating platform. Every stakeholder—from a college principal registering a squad to a timing official importing photo finish files—operates within the same secure real-time ecosystem.
+**VTU SportsOS** replaces all disconnected processes with a single, synchronized digital operating platform. Every stakeholder—from a college principal registering a squad to a timing official recording track times—operates within the same secure real-time ecosystem.
 
 ---
 
@@ -33,7 +33,7 @@ VTU SportsOS implements role-gated access with dedicated interfaces:
 | **College Delegation (Principal / PED)** | Institutional squad codes (e.g., `ACSCE-M`, `MITM-M`, `RVCE-G`) | Decentralized squad registration, eligibility compliance, reserve allocations, online fee checkout (Razorpay), receipt downloads. |
 | **Accreditation Desk Volunteer** | Admin / Official credentials | Hardware/camera QR scanning, identity verification, fee payment confirmation, physical Bib badge issuance, accreditation audit logs. |
 | **Call Room Marshal** | Official PIN (e.g., `1234`) | Device camera QR scanning, 6-state marshalling, accreditation guard check, 1-tap DNS reserve athlete substitution. |
-| **Chief Referee / Timing Official** | Official PIN | FinishLynx / Omega photo finish `LIF`/`CSV` file import, 3-attempt field matrix, manual timing input, IAAF `Q`/`q` qualifier calculation. |
+| **Chief Referee / Timing Official** | Official PIN | Electronic track timing CSV import, 3-attempt field matrix, manual timing input, IAAF `Q`/`q` qualifier calculation. |
 | **Hostel Warden** | Warden PIN (e.g., `2345` / `WARDEN`) | Single-tap QR arrival check-in, arrival timestamps, duplicate entry prevention. |
 | **Dining Hall / Canteen Volunteer** | Food PIN (e.g., `3456` / `FOOD`) | Meal slot selection (Breakfast/Lunch/Dinner), high-speed QR redemption, strict duplicate claim prevention. |
 | **Meet Director / University Admin** | Master Admin PIN (`ADMIN`) | Event control center, registration window lockdown, sequential block bib generator, college-separation heat generation, master Excel export. |
@@ -181,13 +181,13 @@ The Call Room manages athlete reporting and track readiness prior to every heat.
 
 ---
 
-# 8. Official Results & Electronic Photo Finish Timing Engine
+# 8. Official Results & Electronic Track Timing Engine
 
-VTU SportsOS supports electronic timing tower imports and manual referee entry for track, field, and combined disciplines.
+VTU SportsOS supports electronic timing imports and manual referee entry for track, field, and combined disciplines.
 
-### 8.1 Electronic Photo Finish Import (FinishLynx & Omega)
-* Compatible with FinishLynx and Omega electronic photo finish systems.
-* Referees import the standard `.lif` or `.csv` export file directly from the timing computer.
+### 8.1 Electronic Track Timing Import
+* Compatible with electronic track timing systems.
+* Referees import the standard `.csv` export file directly from the timing computer.
 * Format accepted:
   ```
   Lane, Bib, Time
@@ -272,5 +272,5 @@ Points are awarded for positions 1 through 8 in all championship finals:
 | **Phase 4: Logistics** | Warden & Dining Desks (`/warden`, `/volunteer`) | QR scans at hostels and dining halls. | Room check-in logged; duplicate-free meal distribution. |
 | **Phase 5: Seeding** | Heat Seeding Engine (`/admin/events/heats`) | Automatic 8-lane track seeding with college separation. | Published heat start lists with balanced institution distribution. |
 | **Phase 6: Marshalling** | Call Room Desk (`/referee`) | Pre-race QR check-in & 1-tap DNS reserve substitutions. | Final confirmed lane rosters; no empty lanes. |
-| **Phase 7: Timing** | Results Engine (`/referee/results`) | FinishLynx photo finish import & 3-attempt field matrix. | IAAF `Q`/`q` advancement calculated; official times certified. |
+| **Phase 7: Timing** | Results Engine (`/referee/results`) | Electronic track timing import & 3-attempt field matrix. | IAAF `Q`/`q` advancement calculated; official times certified. |
 | **Phase 8: Broadcast** | Public Portals (`/live`, `/leaderboard`) | Real-time score ticker & points leaderboard. | Live medal tallies & 5 Championship Trophy winners calculated. |
