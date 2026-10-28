@@ -1095,7 +1095,7 @@
   font-weight: 600;
 }
 
-/* Responsive */
+/* Comprehensive Mobile Responsiveness Overhaul */
 @media (max-width: 1024px) {
   .transit-modern-grid,
   .host-modern-container {
@@ -1105,25 +1105,139 @@
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: 3.5rem 1.25rem;
+    padding: 2.75rem 1rem 3.5rem;
+  }
+  .hero-badge-pill {
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.35;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.775rem;
+    text-align: center;
+  }
+  .hero-host-kicker {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+  }
+  .hero-main-title {
+    font-size: clamp(2rem, 7.5vw, 3rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    line-height: 1.15;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  .hero-cta-group {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 0.75rem;
+  }
+  .btn-primary-hero,
+  .btn-secondary-hero,
+  .btn-tertiary-hero {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 0.85rem 1.25rem;
+    font-size: 0.95rem;
+  }
+  .hero-countdown-card {
+    padding: 1.25rem 0.75rem;
+    border-radius: 16px;
+  }
+  .countdown-units-grid {
+    gap: 0.35rem;
+    width: 100%;
+  }
+  .countdown-unit {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.25rem;
+  }
+  .unit-number {
+    font-size: clamp(1.4rem, 5.5vw, 2rem);
+  }
+  .unit-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+  }
+  .countdown-divider {
+    font-size: 1.15rem;
+    margin-top: -0.35rem;
+  }
+
+  /* Section containers */
+  .portal-cards-section,
+  .regulations-section,
+  .transit-section,
+  .host-section {
+    padding: 3rem 1rem;
   }
   .cards-triple-grid {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .portal-glass-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 16px;
   }
   .regulations-grid-modern {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
-  .countdown-units-grid {
-    gap: 0.5rem;
-  }
-  .countdown-unit {
-    min-width: 65px;
-    padding: 0.5rem 0.75rem;
-  }
-  .unit-number {
-    font-size: 1.65rem;
+  .regulation-card {
+    padding: 1.35rem 1.15rem;
+    border-radius: 14px;
   }
   .transit-distance-pills {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+  }
+  .transit-card-box {
+    padding: 1.35rem 1.15rem;
+  }
+  .host-modern-container {
+    padding: 1.5rem 1.15rem;
+    border-radius: 16px;
+  }
+  .host-stats-row-6 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+  }
+  .host-features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .host-feature-card {
+    padding: 1.35rem 1.15rem;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 2rem 0.75rem 2.5rem;
+  }
+  .countdown-divider {
+    display: none;
+  }
+  .countdown-unit {
+    padding: 0.45rem 0.15rem;
+  }
+  .unit-number {
+    font-size: 1.35rem;
+  }
+  .transit-distance-pills {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .host-stats-row-6 {
     grid-template-columns: 1fr;
   }
 }

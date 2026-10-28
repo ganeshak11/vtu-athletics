@@ -60,30 +60,33 @@
   --font-display: 'Outfit', 'Inter', sans-serif;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
-img {
+img, svg, video, canvas, audio, iframe, embed, object {
   max-width: 100%;
   height: auto;
-  display: inline-block;
 }
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 56px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 html, body {
-  max-width: 100vw;
+  width: 100%;
+  max-width: 100%;
   overflow-x: clip;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

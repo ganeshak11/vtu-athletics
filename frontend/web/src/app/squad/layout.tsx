@@ -2,6 +2,7 @@ import { requireSquad } from '@/lib/auth-guard';
 import { OfficialBanner } from '@/components/layout/OfficialBanner';
 import { SquadNav } from './SquadNav';
 import '@/components/layout/Navbar.css';
+import './dashboard/dashboard.css';
 
 export const metadata = {
   title: 'VTU Athletics — Institution Delegation Portal',
@@ -17,7 +18,7 @@ export default async function SquadLayout({
   const isMen = session.gender === 'men';
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc', width: '100%', maxWidth: '100%', overflowX: 'clip' }}>
       {/* 1. Official Top Banner with Bilingual Crest & Dual Emblems (ACSCE left, VTU right) */}
       <OfficialBanner portalBadge="INSTITUTION DELEGATION PORTAL &bull; 26TH ATHLETICS CHAMPIONSHIP" />
 
@@ -29,7 +30,7 @@ export default async function SquadLayout({
       />
 
       {/* Main Institution Content - Fluid Full-Screen Width */}
-      <main style={{ flex: 1, width: '100%', maxWidth: '100%', padding: '1.75rem 2.5rem' }}>
+      <main className="squad-layout-main">
         {children}
       </main>
     </div>

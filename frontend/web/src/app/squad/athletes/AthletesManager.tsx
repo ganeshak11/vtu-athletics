@@ -704,7 +704,7 @@ export default function AthletesManager({
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 9999,
-            padding: '1.5rem',
+            padding: 'clamp(0.5rem, 3vw, 1.5rem)',
           }}
           id="modal-add-athlete-overlay"
         >
@@ -714,7 +714,7 @@ export default function AthletesManager({
               maxWidth: '960px',
               maxHeight: '92vh',
               overflowY: 'auto',
-              padding: '2rem',
+              padding: 'clamp(1rem, 3.5vw, 2rem)',
               background: 'var(--bg-secondary)',
               borderRadius: 'var(--radius-lg)',
               border: '1px solid var(--border-color)',
@@ -771,7 +771,7 @@ export default function AthletesManager({
             )}
 
             <form onSubmit={handleAddAthlete} id="form-add-athlete">
-              <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '1.5rem' }}>
+              <div className="athlete-modal-grid">
                 
                 {/* Left Column: Form Fields */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

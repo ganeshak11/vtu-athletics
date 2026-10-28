@@ -59,7 +59,7 @@
   align-items: center;
   gap: 1.25rem;
   flex: 1;
-  min-width: 320px;
+  min-width: 0;
 }
 
 .squad-crest-emblem {
@@ -842,4 +842,99 @@
   display: block;
   font-size: 0.8rem;
   margin-bottom: 2px;
+}
+
+/* Squad Layout Main Padding Container */
+.squad-layout-main {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  padding: 1.75rem 2rem;
+  box-sizing: border-box;
+}
+
+/* Responsive Media Queries for Squad Portal */
+@media (max-width: 992px) {
+  .squad-nav-desktop-divider {
+    display: none !important;
+  }
+  .squad-nav-desktop-auth {
+    display: none !important;
+  }
+  .squad-hero-body {
+    padding: 1.35rem 1.25rem;
+    gap: 1.25rem;
+  }
+  .squad-hero-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .squad-badges-row {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .squad-layout-main {
+    padding: 1rem 0.75rem;
+  }
+  .squad-hero-card {
+    border-radius: 12px;
+  }
+  .squad-hero-body {
+    padding: 1.15rem 0.85rem;
+  }
+  .squad-crest-emblem {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+  }
+  .squad-crest-icon {
+    font-size: 1.35rem;
+  }
+  .squad-college-title {
+    font-size: 1.25rem;
+  }
+  .squad-hero-buttons {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .squad-cta-primary,
+  .squad-cta-secondary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  .squad-roster-header {
+    padding: 1rem 0.85rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .squad-roster-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .squad-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+}
+
+/* Athlete Nomination Modal Responsive Grid */
+.athlete-modal-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .athlete-modal-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }

@@ -344,7 +344,7 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
-/* Responsive Breakpoints */
+/* Responsive Breakpoints & Mobile Optimization */
 @media (max-width: 992px) {
   .univ-main-banner,
   .univ-nav-inner {
@@ -353,20 +353,20 @@
   }
   .univ-left-emblem,
   .univ-right-emblem {
-    width: 85px;
-    height: 85px;
+    width: 75px;
+    height: 75px;
     border-radius: 12px;
     padding: 0.2rem;
   }
   .univ-logo-img {
-    max-height: 80px;
-    max-width: 80px;
+    max-height: 70px;
+    max-width: 70px;
   }
   .univ-english-name {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
   .univ-host-clg {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
   }
   .univ-accreditation-pill {
     font-size: 0.7rem;
@@ -381,5 +381,101 @@
   }
   .univ-mobile-hamburger {
     display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .univ-main-banner {
+    padding: 0.35rem 0.75rem;
+  }
+  .univ-banner-inner {
+    gap: 0.65rem;
+  }
+  .univ-left-emblem,
+  .univ-right-emblem {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    padding: 0.15rem;
+  }
+  .univ-logo-img {
+    max-height: 54px;
+    max-width: 54px;
+  }
+  .univ-kannada-name {
+    font-size: 0.8rem;
+    margin-bottom: 0.1rem;
+  }
+  .univ-english-name {
+    font-size: 0.95rem;
+    line-height: 1.15;
+  }
+  .univ-host-clg {
+    font-size: 0.75rem;
+  }
+  .univ-sub-state {
+    font-size: 0.65rem;
+  }
+  .univ-accreditation-pill {
+    font-size: 0.625rem;
+    padding: 0.12rem 0.45rem;
+    line-height: 1.25;
+  }
+  .univ-meet-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.6rem;
+  }
+  /* Collapse direct portal buttons on mobile so navbar doesn't overflow */
+  .univ-nav-auth .univ-btn-portal {
+    display: none;
+  }
+  .univ-nav-inner {
+    padding: 0 0.75rem;
+    min-height: 44px;
+  }
+  .univ-ticker-badge {
+    padding: 0 0.55rem;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .univ-main-banner {
+    padding: 0.25rem 0.5rem;
+  }
+  .univ-banner-inner {
+    gap: 0.4rem;
+  }
+  .univ-left-emblem,
+  .univ-right-emblem {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    padding: 0.1rem;
+  }
+  .univ-logo-img {
+    max-height: 42px;
+    max-width: 42px;
+  }
+  .univ-kannada-name {
+    font-size: 0.72rem;
+  }
+  .univ-english-name {
+    font-size: 0.825rem;
+    letter-spacing: -0.01em;
+  }
+  .univ-sub-state {
+    display: none;
+  }
+  .univ-host-clg {
+    font-size: 0.7rem;
+  }
+  .univ-accreditation-pill {
+    font-size: 0.58rem;
+    padding: 0.1rem 0.35rem;
+  }
+  .univ-meet-badge {
+    font-size: 0.62rem;
+    padding: 0.12rem 0.5rem;
   }
 }

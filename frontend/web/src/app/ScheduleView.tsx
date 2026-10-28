@@ -91,10 +91,10 @@ export default function ScheduleView() {
     <div id="schedule-section-root" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
       
       {/* Day Selector Pills & Category Filters */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', width: '100%', maxWidth: '100%' }}>
         
         {/* Day Tabs */}
-        <div style={{ display: 'flex', gap: '0.5rem', background: '#ffffff', padding: '0.35rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+        <div style={{ display: 'flex', gap: '0.4rem', background: '#ffffff', padding: '0.35rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           {[
             { day: 1, label: 'Day 1 • Dec 8' },
             { day: 2, label: 'Day 2 • Dec 9' },
@@ -106,14 +106,16 @@ export default function ScheduleView() {
               type="button"
               onClick={() => setActiveDay(day)}
               style={{
-                padding: '0.55rem 1.15rem',
+                padding: '0.5rem 0.95rem',
                 borderRadius: '8px',
                 border: 'none',
                 background: activeDay === day ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'transparent',
                 color: activeDay === day ? '#ffffff' : '#475569',
                 fontWeight: activeDay === day ? 800 : 600,
-                fontSize: '0.85rem',
+                fontSize: '0.825rem',
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 transition: 'all 0.15s ease',
                 boxShadow: activeDay === day ? '0 2px 8px rgba(37,99,235,0.25)' : 'none',
               }}
@@ -124,21 +126,23 @@ export default function ScheduleView() {
         </div>
 
         {/* Discipline Filter */}
-        <div style={{ display: 'flex', gap: '0.4rem', background: '#f1f5f9', padding: '0.25rem', borderRadius: '8px' }}>
+        <div style={{ display: 'flex', gap: '0.35rem', background: '#f1f5f9', padding: '0.25rem', borderRadius: '8px', maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           {(['All', 'Track', 'Field', 'Relay'] as const).map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setFilterType(cat)}
               style={{
-                padding: '0.4rem 0.85rem',
+                padding: '0.4rem 0.75rem',
                 borderRadius: '6px',
                 border: 'none',
                 background: filterType === cat ? '#ffffff' : 'transparent',
                 color: filterType === cat ? '#0f172a' : '#64748b',
                 fontWeight: filterType === cat ? 700 : 500,
-                fontSize: '0.8rem',
+                fontSize: '0.785rem',
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 boxShadow: filterType === cat ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
                 transition: 'all 0.15s ease',
               }}
@@ -165,7 +169,7 @@ export default function ScheduleView() {
       </div>
 
       {/* Events Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1rem' }}>
         {filteredEvents.map((ev, idx) => (
           <div
             key={idx}

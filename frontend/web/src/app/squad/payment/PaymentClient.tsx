@@ -157,7 +157,7 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1.5rem' }}>
         
         {/* Left: Fee Breakdown & UPI QR */}
         <Card>

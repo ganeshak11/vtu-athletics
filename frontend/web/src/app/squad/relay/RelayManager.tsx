@@ -42,7 +42,7 @@ export default function RelayManager({ relayTeams, athletes, rosterLocked, squad
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
         {relayTeams.map((team) => (
           <RelayTeamCard
             key={team.id}
