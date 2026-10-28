@@ -27,13 +27,13 @@ export default function HomePage() {
           {/* Eyebrow Status Badge */}
           <div className="hero-badge-pill">
             <span className="hero-live-dot" />
-            <span>🏆 ACSATHLAURA 2026 &bull; 26th VTU State Athletics Championship &amp; Selection Trials</span>
+            <span>🏆 ACS ATHLETICS AURA 2026 &bull; 26th VTU State Athletics Championship &amp; Selection Trials</span>
           </div>
 
           {/* Main Display Headline (ACS + Athletics + AURA) */}
           <div className="hero-host-kicker">DR. ACS COLLEGE OF ENGINEERING &bull; VTU INTER-COLLEGIATE ATHLETICS</div>
           <h1 className="hero-main-title">
-            ACS<span className="hero-highlight">ATHLAURA</span> <span className="hero-year-badge">2026</span>
+            ACS <span className="hero-highlight">ATHLETICS AURA</span> <span className="hero-year-badge">2026</span>
           </h1>
 
           {/* Subtitle */}
@@ -361,6 +361,10 @@ export default function HomePage() {
 
               <div className="transit-distance-pills">
                 <div className="distance-pill">
+                  <div className="dist-km">2.0 km</div>
+                  <div className="dist-label">Challagatta Metro Station</div>
+                </div>
+                <div className="distance-pill">
                   <div className="dist-km">3.5 km</div>
                   <div className="dist-label">Kengeri Metro Station</div>
                 </div>
@@ -369,8 +373,8 @@ export default function HomePage() {
                   <div className="dist-label">KSR Bengaluru City Railway</div>
                 </div>
                 <div className="distance-pill">
-                  <div className="dist-km">52 km</div>
-                  <div className="dist-label">Kempegowda Int'l Airport</div>
+                  <div className="dist-km">18.5 km</div>
+                  <div className="dist-label">Majestic Bus Stand</div>
                 </div>
               </div>
 
@@ -420,19 +424,19 @@ export default function HomePage() {
               <div className="transit-footer-item">
                 <span className="transit-footer-icon">🚇</span>
                 <div>
-                  <strong>Namma Metro (Purple Line):</strong> Kengeri Metro Terminal (3.5 km) with direct tournament shuttle vans
+                  <strong>Namma Metro (Purple Line):</strong> Challagatta Terminal (2.0 km) &amp; Kengeri Station (3.5 km) with direct tournament connectivity
                 </div>
               </div>
               <div className="transit-footer-item">
                 <span className="transit-footer-icon">🚆</span>
                 <div>
-                  <strong>South Western Railway:</strong> Kengeri Railway Station (4.0 km) &amp; KSR Bengaluru Central (18 km)
+                  <strong>South Western Railway:</strong> Kengeri Station (4.0 km) &amp; KSR Bengaluru City Railway (18 km)
                 </div>
               </div>
               <div className="transit-footer-item">
-                <span className="transit-footer-icon">🛣️</span>
+                <span className="transit-footer-icon">🚌</span>
                 <div>
-                  <strong>Highway Convoys:</strong> Direct expressway slip-road access from NH 275; Gates 1 &amp; 2 for team coaches
+                  <strong>Majestic Bus Terminal:</strong> Kempegowda Bus Station (18.5 km) with direct BMTC buses to campus gates
                 </div>
               </div>
             </div>

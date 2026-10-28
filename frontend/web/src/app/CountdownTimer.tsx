@@ -68,7 +68,7 @@ export default function CountdownTimer() {
         </div>
       </div>
       <div className="countdown-footer-msg">
-        🏆 ACSATHLAURA 2026 &bull; 26th VTU State Athletics Championship &bull; All India Selections
+        🏆 ACS ATHLETICS AURA 2026 &bull; 26th VTU State Athletics Championship &bull; All India Selections
       </div>
     </div>
   );

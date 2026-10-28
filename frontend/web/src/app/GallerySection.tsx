@@ -213,7 +213,7 @@ export default function GallerySection() {
         {/* Section Header */}
         <div className="gallery-header">
           <div className="gallery-badge">
-            <span>📸 ACSATHLAURA &apos;26 &bull; OFFICIAL CHAMPIONSHIP CHRONICLES</span>
+            <span>📸 ACS ATHLETICS AURA &apos;26 &bull; OFFICIAL CHAMPIONSHIP CHRONICLES</span>
           </div>
           <h2 className="gallery-title">
             Championship Gallery &amp; Hall of Glory

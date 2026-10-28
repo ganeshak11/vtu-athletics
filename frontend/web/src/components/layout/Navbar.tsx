@@ -11,11 +11,13 @@ export const Navbar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <header className="univ-portal-header-wrapper">
-      {/* OFFICIAL TOP BANNER WITH LARGE ACSCE & VTU EMBLEMS */}
-      <OfficialBanner />
+    <>
+      <header className="univ-portal-header-wrapper">
+        {/* OFFICIAL TOP BANNER WITH LARGE ACSCE & VTU EMBLEMS */}
+        <OfficialBanner />
+      </header>
 
-      {/* 3. SOLID INSTITUTIONAL NAVIGATION BAR (Navy & Gold Trim) */}
+      {/* 3. SOLID INSTITUTIONAL NAVIGATION BAR (Fixed to Top of Screen on Scroll) */}
       <nav className="univ-main-nav">
         <div className="univ-nav-inner">
           {/* Menu Links */}
@@ -64,6 +66,24 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
         </div>
+        {/* Mobile Drawer */}
+        {isMobileMenuOpen && (
+          <div className="univ-mobile-dropdown">
+            <Link href="/" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏛️ Home</Link>
+            <a href="#rules" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📜 Rules &amp; Regulations</a>
+            <a href="#schedule" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📅 Event Schedule</a>
+            <a href="#venue" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📍 Stadium &amp; Transit</a>
+            <a href="#host-college" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏫 Host Institution</a>
+            <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📸 Championship Gallery</a>
+            <div style={{ borderTop: '1px solid #1e3a8a', margin: '0.5rem 0' }} />
+            <Link href="/login/squad" className="univ-mobile-link" style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>
+              🏛️ Institution Squad Login
+            </Link>
+            <Link href="/login/admin" className="univ-mobile-link" style={{ background: '#0f172a', color: '#ffffff', fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>
+              🛡️ Directorate Admin Login
+            </Link>
+          </div>
+        )}
       </nav>
 
       {/* 4. SCROLLING DIRECTORATE CIRCULARS NOTICE TICKER */}
@@ -81,25 +101,6 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Mobile Drawer */}
-      {isMobileMenuOpen && (
-        <div className="univ-mobile-dropdown">
-          <Link href="/" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏛️ Home</Link>
-          <a href="#rules" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📜 Rules &amp; Regulations</a>
-          <a href="#schedule" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📅 Event Schedule</a>
-          <a href="#venue" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📍 Stadium &amp; Transit</a>
-          <a href="#host-college" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏫 Host Institution</a>
-          <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📸 Championship Gallery</a>
-          <div style={{ borderTop: '1px solid #1e3a8a', margin: '0.5rem 0' }} />
-          <Link href="/login/squad" className="univ-mobile-link" style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>
-            🏛️ Institution Squad Login
-          </Link>
-          <Link href="/login/admin" className="univ-mobile-link" style={{ background: '#0f172a', color: '#ffffff', fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>
-            🛡️ Directorate Admin Login
-          </Link>
-        </div>
-      )}
-    </header>
+    </>
   );
 };

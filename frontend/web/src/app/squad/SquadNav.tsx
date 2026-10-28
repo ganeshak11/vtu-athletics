@@ -23,37 +23,55 @@ export function SquadNav({ collegeName, collegeCode, gender }: SquadNavProps) {
   ];
 
   return (
-    <nav className="univ-main-nav" style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
-      <div className="univ-nav-inner" style={{ padding: '0 2rem', minHeight: '52px' }}>
-        {/* Navigation Tabs */}
-        <div className="univ-nav-menu" style={{ gap: '0.4rem' }}>
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`univ-nav-link ${isActive ? 'active' : ''}`}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  padding: '0.45rem 0.95rem',
-                  fontSize: '0.875rem',
-                  fontWeight: isActive ? 700 : 600,
-                  color: isActive ? '#1e3a8a' : '#475569',
-                  background: isActive ? '#eff6ff' : 'transparent',
-                  border: isActive ? '1px solid #bfdbfe' : '1px solid transparent',
-                  borderRadius: '8px',
-                  transition: 'all 0.15s ease',
-                  textDecoration: 'none',
-                }}
-              >
-                <span style={{ fontSize: '1rem' }}>{link.icon}</span>
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
+    <nav className="univ-main-nav" style={{ borderBottom: '1px solid #e2e8f0', background: 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 2px 10px rgba(15, 23, 42, 0.05)' }}>
+      <div className="univ-nav-inner" style={{ padding: '0 2rem', minHeight: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        
+        {/* Brand / Championship Context + Tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <Link href="/squad/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none', flexShrink: 0 }}>
+            <img src="/acsce-logo.png" alt="ACSCE" style={{ height: '34px', width: 'auto', objectFit: 'contain' }} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.15, letterSpacing: '-0.01em' }}>
+                ACS ATHLETICS AURA
+              </span>
+              <span style={{ fontSize: '0.675rem', fontWeight: 800, color: '#b45309', letterSpacing: '0.04em' }}>
+                CONTINGENT PORTAL &bull; 2026
+              </span>
+            </div>
+          </Link>
+
+          <div style={{ height: '24px', width: '1px', background: '#cbd5e1' }} />
+
+          {/* Navigation Tabs */}
+          <div className="univ-nav-menu" style={{ gap: '0.4rem', display: 'flex', alignItems: 'center' }}>
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`univ-nav-link ${isActive ? 'active' : ''}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    padding: '0.42rem 0.9rem',
+                    fontSize: '0.85rem',
+                    fontWeight: isActive ? 750 : 600,
+                    color: isActive ? '#1e3a8a' : '#475569',
+                    background: isActive ? '#eff6ff' : 'transparent',
+                    border: isActive ? '1.5px solid #bfdbfe' : '1.5px solid transparent',
+                    borderRadius: '8px',
+                    transition: 'all 0.15s ease',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <span style={{ fontSize: '1rem' }}>{link.icon}</span>
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         {/* Institution Info & Sign Out */}
