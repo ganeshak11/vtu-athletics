@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 interface LeaderItem {
   role: string;
   roleBadge: string;
-  badgeBg: string;
   name: string;
   degrees: string;
   designation: string;
@@ -18,7 +17,6 @@ const LEADERS: LeaderItem[] = [
   {
     role: 'Chief Patron',
     roleBadge: 'CHIEF PATRON',
-    badgeBg: '#1e3a8a',
     name: 'Dr. A. C. Shanmugam',
     degrees: 'B.A., LL.B, FIMSA, FRCPS (Glasgow, UK)',
     designation: 'Founder Chairman',
@@ -29,7 +27,6 @@ const LEADERS: LeaderItem[] = [
   {
     role: 'Patron',
     roleBadge: 'PATRON',
-    badgeBg: '#d97706',
     name: 'Sri. A. C. S. ArunKumar',
     degrees: 'B.Tech (Hons), LMISTE, MIET (UK), LMCSI',
     designation: 'President',
@@ -40,7 +37,6 @@ const LEADERS: LeaderItem[] = [
   {
     role: 'Executive Director',
     roleBadge: 'EXECUTIVE DIRECTOR',
-    badgeBg: '#059669',
     name: 'Dr. S. Vijayanand',
     degrees: 'M.Tech, Ph.D',
     designation: 'Executive Director',
@@ -65,15 +61,15 @@ const RANK_POSTERS: PosterItem[] = [
     id: 'batch-2021-25',
     batch: 'Batch 2021–2025',
     title: 'Top 10 Ranks in VTU under B.E Program',
-    subtitle: 'Outstanding performance across Aerospace, Biomedical & Aeronautical Engineering',
-    badge: '🥇 10 VTU UNIVERSITY RANKS',
+    subtitle: 'Outstanding state ranks across Aerospace, Biomedical & Aeronautical Engineering',
+    badge: '10 VTU STATE RANKS',
     imageSrc: '/management/image4.jpeg',
     topAchievers: [
-      '1st Rank: Ms. Harshitha M. K (CGPA 9.41) — Dept. of BME',
-      '2nd Rank: Mr. T.N. Saaket (CGPA 9.39) — Dept. of ASE',
-      '3rd Rank: Mr. Khandelwal Sujal Tapish (CGPA 9.36) — Dept. of ASE',
+      '1st Rank: Ms. Harshitha M. K (CGPA 9.41) — Dept. of Biomedical Engineering',
+      '2nd Rank: Mr. T.N. Saaket (CGPA 9.39) — Dept. of Aerospace Engineering',
+      '3rd Rank: Mr. Khandelwal Sujal Tapish (CGPA 9.36) — Dept. of Aerospace Engineering',
       '4th Rank: Ms. Shireesha C (CGPA 9.36) & Mr. Balu S (CGPA 9.35)',
-      '5th–7th Ranks: Ms. Chaithra R, Mr. Ajay Rahul K, Ms. Aishwarya, Ms. Sangeetha'
+      '5th–7th Ranks: Ms. Chaithra R, Mr. Ajay Rahul K, Ms. Aishwarya A N, Ms. Sangeetha B'
     ]
   },
   {
@@ -81,14 +77,14 @@ const RANK_POSTERS: PosterItem[] = [
     batch: 'Batch 2022–2026',
     title: '26th Convocation — VTU Rank Holders',
     subtitle: 'State Gold Medalists and top university scorers in Autonomous BE Programs',
-    badge: '🎖️ 26TH CONVOCATION MEDALISTS',
+    badge: '26TH CONVOCATION MEDALISTS',
     imageSrc: '/management/image5.jpeg',
     topAchievers: [
-      '1st Rank: Ms. Charvi R A (CGPA 9.21) — Dept. of ASE',
-      '1st Rank: Ms. Neha Vinod P (CGPA 9.01) — Dept. of BME',
-      '2nd Rank: Mr. Mohd Ameen (CGPA 9.13) — Dept. of ASE',
-      '3rd Rank: Mr. Nithish (CGPA 8.79) — Dept. of BME',
-      '4th–8th Ranks: Ms. Akshatha, Ms. Ananya, Mr. Raghurama, Mr. Ratnakar, Ms. S. Anu Nadig'
+      '1st Rank: Ms. Charvi R A (CGPA 9.21) — Dept. of Aerospace Engineering',
+      '1st Rank: Ms. Neha Vinod P (CGPA 9.01) — Dept. of Biomedical Engineering',
+      '2nd Rank: Mr. Mohd Ameen (CGPA 9.13) — Dept. of Aerospace Engineering',
+      '3rd Rank: Mr. Nithish (CGPA 8.79) — Dept. of Biomedical Engineering',
+      '4th–8th Ranks: Ms. Akshatha P S, Ms. Ananya S Nadig, Mr. Raghurama Sharma, Mr. Ratnakar, Ms. S. Anu Nadig'
     ]
   }
 ];
@@ -100,15 +96,18 @@ export default function LeadershipAndRanks() {
     <div className="leadership-ranks-section">
       {/* 1. ORGANIZING PATRONS & LEADERSHIP */}
       <div className="leadership-subwrapper">
-        <div className="section-eyebrow" style={{ textAlign: 'center', display: 'block', marginBottom: '0.45rem' }}>
-          CHAMPIONSHIP PATRONAGE &bull; DR. ACS COLLEGE OF ENGINEERING &amp; RRGI
+        <div className="editorial-section-header">
+          <div className="editorial-header-left">
+            <div className="editorial-category-tag">INSTITUTIONAL PATRONAGE // ACSCE &amp; RRGI</div>
+            <h3 className="editorial-section-title">Organizing Patrons &amp; Leadership</h3>
+            <p className="editorial-section-desc">
+              Under the visionary stewardship of our Chief Patron and Executive Leadership, Dr. ACS College of Engineering hosts the 26th VTU State Athletics Championship.
+            </p>
+          </div>
+          <div className="editorial-header-right">
+            <span className="editorial-header-badge">ESTD. 1992</span>
+          </div>
         </div>
-        <h3 className="section-title-clean" style={{ textAlign: 'center', marginBottom: '0.75rem' }}>
-          Organizing Patrons &amp; Institutional Leadership
-        </h3>
-        <p style={{ textAlign: 'center', color: '#475569', maxWidth: '780px', margin: '0 auto 2.25rem', fontSize: '0.95rem', lineHeight: 1.6 }}>
-          Under the visionary stewardship of our Chief Patron and Executive Leadership, Dr. ACS College of Engineering hosts the 26th VTU State Athletics Championship with state-of-the-art sports infrastructure and collegiate hospitality.
-        </p>
 
         <div className="leaders-grid">
           {LEADERS.map((leader, idx) => (
@@ -120,10 +119,7 @@ export default function LeadershipAndRanks() {
                   className="leader-img"
                   loading="lazy"
                 />
-                <span
-                  className="leader-badge-floating"
-                  style={{ background: leader.badgeBg }}
-                >
+                <span className="leader-tag-badge">
                   {leader.roleBadge}
                 </span>
               </div>
@@ -140,16 +136,19 @@ export default function LeadershipAndRanks() {
 
       {/* 2. ACADEMIC EXCELLENCE & VTU UNIVERSITY RANK HOLDERS */}
       <div className="ranks-subwrapper" id="vtu-rank-holders">
-        <div className="ranks-header-block">
-          <div className="ranks-header-left">
-            <span className="ranks-header-badge">🏅 VTU STATE RANK HOLDERS &bull; ACADEMIC EXCELLENCE</span>
-            <h3 className="ranks-header-title">
+        <div className="editorial-section-header" style={{ borderBottomColor: '#cbd5e1' }}>
+          <div className="editorial-header-left">
+            <div className="editorial-category-tag">ACADEMIC DISTINCTION // VTU STATE MERIT</div>
+            <h3 className="editorial-section-title">
               Dr. ACS College of Engineering &bull; Top University Ranks
             </h3>
-            <p className="ranks-header-desc">
-              Pioneering excellence in both inter-university athletic sports and academic distinction under 
+            <p className="editorial-section-desc">
+              Institutional excellence in academic engineering alongside state inter-collegiate athletic prominence under 
               <strong> Visvesvaraya Technological University (VTU)</strong>. Click any official poster to preview in high resolution.
             </p>
+          </div>
+          <div className="editorial-header-right">
+            <span className="editorial-header-badge">VTU MERIT RECORDS</span>
           </div>
         </div>
 
@@ -171,7 +170,7 @@ export default function LeadershipAndRanks() {
                   loading="lazy"
                 />
                 <div className="poster-hover-overlay">
-                  <span className="overlay-btn">🔍 View Full Poster</span>
+                  <span className="overlay-btn">Inspect High-Resolution Poster</span>
                 </div>
                 <span className="poster-batch-badge">{poster.badge}</span>
               </div>
@@ -182,11 +181,11 @@ export default function LeadershipAndRanks() {
                 <p className="poster-subtitle">{poster.subtitle}</p>
 
                 <div className="poster-achievers-box">
-                  <div className="achievers-heading">Key Rank Highlights:</div>
+                  <div className="achievers-heading">State Rank Summary:</div>
                   <ul className="achievers-list">
                     {poster.topAchievers.map((achiever, i) => (
                       <li key={i} className="achiever-item">
-                        <span className="achiever-bullet">★</span>
+                        <span className="achiever-bullet" aria-hidden="true">&bull;</span>
                         <span>{achiever}</span>
                       </li>
                     ))}
@@ -199,7 +198,7 @@ export default function LeadershipAndRanks() {
                   onClick={() => setActiveModalPoster(poster)}
                 >
                   <span>View Official VTU Merit Poster</span>
-                  <span>↗</span>
+                  <span aria-hidden="true">&rarr;</span>
                 </button>
               </div>
             </div>
@@ -253,7 +252,7 @@ export default function LeadershipAndRanks() {
                 className="btn-open-original"
               >
                 <span>Open Raw Image</span>
-                <span>↗</span>
+                <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
           </div>

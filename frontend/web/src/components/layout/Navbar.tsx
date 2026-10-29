@@ -26,33 +26,33 @@ export const Navbar: React.FC = () => {
               href="/" 
               className={`univ-nav-link ${pathname === '/' ? 'active' : ''}`}
             >
-              <span>🏛️ Home</span>
+              <span>Home</span>
             </Link>
             <a href="#rules" className="univ-nav-link">
-              <span>📜 Rules &amp; Regulations</span>
+              <span>Regulations</span>
             </a>
             <a href="#schedule" className="univ-nav-link">
-              <span>📅 Event Schedule</span>
+              <span>Discipline Schedule</span>
             </a>
             <a href="#venue" className="univ-nav-link">
-              <span>📍 Stadium &amp; Transit</span>
+              <span>Stadium &amp; Transit</span>
             </a>
             <a href="#host-college" className="univ-nav-link">
-              <span>🏫 Host Institution</span>
+              <span>Host Institution</span>
             </a>
             <a href="#gallery" className="univ-nav-link">
-              <span>📸 Championship Gallery</span>
+              <span>Championship Gallery</span>
             </a>
           </div>
 
           {/* Direct Portal Access Logins */}
           <div className="univ-nav-auth">
             <Link href="/login/squad" className="univ-btn-portal univ-btn-squad" id="nav-btn-squad">
-              <span>🏛️ Institution Squad Login</span>
+              <span>Institution Squad Login</span>
             </Link>
 
             <Link href="/login/admin" className="univ-btn-portal univ-btn-admin" id="nav-btn-admin">
-              <span>🛡️ Directorate Admin</span>
+              <span>Directorate Admin</span>
             </Link>
 
             {/* Mobile Toggle */}
@@ -69,18 +69,18 @@ export const Navbar: React.FC = () => {
         {/* Mobile Drawer */}
         {isMobileMenuOpen && (
           <div className="univ-mobile-dropdown">
-            <Link href="/" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏛️ Home</Link>
-            <a href="#rules" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📜 Rules &amp; Regulations</a>
-            <a href="#schedule" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📅 Event Schedule</a>
-            <a href="#venue" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📍 Stadium &amp; Transit</a>
-            <a href="#host-college" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>🏫 Host Institution</a>
-            <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>📸 Championship Gallery</a>
+            <Link href="/" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            <a href="#rules" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Regulations &amp; Quotas</a>
+            <a href="#schedule" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Discipline Schedule</a>
+            <a href="#venue" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Stadium &amp; Transit</a>
+            <a href="#host-college" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Host Institution</a>
+            <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Championship Gallery</a>
             <div style={{ borderTop: '1px solid #1e3a8a', margin: '0.5rem 0' }} />
-            <Link href="/login/squad" className="univ-mobile-link" style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>
-              🏛️ Institution Squad Login
+            <Link href="/login/squad" className="univ-mobile-link" style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: 700 }} onClick={() => setIsMobileMenuOpen(false)}>
+              Institution Squad Login
             </Link>
-            <Link href="/login/admin" className="univ-mobile-link" style={{ background: '#0f172a', color: '#ffffff', fontWeight: 800 }} onClick={() => setIsMobileMenuOpen(false)}>
-              🛡️ Directorate Admin Login
+            <Link href="/login/admin" className="univ-mobile-link" style={{ background: '#0f172a', color: '#ffffff', fontWeight: 700 }} onClick={() => setIsMobileMenuOpen(false)}>
+              Directorate Admin Login
             </Link>
           </div>
         )}

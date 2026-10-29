@@ -5,8 +5,8 @@ import React, { useState } from 'react';
 interface RouteInfo {
   id: string;
   category: 'railway' | 'bus' | 'shuttle';
+  routeNumber: string;
   badge: string;
-  badgeColor: string;
   title: string;
   origin: string;
   transitType: string;
@@ -20,8 +20,8 @@ const TRANSIT_ROUTES: RouteInfo[] = [
   {
     id: 'route-yeshwanthpur',
     category: 'railway',
-    badge: 'ROUTE 01 • METRO & SHUTTLE',
-    badgeColor: '#2563eb',
+    routeNumber: 'ROUTE 01',
+    badge: 'METRO &amp; SHUTTLE LINK',
     title: 'From Yeshwanthpura Railway Station (YPR)',
     origin: 'Yeshwanthpura Junction',
     transitType: 'Namma Metro (Green ➔ Purple) + College Shuttle',
@@ -31,7 +31,7 @@ const TRANSIT_ROUTES: RouteInfo[] = [
       'Exit Yeshwanthpur Railway Station and walk to Yeshwanthpur Metro Station (Green Line).',
       'Board the Green Line train towards Silk Institute.',
       'Interchange at Nadaprabhu Kempegowda Station (Majestic) to the Purple Line towards Challaghatta.',
-      'Alight at Challaghatta Metro Station (terminal station, just 2.0 km from campus).',
+      'Alight at Challaghatta Metro Station (terminal station, 2.0 km from campus).',
       'Board the continuous Dr. ACSCE / Rajarajeswari Medical College & Hospital (RRMC&H) pickup shuttle directly to the Athletics Stadium.'
     ],
     keyHighlight: 'Fastest transit avoiding all highway peak traffic via the Purple Metro corridor.'
@@ -39,9 +39,9 @@ const TRANSIT_ROUTES: RouteInfo[] = [
   {
     id: 'route-majestic',
     category: 'bus',
-    badge: 'ROUTE 02 • DIRECT BMTC & METRO',
-    badgeColor: '#d97706',
-    title: 'From Majestic (KSR Railway & Kempegowda Bus Stand)',
+    routeNumber: 'ROUTE 02',
+    badge: 'DIRECT BMTC &amp; METRO',
+    title: 'From Majestic (KSR Railway &amp; Kempegowda Bus Stand)',
     origin: 'KSR Bengaluru City / Majestic Terminal',
     transitType: 'BMTC 226 Series Bus OR Direct Purple Line Metro',
     duration: '~40–50 mins',
@@ -57,8 +57,8 @@ const TRANSIT_ROUTES: RouteInfo[] = [
   {
     id: 'route-kengeri',
     category: 'railway',
-    badge: 'ROUTE 03 • COLLEGE BUS CORRIDOR',
-    badgeColor: '#059669',
+    routeNumber: 'ROUTE 03',
+    badge: 'COLLEGE BUS CORRIDOR',
     title: 'From Kengeri Railway Station',
     origin: 'Kengeri Railway Station Forecourt',
     transitType: 'Dedicated Dr. ACSCE College Bus Shuttle',
@@ -75,8 +75,8 @@ const TRANSIT_ROUTES: RouteInfo[] = [
   {
     id: 'route-rrmch',
     category: 'shuttle',
-    badge: 'ROUTE 04 • CAMPUS SHUTTLE LINK',
-    badgeColor: '#7c3aed',
+    routeNumber: 'ROUTE 04',
+    badge: 'CAMPUS SHUTTLE LINK',
     title: 'From Rajarajeswari Medical College (RRMC&H Main Gate)',
     origin: 'RRMC&H Main Entrance, Mysore Road',
     transitType: 'High-Frequency Campus Shuttle Van',
@@ -87,13 +87,13 @@ const TRANSIT_ROUTES: RouteInfo[] = [
       'Designated pickup point directly in front of the Main Gate of Rajarajeswari Medical College & Hospital.',
       'Continuous dedicated tournament shuttle vans transfer athletes and managers directly to the ACSCE Athletic Arena.'
     ],
-    keyHighlight: '24/7 on-demand connector between sister medical institution and stadium.'
+    keyHighlight: 'Continuous on-demand connector between sister medical institution and stadium.'
   },
   {
     id: 'route-checkpost',
     category: 'shuttle',
-    badge: 'ROUTE 05 • LOCAL TRANSIT STOP',
-    badgeColor: '#ea580c',
+    routeNumber: 'ROUTE 05',
+    badge: 'LOCAL TRANSIT STOP',
     title: 'From Check Post Bus Stop',
     origin: 'Check Post Stop, Kambipura',
     transitType: 'Designated College Bus Pickup',
@@ -122,46 +122,46 @@ export default function TransitRoutes() {
     <div className="transit-routes-container" id="contingent-transport-guidelines">
       {/* Header Bar */}
       <div className="transit-routes-header">
-        <div>
-          <span className="transit-routes-pill">🚍 OFFICIAL CONTINGENT LOGISTICS &bull; ROUTE GUIDELINES</span>
+        <div className="transit-header-left">
+          <div className="transit-category-tag">CONTINGENT LOGISTICS // ROUTE DIRECTORY</div>
           <h3 className="transit-routes-title">
-            Student-Athlete &amp; Contingent Transportation Routes
+            Student-Athlete &amp; Delegation Transportation Routes
           </h3>
           <p className="transit-routes-desc">
-            Direct transit pathways from Bengaluru railway hubs, metro terminals, and bus stations to 
+            Direct transit pathways from Bengaluru railway terminals, metro stations, and highway hubs to 
             <strong> Dr. A.C.S. College of Engineering</strong>, Kambipura, Mysore Road.
           </p>
         </div>
 
-        {/* Filter Pills */}
-        <div className="transit-filter-pills">
+        {/* Filter Tabs */}
+        <div className="transit-filter-tabs">
           <button
             type="button"
-            className={`transit-filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
+            className={`transit-tab-btn ${activeFilter === 'all' ? 'active' : ''}`}
             onClick={() => setActiveFilter('all')}
           >
             All 5 Routes
           </button>
           <button
             type="button"
-            className={`transit-filter-btn ${activeFilter === 'railway' ? 'active' : ''}`}
+            className={`transit-tab-btn ${activeFilter === 'railway' ? 'active' : ''}`}
             onClick={() => setActiveFilter('railway')}
           >
-            🚆 Railway Hubs
+            Railway Stations
           </button>
           <button
             type="button"
-            className={`transit-filter-btn ${activeFilter === 'bus' ? 'active' : ''}`}
+            className={`transit-tab-btn ${activeFilter === 'bus' ? 'active' : ''}`}
             onClick={() => setActiveFilter('bus')}
           >
-            🚌 Majestic &amp; BMTC
+            Majestic &amp; BMTC
           </button>
           <button
             type="button"
-            className={`transit-filter-btn ${activeFilter === 'shuttle' ? 'active' : ''}`}
+            className={`transit-tab-btn ${activeFilter === 'shuttle' ? 'active' : ''}`}
             onClick={() => setActiveFilter('shuttle')}
           >
-            🚐 Campus Shuttles
+            Campus Shuttles
           </button>
         </div>
       </div>
@@ -182,12 +182,7 @@ export default function TransitRoutes() {
                 onKeyDown={(e) => { if (e.key === 'Enter') setSelectedRouteId(route.id); }}
               >
                 <div className="transit-card-top">
-                  <span 
-                    className="transit-card-badge"
-                    style={{ background: `${route.badgeColor}15`, color: route.badgeColor, borderColor: `${route.badgeColor}40` }}
-                  >
-                    {route.badge}
-                  </span>
+                  <span className="transit-card-code">{route.routeNumber}</span>
                   <span className="transit-card-time">{route.duration}</span>
                 </div>
                 <h4 className="transit-card-name">{route.title}</h4>
@@ -202,22 +197,20 @@ export default function TransitRoutes() {
         {/* Right Column: Detailed Turn-by-Turn Guidance */}
         <div className="transit-route-detail-box">
           <div className="transit-detail-header">
-            <span 
-              className="transit-detail-badge"
-              style={{ background: `${selectedRoute.badgeColor}20`, color: selectedRoute.badgeColor }}
-            >
-              {selectedRoute.badge}
-            </span>
+            <div className="transit-detail-tag-row">
+              <span className="transit-detail-code">{selectedRoute.routeNumber}</span>
+              <span className="transit-detail-badge" dangerouslySetInnerHTML={{ __html: selectedRoute.badge }} />
+            </div>
             <h4 className="transit-detail-title">{selectedRoute.title}</h4>
             <div className="transit-detail-meta-row">
-              <span className="transit-detail-chip">📍 <strong>Origin:</strong> {selectedRoute.origin}</span>
-              <span className="transit-detail-chip">⏱️ <strong>Est. Time:</strong> {selectedRoute.duration}</span>
-              <span className="transit-detail-chip">🔄 <strong>Frequency:</strong> {selectedRoute.frequency}</span>
+              <span className="transit-detail-chip"><strong>Origin:</strong> {selectedRoute.origin}</span>
+              <span className="transit-detail-chip"><strong>Estimated Transit:</strong> {selectedRoute.duration}</span>
+              <span className="transit-detail-chip"><strong>Service Frequency:</strong> {selectedRoute.frequency}</span>
             </div>
           </div>
 
           <div className="transit-steps-wrapper">
-            <h5 className="transit-steps-heading">Step-by-Step Travel Instructions:</h5>
+            <h5 className="transit-steps-heading">Turn-by-Turn Directions</h5>
             <ol className="transit-steps-list">
               {selectedRoute.steps.map((step, idx) => (
                 <li key={idx} className="transit-step-item">
@@ -229,37 +222,34 @@ export default function TransitRoutes() {
           </div>
 
           <div className="transit-detail-highlight">
-            <span className="highlight-icon">💡</span>
-            <div>
-              <strong>Key Advantage:</strong> {selectedRoute.keyHighlight}
-            </div>
+            <div className="highlight-tag">TRANSIT ADVANTAGE</div>
+            <div className="highlight-text">{selectedRoute.keyHighlight}</div>
           </div>
         </div>
       </div>
 
       {/* Advisory Callout for PEDs & Student-Athletes */}
       <div className="transit-advisory-banner">
-        <div className="transit-advisory-badge">
-          <span>⚠️</span>
-          <span>IMPORTANT ADVISORY FOR CONTINGENT DIRECTORS &amp; ATHLETES</span>
+        <div className="transit-advisory-header">
+          <span className="advisory-title-tag">IMPORTANT ADVISORY &bull; PHYSICAL EDUCATION DIRECTORS &amp; ATHLETES</span>
         </div>
         <div className="transit-advisory-grid">
           <div className="advisory-point">
-            <span className="advisory-dot">&bull;</span>
+            <span className="advisory-rule-num">01</span>
             <div>
-              <strong>30-Minute Advance Arrival:</strong> Physical Education Directors (PEDs) and student-athletes are requested to arrive at their designated pickup points <strong>30 minutes before schedule</strong> and notify the tournament transportation committee members.
+              <strong>30-Minute Advance Arrival:</strong> Physical Education Directors (PEDs) and team managers are requested to reach their designated pickup points <strong>30 minutes prior to schedule</strong> and notify the tournament transportation desk.
             </div>
           </div>
           <div className="advisory-point">
-            <span className="advisory-dot">&bull;</span>
+            <span className="advisory-rule-num">02</span>
             <div>
-              <strong>Confirm Bus Timing:</strong> Please confirm college bus timings and pickup arrangements with the official College Transport Coordinator prior to departing from rail stations.
+              <strong>Confirm Bus Timing:</strong> Please verify college bus timings and pickup arrangements with the official College Transport Coordinator prior to departing from rail terminals.
             </div>
           </div>
           <div className="advisory-point">
-            <span className="advisory-dot">&bull;</span>
+            <span className="advisory-rule-num">03</span>
             <div>
-              <strong>Pre-Journey Verification:</strong> BMTC bus routes (226 series), Namma Metro Purple Line service intervals, and last-mile connections should be verified before travelling.
+              <strong>Pre-Journey Verification:</strong> BMTC bus routes (226 series), Namma Metro Purple Line service intervals, and last-mile connections should be verified before commencing your journey.
             </div>
           </div>
         </div>
