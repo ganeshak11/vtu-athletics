@@ -2,6 +2,8 @@ import Link from 'next/link';
 import ScheduleView from './ScheduleView';
 import GallerySection from './GallerySection';
 import CountdownTimer from './CountdownTimer';
+import TransitRoutes from './TransitRoutes';
+import LeadershipAndRanks from './LeadershipAndRanks';
 import { Navbar } from '@/components/layout/Navbar';
 import './home.css';
 
@@ -389,7 +391,7 @@ export default function HomePage() {
           <div className="transit-map-wrapper">
             <div className="transit-map-header">
               <div className="transit-map-header-left">
-                <span className="transit-map-badge">📍 GOOGLE MAPS &bull; LIVE CAMPUS NAVIGATION</span>
+                <span className="transit-map-badge">📍 12.8910233° N, 77.4655618° E &bull; LIVE STADIUM PINPOINT</span>
                 <h3 className="transit-map-title">Dr. ACS College of Engineering &bull; Athletics Stadium Arena</h3>
                 <p className="transit-map-address">
                   Mysore Road, Kambipura, Kengeri Hobli, Bengaluru, Karnataka 560074 &bull; NH 275 (Bengaluru-Mysuru Expressway)
@@ -397,11 +399,11 @@ export default function HomePage() {
               </div>
               <div className="transit-map-header-right">
                 <a 
-                  href="https://www.google.com/maps/search/?api=1&query=ACS+College+of+Engineering+Bengaluru" 
+                  href="https://maps.google.com/maps?q=12.8910233%2C77.4655618&z=17&hl=en" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="btn-open-maps"
-                  title="Open live navigation in Google Maps"
+                  title="Open live navigation in Google Maps (Exact Stadium Pin)"
                 >
                   <span>Open in Google Maps</span>
                   <span>↗</span>
@@ -411,8 +413,8 @@ export default function HomePage() {
 
             <div className="transit-map-frame-box">
               <iframe
-                title="Dr. ACS College of Engineering Campus & Stadium on Google Maps"
-                src="https://maps.google.com/maps?q=ACS+College+of+Engineering,+Bengaluru&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                title="Dr. ACS College of Engineering Athletic Stadium on Google Maps"
+                src="https://maps.google.com/maps?q=12.8910233,77.4655618&t=&z=17&ie=UTF8&iwloc=&output=embed"
                 className="transit-map-iframe"
                 loading="lazy"
                 allowFullScreen
@@ -436,11 +438,14 @@ export default function HomePage() {
               <div className="transit-footer-item">
                 <span className="transit-footer-icon">🚌</span>
                 <div>
-                  <strong>Majestic Bus Terminal:</strong> Kempegowda Bus Station (18.5 km) with direct BMTC buses to campus gates
+                  <strong>Majestic Bus Terminal:</strong> Kempegowda Bus Station (18.5 km) with direct BMTC 226 series buses to campus gates
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Official Contingent Logistics & Transit Routes (From Transport Doc) */}
+          <TransitRoutes />
 
         </div>
       </section>
@@ -586,6 +591,9 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
+
+          {/* Organizing Patrons, Executive Leadership & VTU University Rank Holders (From Management Doc) */}
+          <LeadershipAndRanks />
 
         </div>
       </section>
