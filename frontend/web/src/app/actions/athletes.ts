@@ -52,8 +52,18 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
   const event1Id = formData.get('event1Id') as string;
   const event2Id = formData.get('event2Id') as string;
   const reserveEventId = formData.get('reserveEventId') as string;
-  const isRelay = formData.get('isRelay') === 'true' || formData.get('isRelay') === 'on';
+  
+  // Relay nominations per official VTU Rule 3
+  const relayChoice = (formData.get('relayChoice') as string || '').trim(); // '4x100' | '4x400' | 'none'
+  const isRelay = relayChoice === '4x100' || formData.get('isRelay') === 'true' || formData.get('isRelay') === 'on';
+  const isRelay400 = relayChoice === '4x400' || formData.get('isRelay400') === 'true' || formData.get('isRelay400') === 'on';
+  const isMixedRelay = formData.get('isMixedRelay') === 'true' || formData.get('isMixedRelay') === 'on';
   const isHalfMarathon = formData.get('isHalfMarathon') === 'true' || formData.get('isHalfMarathon') === 'on';
+
+  // Rule 3: Athletes can participate in at most one gender relay event (4x100m or 4x400m)
+  if (isRelay && isRelay400) {
+    return { success: false, error: 'VTU Rule 3: Athletes can participate in at most one divisional relay event (either 4x100m or 4x400m).' };
+  }
 
   // Identification Validation
   if (!sslcName || !usn || !semester || !bloodGroup || !collegeJoiningDate || !semStartDate || !aadhaarNumber) {
@@ -172,6 +182,63 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
           return {
             success: false,
             error: 'Your college squad has already reached the maximum quota of 4 athletes for the 4x100m relay.',
+          };
+        }
+      }
+    }
+  }
+
+  // 4x400m Relay Quota Enforcement (Max 4 athletes per college squad)
+  let relay400EventId: string | null = null;
+  if (isRelay400) {
+    const relay400Code = session.gender === 'men' ? '4X400M-M' : '4X400M-W';
+    const { data: relay400Event } = await supabaseAdmin
+      .from('events')
+      .select('id')
+      .eq('code', relay400Code)
+      .maybeSingle();
+
+    if (relay400Event) {
+      relay400EventId = relay400Event.id;
+      if (squadProfileIds.length > 0) {
+        const { count: relay400Count } = await supabaseAdmin
+          .from('registrations')
+          .select('id', { count: 'exact', head: true })
+          .in('profile_id', squadProfileIds)
+          .eq('event_id', relay400Event.id);
+
+        if ((relay400Count || 0) >= 4) {
+          return {
+            success: false,
+            error: 'Your college squad has already reached the maximum quota of 4 athletes for the 4x400m relay.',
+          };
+        }
+      }
+    }
+  }
+
+  // 4x400m Mixed Relay Quota Enforcement (Max 2 athletes per squad division)
+  let mixedRelayEventId: string | null = null;
+  if (isMixedRelay) {
+    const { data: mixedEvent } = await supabaseAdmin
+      .from('events')
+      .select('id')
+      .eq('code', '4X400M-MIX')
+      .maybeSingle();
+
+    if (mixedEvent) {
+      mixedRelayEventId = mixedEvent.id;
+      if (squadProfileIds.length > 0) {
+        const { count: mixedCount } = await supabaseAdmin
+          .from('registrations')
+          .select('id', { count: 'exact', head: true })
+          .in('profile_id', squadProfileIds)
+          .eq('event_id', mixedEvent.id);
+
+        if ((mixedCount || 0) >= 2) {
+          return {
+            success: false,
+            error: 'Your squad has already reached the maximum quota of 2 athletes for the 4x400m mixed relay pool (2 Men + 2 Women per college).',
           };
         }
       }
@@ -315,7 +382,15 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     registrationInserts.push({ profile_id: profile.id, event_id: relayEventId, kind: 'relay' });
   }
 
-  // If half-marathon selected, register in the gender-appropriate HM event
+  if (isRelay400 && relay400EventId) {
+    registrationInserts.push({ profile_id: profile.id, event_id: relay400EventId, kind: 'relay' });
+  }
+
+  if (isMixedRelay && mixedRelayEventId) {
+    registrationInserts.push({ profile_id: profile.id, event_id: mixedRelayEventId, kind: 'relay' });
+  }
+
+  // If half-marathon selected via legacy checkbox, register in the gender-appropriate HM event
   if (isHalfMarathon) {
     const { data: hmEvent } = await supabaseAdmin
       .from('events')
@@ -323,7 +398,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
       .eq('code', session.gender === 'men' ? 'HM-M' : 'HM-W')
       .maybeSingle();
 
-    if (hmEvent) {
+    if (hmEvent && !registrationInserts.some(r => r.event_id === hmEvent.id)) {
       registrationInserts.push({ profile_id: profile.id, event_id: hmEvent.id, kind: 'half_marathon' });
     }
   }
@@ -469,15 +544,17 @@ export async function listSquadAthletesAction() {
  */
 export async function getSquadRelayCountAction(): Promise<number> {
   const session = await requireSquad();
-  const relayCode = session.gender === 'men' ? '4X100M-M' : '4X100M-W';
+  const relayCodes = session.gender === 'men'
+    ? ['4X100M-M', '4X400M-M', '4X400M-MIX']
+    : ['4X100M-W', '4X400M-W', '4X400M-MIX'];
 
-  const { data: relayEvent } = await supabaseAdmin
+  const { data: relayEvents } = await supabaseAdmin
     .from('events')
     .select('id')
-    .eq('code', relayCode)
-    .maybeSingle();
+    .in('code', relayCodes);
 
-  if (!relayEvent) return 0;
+  if (!relayEvents || relayEvents.length === 0) return 0;
+  const relayEventIds = relayEvents.map((e: any) => e.id);
 
   const { data: squadProfiles } = await supabaseAdmin
     .from('profiles')
@@ -491,13 +568,14 @@ export async function getSquadRelayCountAction(): Promise<number> {
     .from('registrations')
     .select('id', { count: 'exact', head: true })
     .in('profile_id', profileIds)
-    .eq('event_id', relayEvent.id);
+    .in('event_id', relayEventIds);
 
   return count || 0;
 }
 
 /**
  * Fetches events available for the current squad's gender division.
+ * Exposes all official individual championship events from Order of Events PDF (Codes 1–19, 23, 24/25).
  */
 export async function getAvailableEventsAction() {
   const session = await requireSquad();
@@ -508,8 +586,6 @@ export async function getAvailableEventsAction() {
     .eq('gender', session.gender)
     .neq('category', 'relay')
     .not('code', 'ilike', '4X%')
-    .not('code', 'ilike', 'HM%')
-    .not('name', 'ilike', '%Half Marathon%')
     .order('name', { ascending: true });
 
   if (error) throw new Error(error.message);

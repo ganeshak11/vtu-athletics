@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { StatBox } from '@/components/ui/StatBox';
 import { Button } from '@/components/ui/Button';
+import { DB_CODE_TO_OFFICIAL_MAP } from '@/lib/championship-events';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -77,39 +78,58 @@ export default function AthletesManager({
   const [event1, setEvent1] = useState('');
   const [event2, setEvent2] = useState('');
   const [reserveEvent, setReserveEvent] = useState('');
-  const [isRelay, setIsRelay] = useState(false);
+  const [relayChoice, setRelayChoice] = useState<'none' | '4x100' | '4x400'>('none');
+  const [isMixedRelay, setIsMixedRelay] = useState(false);
   const [isHalfMarathon, setIsHalfMarathon] = useState(false);
 
-  // Filter individual events (excluding relay events and half marathon from individual dropdowns)
+  // Filter and sort individual events by official Code from Order of Events PDF (Codes 1–19, 23, 24/25)
   const individualEvents = useMemo(() => {
-    return availableEvents.filter(
-      (e) =>
-        !e.category?.toLowerCase().includes('relay') &&
-        !e.code?.includes('4X100') &&
-        !e.code?.includes('4X400') &&
-        !e.code?.startsWith('HM') &&
-        !e.name?.toLowerCase().includes('half marathon') &&
-        !e.category?.toLowerCase().includes('road')
-    );
+    return availableEvents
+      .filter(
+        (e) =>
+          !e.category?.toLowerCase().includes('relay') &&
+          !e.code?.includes('4X100') &&
+          !e.code?.includes('4X400')
+      )
+      .map((ev) => {
+        const meta = DB_CODE_TO_OFFICIAL_MAP[ev.code];
+        return {
+          ...ev,
+          codeNum: meta?.codeNum || 99,
+          officialName: meta?.officialName || ev.name,
+          categoryGroup: meta?.categoryGroup || ev.category?.toUpperCase(),
+        };
+      })
+      .sort((a, b) => a.codeNum - b.codeNum);
   }, [availableEvents]);
 
-  // Live relay squad count strictly derived from current squad roster
-  const registeredRelayMembers = athletes.filter((a) =>
-    a.registrations.some((r) => r.kind === 'relay' || r.events?.code?.includes('4X100'))
+  // Live relay squad counts strictly derived from current squad roster
+  const registered100mRelay = athletes.filter((a) =>
+    a.registrations.some((r) => r.events?.code?.includes('4X100'))
   ).length;
-  const currentRelayCount = registeredRelayMembers;
-  const isRelayFull = currentRelayCount >= 4;
+  const is100mRelayFull = registered100mRelay >= 4;
+
+  const registered400mRelay = athletes.filter((a) =>
+    a.registrations.some((r) => r.events?.code?.includes('4X400M-M') || r.events?.code?.includes('4X400M-W'))
+  ).length;
+  const is400mRelayFull = registered400mRelay >= 4;
+
+  const registeredMixedRelay = athletes.filter((a) =>
+    a.registrations.some((r) => r.events?.code?.includes('4X400M-MIX'))
+  ).length;
+  const isMixedRelayFull = registeredMixedRelay >= 2;
 
   // Real-time fee calculation for current athlete modal:
-  // ₹100 per event, Reserve is FREE (₹0)
+  // ₹100 per billable event, Reserve is FREE (₹0)
   const modalFee = useMemo(() => {
     let fee = 0;
     if (event1) fee += 100;
     if (event2) fee += 100;
-    if (isRelay) fee += 100;
+    if (relayChoice === '4x100' || relayChoice === '4x400') fee += 100;
+    if (isMixedRelay) fee += 100;
     if (isHalfMarathon) fee += 100;
     return fee;
-  }, [event1, event2, isRelay, isHalfMarathon]);
+  }, [event1, event2, relayChoice, isMixedRelay, isHalfMarathon]);
 
   // Squad total computed fee:
   const totalBillableEntries = useMemo(() => {
@@ -151,7 +171,8 @@ export default function AthletesManager({
     setEvent1('');
     setEvent2('');
     setReserveEvent('');
-    setIsRelay(false);
+    setRelayChoice('none');
+    setIsMixedRelay(false);
     setIsHalfMarathon(false);
     setError(null);
   }
@@ -233,9 +254,19 @@ export default function AthletesManager({
       return;
     }
 
-    // 5. Check Relay Limit
-    if (isRelay && isRelayFull) {
-      setError('Relay quota is full. Maximum 4 athletes per college division are allowed.');
+    // 5. Check Official Relay Quotas (per VTU Rule 3)
+    if (relayChoice === '4x100' && is100mRelayFull) {
+      setError('4x100m Relay quota is full. Maximum 4 athletes per college division are allowed.');
+      setLoading(false);
+      return;
+    }
+    if (relayChoice === '4x400' && is400mRelayFull) {
+      setError('4x400m Relay quota is full. Maximum 4 athletes per college division are allowed.');
+      setLoading(false);
+      return;
+    }
+    if (isMixedRelay && isMixedRelayFull) {
+      setError('4x400m Mixed Relay pool quota is full. Maximum 2 athletes per squad division are allowed (2 Men + 2 Women per college team).');
       setLoading(false);
       return;
     }
@@ -258,7 +289,10 @@ export default function AthletesManager({
     formData.set('event1Id', event1);
     if (event2) formData.set('event2Id', event2);
     if (reserveEvent) formData.set('reserveEventId', reserveEvent);
-    formData.set('isRelay', isRelay ? 'true' : 'false');
+    formData.set('relayChoice', relayChoice);
+    formData.set('isRelay', relayChoice === '4x100' ? 'true' : 'false');
+    formData.set('isRelay400', relayChoice === '4x400' ? 'true' : 'false');
+    formData.set('isMixedRelay', isMixedRelay ? 'true' : 'false');
     formData.set('isHalfMarathon', isHalfMarathon ? 'true' : 'false');
     if (photoPreview) {
       formData.set('photoData', photoPreview);
@@ -424,13 +458,26 @@ export default function AthletesManager({
           boxShadow: 'var(--shadow-sm)'
         }}>
           <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            Relay Squad Quota
+            Relay Squad Roster
           </span>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: currentRelayCount === 4 ? 'var(--success)' : 'var(--accent-primary)' }}>
-            {currentRelayCount} <span style={{ fontSize: '1.125rem', color: 'var(--text-secondary)' }}>/ 4 Max</span>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline', marginTop: '0.25rem' }}>
+            <div>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registered100mRelay === 4 ? 'var(--success)' : 'var(--accent-primary)' }}>{registered100mRelay}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/4 (4x100)</span>
+            </div>
+            <span style={{ color: 'var(--border-color)' }}>&bull;</span>
+            <div>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registered400mRelay === 4 ? 'var(--success)' : 'var(--accent-primary)' }}>{registered400mRelay}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/4 (4x400)</span>
+            </div>
+            <span style={{ color: 'var(--border-color)' }}>&bull;</span>
+            <div>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registeredMixedRelay === 2 ? 'var(--success)' : 'var(--accent-primary)' }}>{registeredMixedRelay}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/2 (Mixed)</span>
+            </div>
           </div>
-          <span style={{ fontSize: '0.75rem', color: currentRelayCount === 4 ? 'var(--success)' : 'var(--text-secondary)' }}>
-            {currentRelayCount === 4 ? 'Quota Complete' : `${4 - currentRelayCount} slots remaining`}
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+            Rule 3: Max 1 divisional + 1 mixed relay
           </span>
         </div>
       </div>
@@ -471,7 +518,10 @@ export default function AthletesManager({
                   athletes.map((athlete) => {
                     const regularRegs = athlete.registrations.filter((r) => r.kind === 'regular');
                     const reserveRegs = athlete.registrations.filter((r) => r.kind === 'reserve');
-                    const relayRegs = athlete.registrations.filter((r) => r.kind === 'relay' || r.events?.code?.includes('4X100'));
+                    const relay100Regs = athlete.registrations.filter((r) => r.events?.code?.includes('4X100'));
+                    const relay400Regs = athlete.registrations.filter((r) => r.events?.code?.includes('4X400M-M') || r.events?.code?.includes('4X400M-W'));
+                    const mixedRelayRegs = athlete.registrations.filter((r) => r.events?.code?.includes('4X400M-MIX'));
+                    const otherRelayRegs = athlete.registrations.filter((r) => r.kind === 'relay' && !r.events?.code?.includes('4X'));
                     const hmRegs = athlete.registrations.filter((r) => r.kind === 'half_marathon');
 
                     return (
@@ -553,23 +603,26 @@ export default function AthletesManager({
 
                         <td style={{ padding: '1rem' }}>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                            {regularRegs.map((r) => (
-                              <span
-                                key={r.id}
-                                style={{
-                                  padding: '0.25rem 0.55rem',
-                                  borderRadius: 'var(--radius-sm)',
-                                  background: 'var(--bg-tertiary)',
-                                  color: 'var(--accent-primary)',
-                                  border: '1px solid var(--border-color)',
-                                  fontSize: '0.75rem',
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {r.events?.name || 'Regular Event'}
-                              </span>
-                            ))}
-                            {relayRegs.length > 0 && (
+                            {regularRegs.map((r) => {
+                              const meta = r.events?.code ? DB_CODE_TO_OFFICIAL_MAP[r.events.code] : null;
+                              return (
+                                <span
+                                  key={r.id}
+                                  style={{
+                                    padding: '0.25rem 0.55rem',
+                                    borderRadius: 'var(--radius-sm)',
+                                    background: 'var(--bg-tertiary)',
+                                    color: 'var(--accent-primary)',
+                                    border: '1px solid var(--border-color)',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {meta ? `Code ${meta.codeNum}: ${meta.officialName}` : (r.events?.name || 'Regular Event')}
+                                </span>
+                              );
+                            })}
+                            {relay100Regs.length > 0 && (
                               <span
                                 style={{
                                   padding: '0.25rem 0.55rem',
@@ -581,7 +634,52 @@ export default function AthletesManager({
                                   fontWeight: 700,
                                 }}
                               >
-                                🤝 4x100m Relay
+                                🤝 Code 20: 4x100m Relay
+                              </span>
+                            )}
+                            {relay400Regs.length > 0 && (
+                              <span
+                                style={{
+                                  padding: '0.25rem 0.55rem',
+                                  borderRadius: 'var(--radius-sm)',
+                                  background: 'rgba(59, 130, 246, 0.1)',
+                                  color: '#2563eb',
+                                  border: '1px solid rgba(59, 130, 246, 0.25)',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                ⚡ Code 21: 4x400m Relay
+                              </span>
+                            )}
+                            {mixedRelayRegs.length > 0 && (
+                              <span
+                                style={{
+                                  padding: '0.25rem 0.55rem',
+                                  borderRadius: 'var(--radius-sm)',
+                                  background: 'rgba(139, 92, 246, 0.1)',
+                                  color: '#7c3aed',
+                                  border: '1px solid rgba(139, 92, 246, 0.25)',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                ✨ Code 22: Mixed Relay
+                              </span>
+                            )}
+                            {otherRelayRegs.length > 0 && (
+                              <span
+                                style={{
+                                  padding: '0.25rem 0.55rem',
+                                  borderRadius: 'var(--radius-sm)',
+                                  background: 'rgba(16, 185, 129, 0.1)',
+                                  color: '#059669',
+                                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                🤝 Relay Squad
                               </span>
                             )}
                             {hmRegs.length > 0 && (
@@ -596,7 +694,7 @@ export default function AthletesManager({
                                   fontWeight: 700,
                                 }}
                               >
-                                🏃 Half Marathon
+                                🏃 Code 23: Half Marathon
                               </span>
                             )}
                           </div>
@@ -612,10 +710,13 @@ export default function AthletesManager({
                                 color: '#10b981',
                                 border: '1px solid rgba(16, 185, 129, 0.2)',
                                 fontSize: '0.75rem',
-                                fontWeight: 600,
+                                fontWeight: 700,
                               }}
                             >
-                              {reserveRegs[0].events?.name} (FREE)
+                              {(() => {
+                                const meta = reserveRegs[0].events?.code ? DB_CODE_TO_OFFICIAL_MAP[reserveRegs[0].events.code] : null;
+                                return meta ? `Code ${meta.codeNum}: ${meta.officialName} (FREE)` : `${reserveRegs[0].events?.name} (FREE)`;
+                              })()}
                             </span>
                           ) : (
                             <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>None</span>
@@ -946,7 +1047,7 @@ export default function AthletesManager({
                           <option value="">-- Choose Individual Event 1 --</option>
                           {individualEvents.map((ev) => (
                             <option key={ev.id} value={ev.id}>
-                              {ev.name} ({ev.category.toUpperCase()})
+                              [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
                             </option>
                           ))}
                         </select>
@@ -971,7 +1072,7 @@ export default function AthletesManager({
                             .filter((ev) => ev.id !== event1)
                             .map((ev) => (
                               <option key={ev.id} value={ev.id}>
-                                {ev.name} ({ev.category.toUpperCase()})
+                                [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
                               </option>
                             ))}
                         </select>
@@ -993,7 +1094,7 @@ export default function AthletesManager({
                             .filter((ev) => ev.id !== event1 && ev.id !== event2)
                             .map((ev) => (
                               <option key={ev.id} value={ev.id}>
-                                {ev.name} ({ev.category.toUpperCase()})
+                                [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
                               </option>
                             ))}
                         </select>
@@ -1002,64 +1103,170 @@ export default function AthletesManager({
                         </span>
                       </div>
 
-                      {/* Relay & Half Marathon Checkboxes */}
-                      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                      {/* Official Relays & Common Events (per VTU Rule 3) */}
+                      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         
-                        {/* Relay Checkbox */}
-                        <label style={{ 
-                          display: 'flex', 
-                          alignItems: 'flex-start', 
-                          gap: '0.75rem', 
-                          cursor: isRelayFull ? 'not-allowed' : 'pointer',
-                          opacity: isRelayFull ? 0.6 : 1,
-                          background: 'var(--bg-tertiary)',
-                          padding: '0.85rem 1rem',
-                          borderRadius: 'var(--radius-sm)'
-                        }}>
-                          <input
-                            type="checkbox"
-                            checked={isRelay && !isRelayFull}
-                            disabled={isRelayFull}
-                            onChange={(e) => setIsRelay(e.target.checked)}
-                            style={{ marginTop: '0.25rem', transform: 'scale(1.2)' }}
-                          />
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                              Include in 4x100m Relay Squad (+₹100)
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: isRelayFull ? 'var(--danger)' : 'var(--text-secondary)' }}>
-                              {isRelayFull 
-                                ? 'Quota Full: Maximum 4 relay runners have already been registered for this college & division.' 
-                                : `College quota: ${currentRelayCount}/4 runners registered so far.`}
-                            </div>
+                        {/* Divisional Relay Radio Options */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                            <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>
+                              3. Divisional Relay Nomination (VTU Rule 3: Max 1 Relay)
+                            </label>
+                            <span style={{ fontSize: '0.8rem', color: relayChoice !== 'none' ? 'var(--accent-primary)' : 'var(--text-muted)', fontWeight: 750 }}>
+                              {relayChoice !== 'none' ? '+₹100' : 'None Selected'}
+                            </span>
                           </div>
-                        </label>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0 0 0.65rem' }}>
+                            Athletes can participate in any 2 individual events + 1 relay event (4x100m or 4x400m).
+                          </p>
 
-                        {/* Half Marathon Checkbox */}
-                        <label style={{ 
-                          display: 'flex', 
-                          alignItems: 'flex-start', 
-                          gap: '0.75rem', 
-                          cursor: 'pointer',
-                          background: 'var(--bg-tertiary)',
-                          padding: '0.85rem 1rem',
-                          borderRadius: 'var(--radius-sm)'
-                        }}>
-                          <input
-                            type="checkbox"
-                            checked={isHalfMarathon}
-                            onChange={(e) => setIsHalfMarathon(e.target.checked)}
-                            style={{ marginTop: '0.25rem', transform: 'scale(1.2)' }}
-                          />
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                              21 km Half Marathon Participant (+₹100)
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                              Open to all university participants with zero event limit restrictions.
-                            </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.65rem' }}>
+                            {/* None */}
+                            <label style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: 'var(--radius-sm)',
+                              border: '1px solid',
+                              borderColor: relayChoice === 'none' ? 'var(--accent-primary)' : 'var(--border-color)',
+                              background: relayChoice === 'none' ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-tertiary)',
+                              cursor: 'pointer',
+                            }}>
+                              <input
+                                type="radio"
+                                name="relayChoiceRadio"
+                                value="none"
+                                checked={relayChoice === 'none'}
+                                onChange={() => setRelayChoice('none')}
+                              />
+                              <div>
+                                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>None</div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>No divisional relay</div>
+                              </div>
+                            </label>
+
+                            {/* 4x100m */}
+                            <label style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: 'var(--radius-sm)',
+                              border: '1px solid',
+                              borderColor: relayChoice === '4x100' ? 'var(--accent-primary)' : 'var(--border-color)',
+                              background: relayChoice === '4x100' ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-tertiary)',
+                              cursor: is100mRelayFull && relayChoice !== '4x100' ? 'not-allowed' : 'pointer',
+                              opacity: is100mRelayFull && relayChoice !== '4x100' ? 0.6 : 1,
+                            }}>
+                              <input
+                                type="radio"
+                                name="relayChoiceRadio"
+                                value="4x100"
+                                checked={relayChoice === '4x100'}
+                                disabled={is100mRelayFull && relayChoice !== '4x100'}
+                                onChange={() => setRelayChoice('4x100')}
+                              />
+                              <div>
+                                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Code 20: 4x100m</div>
+                                <div style={{ fontSize: '0.7rem', color: is100mRelayFull ? 'var(--danger)' : 'var(--text-secondary)' }}>
+                                  {is100mRelayFull ? 'Quota full (4/4)' : `${registered100mRelay}/4 registered`}
+                                </div>
+                              </div>
+                            </label>
+
+                            {/* 4x400m */}
+                            <label style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: 'var(--radius-sm)',
+                              border: '1px solid',
+                              borderColor: relayChoice === '4x400' ? 'var(--accent-primary)' : 'var(--border-color)',
+                              background: relayChoice === '4x400' ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-tertiary)',
+                              cursor: is400mRelayFull && relayChoice !== '4x400' ? 'not-allowed' : 'pointer',
+                              opacity: is400mRelayFull && relayChoice !== '4x400' ? 0.6 : 1,
+                            }}>
+                              <input
+                                type="radio"
+                                name="relayChoiceRadio"
+                                value="4x400"
+                                checked={relayChoice === '4x400'}
+                                disabled={is400mRelayFull && relayChoice !== '4x400'}
+                                onChange={() => setRelayChoice('4x400')}
+                              />
+                              <div>
+                                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Code 21: 4x400m</div>
+                                <div style={{ fontSize: '0.7rem', color: is400mRelayFull ? 'var(--danger)' : 'var(--text-secondary)' }}>
+                                  {is400mRelayFull ? 'Quota full (4/4)' : `${registered400mRelay}/4 registered`}
+                                </div>
+                              </div>
+                            </label>
                           </div>
-                        </label>
+                        </div>
+
+                        {/* Mixed Relay & Half Marathon Checkboxes */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                          {/* 4x400m Mixed Relay */}
+                          <label style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '0.75rem',
+                            padding: '0.75rem 0.9rem',
+                            borderRadius: 'var(--radius-sm)',
+                            border: '1px solid',
+                            borderColor: isMixedRelay ? 'var(--accent-primary)' : 'var(--border-color)',
+                            background: isMixedRelay ? 'rgba(139, 92, 246, 0.06)' : 'var(--bg-tertiary)',
+                            cursor: isMixedRelayFull && !isMixedRelay ? 'not-allowed' : 'pointer',
+                            opacity: isMixedRelayFull && !isMixedRelay ? 0.6 : 1,
+                          }}>
+                            <input
+                              type="checkbox"
+                              checked={isMixedRelay}
+                              disabled={isMixedRelayFull && !isMixedRelay}
+                              onChange={(e) => setIsMixedRelay(e.target.checked)}
+                              style={{ marginTop: '0.25rem', transform: 'scale(1.2)' }}
+                            />
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                                Code 22: 4x400m Mixed Relay Pool (+₹100)
+                              </div>
+                              <div style={{ fontSize: '0.725rem', color: isMixedRelayFull ? 'var(--danger)' : 'var(--text-secondary)' }}>
+                                {isMixedRelayFull
+                                  ? 'Squad division quota full (2/2 registered). College mixed team requires 2 Men + 2 Women.'
+                                  : `Common championship event: ${registeredMixedRelay}/2 registered from this squad. (Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M)`}
+                              </div>
+                            </div>
+                          </label>
+
+                          {/* Half Marathon */}
+                          <label style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '0.75rem',
+                            padding: '0.75rem 0.9rem',
+                            borderRadius: 'var(--radius-sm)',
+                            border: '1px solid var(--border-color)',
+                            background: 'var(--bg-tertiary)',
+                            cursor: 'pointer',
+                          }}>
+                            <input
+                              type="checkbox"
+                              checked={isHalfMarathon}
+                              onChange={(e) => setIsHalfMarathon(e.target.checked)}
+                              style={{ marginTop: '0.25rem', transform: 'scale(1.2)' }}
+                            />
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                                Code 23: 21 km Half Marathon Participant (+₹100)
+                              </div>
+                              <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>
+                                Scheduled Day 3 morning (6:15 AM Men / 6:25 AM Women) on Campus Road Loop.
+                              </div>
+                            </div>
+                          </label>
+                        </div>
 
                       </div>
 
@@ -1068,7 +1275,7 @@ export default function AthletesManager({
 
                 </div>
 
-                {/* Right Column: Dynamic Fee Summary Sticky Sidebar (Exact Prototype UI) */}
+                {/* Right Column: Dynamic Fee Summary Sticky Sidebar */}
                 <div>
                   <div style={{ position: 'sticky', top: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     
@@ -1091,8 +1298,13 @@ export default function AthletesManager({
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                          <span>Relay Participant:</span>
-                          <span style={{ fontWeight: 700 }}>{isRelay ? '₹100' : '₹0'}</span>
+                          <span>Divisional Relay:</span>
+                          <span style={{ fontWeight: 700 }}>{relayChoice !== 'none' ? '₹100' : '₹0'}</span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                          <span>Mixed Relay Pool:</span>
+                          <span style={{ fontWeight: 700 }}>{isMixedRelay ? '₹100' : '₹0'}</span>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>

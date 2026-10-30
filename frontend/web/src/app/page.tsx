@@ -65,7 +65,7 @@ export default function HomePage() {
               <div className="meta-strip-sep" aria-hidden="true" />
               <div className="meta-strip-item">
                 <span className="meta-strip-label">DISCIPLINES</span>
-                <span className="meta-strip-val">40+ Track &amp; Field Events</span>
+                <span className="meta-strip-val">25 Event Codes (45 Competitions)</span>
               </div>
             </div>
 
@@ -258,27 +258,27 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Rule 2: Relay Squads */}
+            {/* Rule 2: Relay Squads & Mixed Relay (VTU Rule 3 & 8) */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 02</span>
-                <span className="reg-badge-quota">4 RUNNERS + 1 RESERVE</span>
+                <span className="reg-badge-quota">RULE 3: RELAY &amp; MIXED</span>
               </div>
-              <h3 className="reg-card-title">Relay Squad Lineup</h3>
+              <h3 className="reg-card-title">Relay Nominations &amp; Mixed Relay</h3>
               <p className="reg-card-desc">
-                Colleges may field 1 team for the 4&times;100m Relay and 1 team for the 4&times;400m Relay in both Men and Women divisions. Team rosters must comprise 4 active runners and 1 designated reserve.
+                Athletes can take part in any 2 individual events + 1 relay event (4&times;100m or 4&times;400m). 4&times;400m Mixed Relay is a common event with any 2 men and 2 women (Leg 1: W, Leg 2: M, Leg 3: W, Leg 4: M). Mixed relay points count toward the Overall Championship Trophy.
               </p>
             </div>
 
-            {/* Rule 3: 21km Road Half Marathon */}
+            {/* Rule 3: 21km Road Half Marathon & 20km Walk (VTU Rule 6) */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 03</span>
-                <span className="reg-badge-quota">DISTANCE DISCIPLINE</span>
+                <span className="reg-badge-quota">ENDURANCE &amp; 3-LAP RULE</span>
               </div>
-              <h3 className="reg-card-title">21km Road Half Marathon</h3>
+              <h3 className="reg-card-title">21km Half Marathon &amp; 20km Walk</h3>
               <p className="reg-card-desc">
-                Open to nominated endurance runners. Athletes competing in the 21km Road Half Marathon must submit a certified institutional medical fitness certificate at the time of call-room clearance.
+                Official championship endurance races on Day 2 (20km Walk) and Day 3 (21km Half Marathon). Per VTU Rule 6, any athlete lagging more than 3 laps behind the leaders will be asked to stop and vacate the track to prevent overlap confusion.
               </p>
             </div>
 
@@ -290,7 +290,7 @@ export default function HomePage() {
               </div>
               <h3 className="reg-card-title">Identity &amp; Aadhaar Verification</h3>
               <p className="reg-card-desc">
-                Every nominated student must provide a valid 12-digit Aadhaar number and college ID card. Spot Aadhaar fingerprint verification is mandatory at call-room desk clearance.
+                Every nominated student must provide a valid 12-digit Aadhaar number, passport photograph, and institutional credentials. Spot Aadhaar fingerprint verification is mandatory at call-room desk clearance.
               </p>
             </div>
 
@@ -302,19 +302,19 @@ export default function HomePage() {
               </div>
               <h3 className="reg-card-title">Registration Fees &amp; Accounts</h3>
               <p className="reg-card-desc">
-                Standard entry fee of ₹100 per nominated individual discipline. Reserve nominations are exempt from fees. All entry fee transfers must be confirmed via bank UTR before roster lock.
+                Standard entry fee of ₹100 per nominated billable event (individual, relay, or half marathon). All reserve nominations are strictly free of charge (₹0). Roster locks upon host college finance verification.
               </p>
             </div>
 
-            {/* Rule 6: Call Room Protocol */}
+            {/* Rule 6: Call Room Protocol & Marchpast (VTU Rule 4 & 7) */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 06</span>
-                <span className="reg-badge-quota">30 MINS ADVANCE</span>
+                <span className="reg-badge-quota">30 MINS STRICT CALL ROOM</span>
               </div>
-              <h3 className="reg-card-title">Call Room &amp; Spike Check</h3>
+              <h3 className="reg-card-title">Call Room &amp; Compulsory Marchpast</h3>
               <p className="reg-card-desc">
-                Athletes must report to the Central Call Room 30 minutes prior to scheduled track heats and 45 minutes prior to field finals with their serialized Bib number. Maximum spike length permitted is 9mm.
+                All athletes must report to the Call Room strictly 30 minutes before their scheduled event time without fail. Per VTU Rule 7, marchpast participation in the inaugural ceremony is compulsory for all teams to compete.
               </p>
             </div>
 

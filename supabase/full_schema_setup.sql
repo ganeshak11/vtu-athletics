@@ -322,12 +322,15 @@ VALUES
   -- 4. Road Events
   ('21km Half Marathon Men', 'HM-M', 'men', 'road', 'seconds', 'road', NULL, FALSE, FALSE, FALSE, NULL),
   ('21km Half Marathon Women', 'HM-W', 'women', 'road', 'seconds', 'road', NULL, FALSE, FALSE, FALSE, NULL),
+  ('20km Walk Men', '20KM-W-M', 'men', 'road', 'seconds', 'road', NULL, FALSE, FALSE, FALSE, NULL),
+  ('20km Walk Women', '20KM-W-W', 'women', 'road', 'seconds', 'road', NULL, FALSE, FALSE, FALSE, NULL),
 
   -- 5. Relays
   ('4x100m Relay Men', '4X100M-M', 'men', 'relay', 'seconds', 'lanes', 8, FALSE, FALSE, FALSE, NULL),
   ('4x100m Relay Women', '4X100M-W', 'women', 'relay', 'seconds', 'lanes', 8, FALSE, FALSE, FALSE, NULL),
   ('4x400m Relay Men', '4X400M-M', 'men', 'relay', 'seconds', 'lanes', 8, FALSE, FALSE, FALSE, NULL),
   ('4x400m Relay Women', '4X400M-W', 'women', 'relay', 'seconds', 'lanes', 8, FALSE, FALSE, FALSE, NULL),
+  ('4x400m Mixed Relay', '4X400M-MIX', 'mixed', 'relay', 'seconds', 'lanes', 8, TRUE, FALSE, FALSE, NULL),
 
   -- 6. Field Throws (Up to 6 attempts, best mark in metres)
   ('Shot Put Men', 'SP-M', 'men', 'field_throw', 'metres', 'mass', NULL, FALSE, TRUE, FALSE, NULL),
@@ -349,7 +352,11 @@ VALUES
   ('High Jump Men', 'HJ-M', 'men', 'field_vertical_jump', 'metres', 'mass', NULL, FALSE, FALSE, TRUE, 3),
   ('High Jump Women', 'HJ-W', 'women', 'field_vertical_jump', 'metres', 'mass', NULL, FALSE, FALSE, TRUE, 3),
   ('Pole Vault Men', 'PV-M', 'men', 'field_vertical_jump', 'metres', 'mass', NULL, FALSE, FALSE, TRUE, 3),
-  ('Pole Vault Women', 'PV-W', 'women', 'field_vertical_jump', 'metres', 'mass', NULL, FALSE, FALSE, TRUE, 3)
+  ('Pole Vault Women', 'PV-W', 'women', 'field_vertical_jump', 'metres', 'mass', NULL, FALSE, FALSE, TRUE, 3),
+
+  -- 9. Combined Multi-Events (Decathlon Men & Heptathlon Women)
+  ('Decathlon Men', 'DEC-M', 'men', 'combined', 'points', 'mass', NULL, FALSE, FALSE, FALSE, NULL),
+  ('Heptathlon Women', 'HEP-W', 'women', 'combined', 'points', 'mass', NULL, FALSE, FALSE, FALSE, NULL)
 ON CONFLICT (code) DO UPDATE SET
   name = EXCLUDED.name,
   category = EXCLUDED.category,

@@ -30,8 +30,9 @@ export async function getSquadRelayTeamsAction(): Promise<RelayTeamDTO[]> {
   const { data: relayEvents } = await supabaseAdmin
     .from('events')
     .select('id, name, code')
-    .eq('gender', session.gender)
-    .eq('category', 'relay');
+    .in('gender', [session.gender, 'mixed'])
+    .eq('category', 'relay')
+    .order('code');
 
   if (!relayEvents || relayEvents.length === 0) return [];
 
