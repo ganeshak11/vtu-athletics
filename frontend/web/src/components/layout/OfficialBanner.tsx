@@ -11,6 +11,7 @@ export function OfficialBanner({ portalBadge }: Props) {
     <div className="univ-main-banner">
       <div className="univ-banner-inner">
         {/* Left: Host College Crest */}
+        
         <div className="univ-left-emblem">
           <Link href="/" title="Dr. ACS College of Engineering, Bengaluru (Host)">
             <img
@@ -23,6 +24,12 @@ export function OfficialBanner({ portalBadge }: Props) {
 
         {/* Center: University & College Institutional Typography */}
         <div className="univ-center-titles">
+          <div className="univ-kannada-name">
+            ವಿಶ್ವೇಶ್ವರಯ್ಯ ತಾಂತ್ರಿಕ ವಿಶ್ವವಿದ್ಯಾಲಯ, ಬೆಳಗಾವಿ
+          </div>
+          <div className="univ-english-name">
+            VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI
+          </div>
           <div className="univ-host-clg">
             DR. ACS COLLEGE OF ENGINEERING, BENGALURU
           </div>

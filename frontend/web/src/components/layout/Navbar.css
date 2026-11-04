@@ -83,16 +83,16 @@
 }
 
 .univ-kannada-name {
-  font-size: 0.98rem;
+  font-size: clamp(0.95rem, 1.25vw, 1.25rem);
   font-weight: 850;
   color: #881337;
   letter-spacing: 0.02em;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.2rem;
   line-height: 1.2;
 }
 
 .univ-english-name {
-  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  font-size: clamp(1.45rem, 2.3vw, 2.15rem);
   font-weight: 950;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -100,7 +100,7 @@
 }
 
 .univ-sub-state {
-  font-size: 0.8rem;
+  font-size: 0.825rem;
   font-weight: 600;
   color: #334155;
   margin-top: 0.15rem;
@@ -108,21 +108,21 @@
 }
 
 .univ-host-clg {
-  font-size: clamp(2rem, 1.65vw, 1.3rem);
+  font-size: clamp(1.1rem, 1.6vw, 1.45rem);
   font-weight: 900;
   color: #1e3a8a;
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 .univ-accreditation-pill {
-  font-size: 1rem;
-  color: #0f172a;
+  font-size: clamp(0.75rem, 0.95vw, 0.875rem);
+  color: #334155;
   font-weight: 700;
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
   background: #f1f5f9;
-  padding: 0.15rem 0.9rem;
+  padding: 0.2rem 0.9rem;
   border-radius: 9999px;
   border: 1px solid #cbd5e1;
   line-height: 1.2;
@@ -363,10 +363,10 @@
     max-width: 70px;
   }
   .univ-english-name {
-    font-size: 1.15rem;
+    font-size: 1.35rem;
   }
   .univ-host-clg {
-    font-size: 0.875rem;
+    font-size: 0.95rem;
   }
   .univ-accreditation-pill {
     font-size: 0.7rem;
@@ -407,11 +407,11 @@
     margin-bottom: 0.1rem;
   }
   .univ-english-name {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     line-height: 1.15;
   }
   .univ-host-clg {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
   .univ-sub-state {
     font-size: 0.65rem;
