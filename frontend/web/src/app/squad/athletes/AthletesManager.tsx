@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { addAthleteAction, deleteAthleteAction } from '@/app/actions/athletes';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -66,6 +67,22 @@ export default function AthletesManager({
   const [showReportModal, setShowReportModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (showAddModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showAddModal]);
 
   // Form selections for dynamic filtering & live pricing
   const [sslcName, setSslcName] = useState('');
@@ -374,7 +391,7 @@ export default function AthletesManager({
   }
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Title & Actions Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
@@ -855,17 +872,18 @@ export default function AthletesManager({
       {/* =========================================================================
           REGISTER NEW STUDENT / ATHLETE MODAL (EXACT PROTOTYPE REGISTERCLIENT UI)
           ========================================================================= */}
-      {showAddModal && (
+      {mounted && showAddModal && createPortal(
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(6px)',
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 9999,
+            zIndex: 100000,
             padding: 'clamp(0.5rem, 3vw, 1.5rem)',
           }}
           id="modal-add-athlete-overlay"
@@ -1492,7 +1510,8 @@ export default function AthletesManager({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Official Contingent Registration Report & Eligibility Proforma Modal */}

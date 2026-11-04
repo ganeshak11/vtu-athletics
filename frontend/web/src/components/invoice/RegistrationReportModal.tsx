@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface ReportAthlete {
   id: string;
@@ -45,7 +46,24 @@ export default function RegistrationReportModal({
   squad,
   athletes,
 }: Props) {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const reportDocNumber = `REG-VTU2026-${squad.squadCode.toUpperCase()}`;
   const currentDate = new Date().toLocaleDateString('en-IN', {
@@ -58,7 +76,7 @@ export default function RegistrationReportModal({
     window.print();
   }
 
-  return (
+  return createPortal(
     <div className="report-modal-overlay">
       {/* Action Bar (Hidden when printing) */}
       <div className="report-action-bar no-print">
@@ -360,7 +378,8 @@ export default function RegistrationReportModal({
           bottom: 0;
           background: rgba(15, 23, 42, 0.88);
           backdrop-filter: blur(8px);
-          z-index: 9999;
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 100000;
           overflow-y: auto;
           display: flex;
           flex-direction: column;

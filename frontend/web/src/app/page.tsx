@@ -941,10 +941,7 @@ export default function HomePage() {
 
         <div className="footer-bottom">
           <div>
-            &copy; 2026 Visvesvaraya Technological University, Belagavi &amp; Dr. ACS College of Engineering, Bengaluru.
-          </div>
-          <div>
-            Official Portal &bull; Department of Physical Education &amp; Sports &bull; State Public University
+            &copy; All rights reserved to Fortis Technologies
           </div>
         </div>
       </footer>

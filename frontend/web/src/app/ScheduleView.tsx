@@ -208,10 +208,10 @@ export default function ScheduleView() {
           {/* Day Tabs */}
           <div style={{ display: 'flex', gap: '0.4rem', background: '#ffffff', padding: '0.35rem', borderRadius: '12px', border: '1.5px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {[
-              { day: 1, label: 'Day 1 • Dec 8 (Tue)' },
-              { day: 2, label: 'Day 2 • Dec 9 (Wed)' },
-              { day: 3, label: 'Day 3 • Dec 10 (Thu)' },
-              { day: 4, label: 'Day 4 • Dec 11 (Fri)' },
+              { day: 1, label: 'Day 1 • Dec 7 (Mon)' },
+              { day: 2, label: 'Day 2 • Dec 8 (Tue)' },
+              { day: 3, label: 'Day 3 • Dec 9 (Wed)' },
+              { day: 4, label: 'Day 4 • Dec 10 (Thu)' },
             ].map(({ day, label }) => (
               <button
                 key={day}
