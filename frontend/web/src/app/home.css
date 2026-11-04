@@ -111,64 +111,46 @@
   color: #475569;
 }
 
-/* Highlighted Championship Box */
-.hero-title-highlight-box {
-  background: radial-gradient(ellipse 90% 80% at 15% 20%, rgba(30, 58, 138, 0.5) 0%, transparent 65%),
-              radial-gradient(ellipse 70% 60% at 85% 80%, rgba(217, 119, 6, 0.22) 0%, transparent 60%),
-              linear-gradient(135deg, #070a12 0%, #0d1527 50%, #151f33 100%);
-  border: 2px solid rgba(59, 130, 246, 0.4);
-  border-left: 6px solid #f59e0b;
-  border-radius: 18px;
-  padding: clamp(1.4rem, 3.2vw, 2.5rem) clamp(1.5rem, 4vw, 3rem);
-  margin: 0 0 1.5rem 0;
-  box-shadow: 0 20px 45px -12px rgba(7, 10, 18, 0.45),
-              0 0 0 1px rgba(255, 255, 255, 0.08),
-              inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  position: relative;
-  overflow: hidden;
-  max-width: 1080px;
-}
-
 .hero-editorial-title {
   font-family: var(--font-headline, 'Montserrat', 'Outfit', sans-serif);
-  font-size: clamp(3.4rem, 8vw, 6.4rem);
+  font-size: clamp(3.4rem, 8vw, 6.2rem);
   font-weight: 900;
   line-height: 1.02;
-  letter-spacing: -0.035em;
-  margin: 0;
+  letter-spacing: -0.04em;
+  margin: 0 0 1rem 0;
   text-transform: uppercase;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.35em;
-  position: relative;
-  z-index: 1;
+  background: none;
 }
 
 .hero-title-brand {
   font-family: var(--font-headline, 'Montserrat', 'Outfit', sans-serif);
   font-size: 1em;
   font-weight: 950;
-  background: linear-gradient(135deg, #ffffff 0%, #fef08a 25%, #f59e0b 65%, #d97706 100%);
+  color: #090d16;
+  background: linear-gradient(135deg, #090d16 0%, #1e3a8a 65%, #2563eb 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 22px rgba(245, 158, 11, 0.35));
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
 }
 
 .hero-title-year {
   font-family: var(--font-headline, 'Montserrat', 'Outfit', sans-serif);
   font-size: 1em; /* EXACT SAME MATCHING SIZE */
   font-weight: 950;
-  color: #ffffff;
-  background: none;
+  color: #b45309;
+  background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   padding: 0;
   border-radius: 0;
   border: none;
   box-shadow: none;
   margin: 0;
-  letter-spacing: -0.025em;
-  filter: drop-shadow(0 4px 18px rgba(255, 255, 255, 0.4));
+  letter-spacing: -0.03em;
 }
 
 .hero-edition-line {

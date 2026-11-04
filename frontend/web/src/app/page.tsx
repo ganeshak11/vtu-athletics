@@ -36,13 +36,11 @@ export default function HomePage() {
               <span className="hero-kicker-meet">28TH VTU STATE ATHLETICS</span>
             </div>
 
-            {/* Display Headline Inside Highlighted Championship Box */}
-            <div className="hero-title-highlight-box">
-              <h1 className="hero-editorial-title">
-                <span className="hero-title-brand">DR. ACS AURA</span>{' '}
-                <span className="hero-title-year">2026</span>
-              </h1>
-            </div>
+            {/* Display Headline */}
+            <h1 className="hero-editorial-title">
+              <span className="hero-title-brand">DR. ACS AURA</span>{' '}
+              <span className="hero-title-year">2026</span>
+            </h1>
 
             {/* Edition Subtitle */}
             <div className="hero-edition-line">
