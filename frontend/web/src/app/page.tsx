@@ -594,16 +594,16 @@ export default function HomePage() {
                   <div className="host-stat-lbl">Under VTU Belagavi</div>
                 </div>
                 <div className="host-stat-box">
-                  <div className="host-stat-val">AICTE</div>
-                  <div className="host-stat-lbl">New Delhi Approved</div>
-                </div>
-                <div className="host-stat-box">
                   <div className="host-stat-val">NAAC &lsquo;A&rsquo;</div>
                   <div className="host-stat-lbl">Grade &amp; NBA Accredited</div>
                 </div>
                 <div className="host-stat-box">
-                  <div className="host-stat-val">35+ Acres</div>
-                  <div className="host-stat-lbl">Modern Campus</div>
+                  <div className="host-stat-val">554+</div>
+                  <div className="host-stat-lbl">Placement Offers</div>
+                </div>
+                <div className="host-stat-box">
+                  <div className="host-stat-val">25 MoUs</div>
+                  <div className="host-stat-lbl">Industry Collaborations</div>
                 </div>
               </div>
             </div>
@@ -686,7 +686,108 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Three Campus & Sports Infrastructure Pillars */}
+          {/* Institutional Core Values */}
+          <div style={{ marginTop: '2.5rem' }}>
+            <div className="editorial-section-header" style={{ marginBottom: '1.25rem' }}>
+              <div className="editorial-header-left">
+                <div className="editorial-category-tag">GUIDING PRINCIPLES // DR. ACSCE</div>
+                <h3 className="editorial-section-title" style={{ fontSize: '1.4rem' }}>Institutional Core Values</h3>
+              </div>
+            </div>
+            <div className="host-core-values-grid">
+              {[
+                { icon: '◈', label: 'Academic Excellence', desc: 'Commitment towards continuous improvement in teaching, learning, research, and professional development.' },
+                { icon: '◈', label: 'Integrity', desc: 'Maintaining ethical standards, transparency, and accountability in all institutional activities.' },
+                { icon: '◈', label: 'Innovation', desc: 'Encouraging creativity, research, and technology-driven solutions.' },
+                { icon: '◈', label: 'Inclusiveness', desc: 'Providing equal opportunities and a supportive learning environment for all students.' },
+                { icon: '◈', label: 'Sustainability', desc: 'Promoting environmentally responsible practices and sustainable development.' },
+                { icon: '◈', label: 'Leadership', desc: 'Developing future-ready professionals with strong leadership capabilities.' },
+                { icon: '◈', label: 'Professional Ethics', desc: 'Building responsible engineers committed to societal welfare and national progress.' },
+                { icon: '◈', label: 'Social Responsibility', desc: 'Contributing towards community development and national progress through service.' },
+              ].map((val, i) => (
+                <div key={i} className="host-core-value-card">
+                  <div className="host-cv-icon">{val.icon}</div>
+                  <div>
+                    <div className="host-cv-label">{val.label}</div>
+                    <div className="host-cv-desc">{val.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Institutional Achievements & Milestones */}
+          <div style={{ marginTop: '2.5rem' }}>
+            <div className="editorial-section-header" style={{ marginBottom: '1.25rem' }}>
+              <div className="editorial-header-left">
+                <div className="editorial-category-tag">MILESTONES &amp; RECOGNITION // DR. ACSCE</div>
+                <h3 className="editorial-section-title" style={{ fontSize: '1.4rem' }}>Significant Achievements &amp; Milestones</h3>
+              </div>
+              <div className="editorial-header-right">
+                <span className="editorial-header-badge">RANKED &amp; RECOGNISED</span>
+              </div>
+            </div>
+
+            {/* Achievement Scoreboard Row */}
+            <div className="host-achievements-scoreboard">
+              <div className="host-ach-score-box">
+                <div className="host-ach-score-num">554+</div>
+                <div className="host-ach-score-lbl">Placement Offers</div>
+              </div>
+              <div className="host-ach-score-box">
+                <div className="host-ach-score-num">25</div>
+                <div className="host-ach-score-lbl">Industry MoUs</div>
+              </div>
+              <div className="host-ach-score-box">
+                <div className="host-ach-score-num">&#x20B9;1.75 Cr+</div>
+                <div className="host-ach-score-lbl">Funded Research Projects</div>
+              </div>
+              <div className="host-ach-score-box">
+                <div className="host-ach-score-num">100th</div>
+                <div className="host-ach-score-lbl">DATAQUEST T-School 2026</div>
+              </div>
+              <div className="host-ach-score-box">
+                <div className="host-ach-score-num">40+</div>
+                <div className="host-ach-score-lbl">VTU Ranks (since 2018)</div>
+              </div>
+            </div>
+
+            {/* Achievement Cards */}
+            <div className="host-achievements-grid">
+              <div className="host-ach-card">
+                <div className="host-ach-card-tag">NATIONAL RECOGNITION</div>
+                <h4 className="host-ach-card-title">100th Rank — DATAQUEST T-School 2026</h4>
+                <p className="host-ach-card-desc">Dr. ACSCE achieved a prestigious rank in the DATAQUEST T-School Ranking 2026, recognising it as one of the Top Engineering Colleges in Bangalore and a leading technical institution in Karnataka.</p>
+              </div>
+              <div className="host-ach-card">
+                <div className="host-ach-card-tag">ACADEMIC EXCELLENCE</div>
+                <h4 className="host-ach-card-title">VTU Gold Medals &amp; University Ranks — 2026</h4>
+                <p className="host-ach-card-desc">Students secured outstanding positions in the 26th VTU Convocation, including 1st ranks in Aerospace Engineering and Biomedical Engineering, along with multiple state-level university toppers across engineering disciplines.</p>
+              </div>
+              <div className="host-ach-card">
+                <div className="host-ach-card-tag">RESEARCH &amp; INNOVATION</div>
+                <h4 className="host-ach-card-title">&#x20B9;1.75 Crore+ in Funded Research Projects</h4>
+                <p className="host-ach-card-desc">The institution has secured externally funded research projects exceeding ₹1.75 crore, supporting research infrastructure, innovation labs, and interdisciplinary technology projects across engineering departments.</p>
+              </div>
+              <div className="host-ach-card">
+                <div className="host-ach-card-tag">PLACEMENTS &amp; INDUSTRY</div>
+                <h4 className="host-ach-card-title">554+ Placement Offers &amp; 25 Industry MoUs</h4>
+                <p className="host-ach-card-desc">Leading recruiters including Infosys, IBM, Capgemini, Tech Mahindra, Siemens, Robert Bosch, and HPE have participated in campus placements. 25 active MoUs drive internships, joint projects, and industry-oriented training programmes.</p>
+              </div>
+              <div className="host-ach-card">
+                <div className="host-ach-card-tag">INNOVATION ECOSYSTEM</div>
+                <h4 className="host-ach-card-title">Smart India Hackathon &amp; IIC Activities</h4>
+                <p className="host-ach-card-desc">Active participation in Smart India Hackathon (SIH), Institution's Innovation Council (IIC) events, startup promotion, project exhibitions, and entrepreneurship development programmes that transform student ideas into viable ventures.</p>
+              </div>
+              <div className="host-ach-card">
+                <div className="host-ach-card-tag">ACADEMIC DISCIPLINES</div>
+                <h4 className="host-ach-card-title">12+ B.E./B.Tech &amp; PG Engineering Programmes</h4>
+                <p className="host-ach-card-desc">Programmes in Aeronautical, Aerospace, AI &amp; ML, Biomedical, CSE (Data Science, Cyber Security, IoT), ECE, Mechanical Engineering, MCA, and postgraduate engineering — with Outcome-Based Education (OBE) framework and experiential learning.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Three Campus &amp; Sports Infrastructure Pillars */}
           <div className="host-features-grid">
             {/* Pillar 1: Athletic & Sports Infrastructure */}
             <div className="host-feature-card">

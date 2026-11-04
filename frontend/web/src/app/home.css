@@ -1460,6 +1460,133 @@
   text-align: right;
 }
 
+/* Core Values Grid */
+.host-core-values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.host-core-value-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  padding: 1.1rem 1.15rem;
+  transition: all 0.2s ease;
+}
+
+.host-core-value-card:hover {
+  border-color: #1e3a8a;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.06);
+}
+
+.host-cv-icon {
+  color: #1e3a8a;
+  font-size: 1.1rem;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.host-cv-label {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.3rem;
+}
+
+.host-cv-desc {
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.55;
+}
+
+/* Achievements Scoreboard */
+.host-achievements-scoreboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  background: #0f172a;
+  border-radius: 10px;
+  padding: 1.75rem 2rem;
+}
+
+.host-ach-score-box {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.host-ach-score-num {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+.host-ach-score-lbl {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Achievements Grid */
+.host-achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.host-ach-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.host-ach-card:hover {
+  transform: translateY(-2px);
+  border-color: #1e3a8a;
+  box-shadow: 0 6px 18px rgba(30, 58, 138, 0.06);
+}
+
+.host-ach-card-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #1e3a8a;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.host-ach-card-title {
+  font-size: 1rem;
+  font-weight: 850;
+  color: #0f172a;
+  margin: 0 0 0.65rem 0;
+  line-height: 1.4;
+}
+
+.host-ach-card-desc {
+  font-size: 0.85rem;
+  color: #334155;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Leaders Grid — make it 4-column for the new 4 cards */
+.leaders-grid {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
 /* Three Pillars */
 .host-features-grid {
   display: grid;
@@ -1925,6 +2052,175 @@
   background: #1e3a8a;
 }
 
+/* Historical Rank Table */
+.ranks-history-wrapper {
+  margin-top: 2rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 2rem;
+}
+
+.ranks-history-header {
+  margin-bottom: 1.5rem;
+}
+
+.ranks-history-title {
+  font-size: 1.3rem;
+  font-weight: 850;
+  color: #0f172a;
+  margin: 0.35rem 0 0.5rem 0;
+}
+
+.ranks-history-desc {
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Year Tabs */
+.ranks-year-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ranks-year-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0.9rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 100px;
+}
+
+.ranks-year-tab:hover {
+  border-color: #1e3a8a;
+  background: #eff6ff;
+}
+
+.ranks-year-tab.active {
+  border-color: #1e3a8a;
+  background: #1e3a8a;
+}
+
+.tab-year {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.03em;
+}
+
+.ranks-year-tab.active .tab-year {
+  color: #ffffff;
+}
+
+.tab-summary {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.ranks-year-tab.active .tab-summary {
+  color: #bfdbfe;
+}
+
+/* Rank Table */
+.ranks-table-wrapper {
+  overflow-x: auto;
+}
+
+.ranks-table-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ranks-table-year-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #1e3a8a;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.ranks-table-summary {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ranks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.ranks-table thead tr {
+  background: #0f172a;
+}
+
+.ranks-table thead th {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ranks-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s ease;
+}
+
+.ranks-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.ranks-table tbody tr.gold-row {
+  background: #fffbeb;
+}
+
+.ranks-table tbody tr.gold-row:hover {
+  background: #fef3c7;
+}
+
+.ranks-table tbody td {
+  padding: 0.65rem 1rem;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.gold-medal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #fef9c3;
+  color: #92400e;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #fde68a;
+  white-space: nowrap;
+}
+
 /* ==============================================================================
    10. OFFICIAL FOOTER
    ============================================================================== */
@@ -2055,9 +2351,29 @@
   .regulations-grid-modern,
   .leaders-grid,
   .rank-posters-grid,
-  .host-vm-grid {
+  .host-vm-grid,
+  .host-achievements-grid,
+  .host-core-values-grid {
     grid-template-columns: 1fr;
     gap: 1.25rem;
+  }
+  .host-achievements-scoreboard {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+  }
+  .host-ach-score-num {
+    font-size: 1.35rem;
+  }
+  .ranks-history-wrapper {
+    padding: 1.25rem;
+  }
+  .ranks-year-tabs {
+    gap: 0.35rem;
+  }
+  .ranks-year-tab {
+    min-width: 85px;
+    padding: 0.4rem 0.6rem;
   }
   .transit-distance-pills {
     grid-template-columns: repeat(2, 1fr);
