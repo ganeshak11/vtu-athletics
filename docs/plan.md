@@ -148,7 +148,7 @@ Track events (100m, 200m, 400m, 800m, 1500m, 110m Hurdles, 400m Hurdles, 4x100m 
 
 ### 6.1 College Separation Algorithm
 * To ensure fair competition, athletes from the same college are systematically separated into different preliminary heats during Round 1.
-* Heats are capped at 8 athletes (corresponding to standard 8-lane synthetic tracks).
+* Heats are capped at 8 athletes (corresponding to standard 8-lane Mud tracks).
 * Lanes are assigned across Lanes 1 through 8.
 
 ---

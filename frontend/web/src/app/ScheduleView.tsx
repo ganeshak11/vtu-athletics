@@ -30,27 +30,27 @@ const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
     morningMedal: '11:00 AM – 12:00 Noon',
     eveningMedal: '04:30 PM – 05:30 PM',
     events: [
-      { code: 7, time: '06:30 AM', callRoom: '06:00 AM', name: '10,000 mtr Run', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 7, time: '07:25 AM', callRoom: '06:55 AM', name: '10,000 mtr Run', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
+      { code: 7, time: '06:30 AM', callRoom: '06:00 AM', name: '10,000 mtr Run', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 7, time: '07:25 AM', callRoom: '06:55 AM', name: '10,000 mtr Run', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
       { code: 16, time: '07:30 AM', callRoom: '07:00 AM', name: 'High Jump', round: 'Trial & Final', section: 'Women', venue: 'High Jump D-Fan', category: 'Field' },
       { code: 13, time: '07:45 AM', callRoom: '07:15 AM', name: 'Javelin Throw', specification: '600 gm', round: 'Trial & Final', section: 'Women', venue: 'Javelin Runway & Sector', category: 'Field' },
       { code: 0, time: '09:00 AM – 10:15 AM', callRoom: '08:30 AM', name: 'Opening Ceremony & Marchpast', specification: 'All contingents compulsory participation', round: 'Ceremony', section: 'Both', venue: 'Main Stadium Arena', category: 'Ceremony' },
-      { code: 4, time: '10:30 AM', callRoom: '10:00 AM', name: '800 mtrs Run', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 4, time: '10:50 AM', callRoom: '10:20 AM', name: '800 mtrs Run', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 20, time: '11:15 AM', callRoom: '10:45 AM', name: '4 x 100 mtr Relay', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 20, time: '11:45 AM', callRoom: '11:15 AM', name: '4 x 100 mtr Relay', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 10, time: '12:30 PM', callRoom: '12:00 PM', name: '400 mtr Hurdles', specification: '0.914 mtr', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
-      { code: 10, time: '12:45 PM', callRoom: '12:15 PM', name: '400 mtr Hurdles', specification: '0.762 mtr', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 4, time: '10:30 AM', callRoom: '10:00 AM', name: '800 mtrs Run', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 4, time: '10:50 AM', callRoom: '10:20 AM', name: '800 mtrs Run', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 20, time: '11:15 AM', callRoom: '10:45 AM', name: '4 x 100 mtr Relay', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 20, time: '11:45 AM', callRoom: '11:15 AM', name: '4 x 100 mtr Relay', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 10, time: '12:30 PM', callRoom: '12:00 PM', name: '400 mtr Hurdles', specification: '0.914 mtr', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Hurdles' },
+      { code: 10, time: '12:45 PM', callRoom: '12:15 PM', name: '400 mtr Hurdles', specification: '0.762 mtr', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Hurdles' },
       { code: 13, time: '02:30 PM', callRoom: '02:00 PM', name: 'Javelin Throw', specification: '800 gm', round: 'Trial & Final', section: 'Men', venue: 'Javelin Runway & Sector', category: 'Field' },
       { code: 16, time: '02:30 PM', callRoom: '02:00 PM', name: 'High Jump', round: 'Trial & Final', section: 'Men', venue: 'High Jump D-Fan', category: 'Field' },
-      { code: 10, time: '02:45 PM', callRoom: '02:15 PM', name: '400 mtr Hurdles', specification: '0.762 mtr', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Hurdles' },
-      { code: 10, time: '02:55 PM', callRoom: '02:25 PM', name: '400 mtr Hurdles', specification: '0.914 mtr', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
-      { code: 20, time: '03:10 PM', callRoom: '02:40 PM', name: '4 x 100 mtr Relay', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 20, time: '03:25 PM', callRoom: '02:55 PM', name: '4 x 100 mtr Relay', round: 'Semi-Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 4, time: '03:50 PM', callRoom: '03:20 PM', name: '800 mtr Run', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 4, time: '04:05 PM', callRoom: '03:35 PM', name: '800 mtr Run', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 20, time: '04:20 PM', callRoom: '03:50 PM', name: '4 x 100 mtr Relay', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 20, time: '04:40 PM', callRoom: '04:10 PM', name: '4 x 100 mtr Relay', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Relay' },
+      { code: 10, time: '02:45 PM', callRoom: '02:15 PM', name: '400 mtr Hurdles', specification: '0.762 mtr', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Hurdles' },
+      { code: 10, time: '02:55 PM', callRoom: '02:25 PM', name: '400 mtr Hurdles', specification: '0.914 mtr', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Hurdles' },
+      { code: 20, time: '03:10 PM', callRoom: '02:40 PM', name: '4 x 100 mtr Relay', round: 'Semi-Final', section: 'Men', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 20, time: '03:25 PM', callRoom: '02:55 PM', name: '4 x 100 mtr Relay', round: 'Semi-Final', section: 'Women', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 4, time: '03:50 PM', callRoom: '03:20 PM', name: '800 mtr Run', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 4, time: '04:05 PM', callRoom: '03:35 PM', name: '800 mtr Run', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 20, time: '04:20 PM', callRoom: '03:50 PM', name: '4 x 100 mtr Relay', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 20, time: '04:40 PM', callRoom: '04:10 PM', name: '4 x 100 mtr Relay', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Relay' },
     ],
   },
   2: {
@@ -59,37 +59,37 @@ const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
     morningMedal: '11:00 AM – 12:00 Noon',
     eveningMedal: '04:30 PM – 05:30 PM',
     events: [
-      { code: 19, time: '06:00 AM', callRoom: '05:30 AM', name: '20,000 mtr Walk Race', round: 'Final', section: 'Men', venue: 'Synthetic Track / Road Circuit', category: 'WalkMarathon' },
-      { code: 19, time: '06:15 AM', callRoom: '05:45 AM', name: '20,000 mtr Walk Race', round: 'Final', section: 'Women', venue: 'Synthetic Track / Road Circuit', category: 'WalkMarathon' },
-      { code: 3, time: '08:00 AM', callRoom: '07:30 AM', name: '400 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
+      { code: 19, time: '06:00 AM', callRoom: '05:30 AM', name: '20,000 mtr Walk Race', round: 'Final', section: 'Men', venue: 'Mud Track / Road Circuit', category: 'WalkMarathon' },
+      { code: 19, time: '06:15 AM', callRoom: '05:45 AM', name: '20,000 mtr Walk Race', round: 'Final', section: 'Women', venue: 'Mud Track / Road Circuit', category: 'WalkMarathon' },
+      { code: 3, time: '08:00 AM', callRoom: '07:30 AM', name: '400 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
       { code: 12, time: '08:00 AM', callRoom: '07:30 AM', name: 'Discus Throw', specification: '2.0 KG', round: 'Trial & Final', section: 'Men', venue: 'Discus Cage', category: 'Field' },
-      { code: 3, time: '08:30 AM', callRoom: '08:00 AM', name: '400 mtrs Run', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 24, time: '08:50 AM', callRoom: '08:20 AM', name: 'Decathlon — 100 mtr', specification: 'Decathlon Discipline 1', round: 'Decathlon', section: 'Men', venue: 'Main Synthetic Track', category: 'Combined' },
+      { code: 3, time: '08:30 AM', callRoom: '08:00 AM', name: '400 mtrs Run', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 24, time: '08:50 AM', callRoom: '08:20 AM', name: 'Decathlon — 100 mtr', specification: 'Decathlon Discipline 1', round: 'Decathlon', section: 'Men', venue: 'Main Mud Track', category: 'Combined' },
       { code: 17, time: '08:50 AM', callRoom: '08:20 AM', name: 'Triple Jump', round: 'Trial & Final', section: 'Women', venue: 'Jumping Pit 2 (South)', category: 'Field' },
-      { code: 1, time: '09:00 AM', callRoom: '08:30 AM', name: '100 mtr Run', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 1, time: '09:30 AM', callRoom: '09:00 AM', name: '100 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
+      { code: 1, time: '09:00 AM', callRoom: '08:30 AM', name: '100 mtr Run', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 1, time: '09:30 AM', callRoom: '09:00 AM', name: '100 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
       { code: 24, time: '09:45 AM', callRoom: '09:15 AM', name: 'Decathlon — Long Jump', specification: 'Decathlon Discipline 2', round: 'Decathlon', section: 'Men', venue: 'Jumping Pit 1 (North)', category: 'Combined' },
-      { code: 25, time: '10:00 AM', callRoom: '09:30 AM', name: 'Heptathlon — 100 mtr Hurdles', specification: '0.838 mtr • Heptathlon Discipline 1', round: 'Heptathlon', section: 'Women', venue: 'Main Synthetic Track', category: 'Combined' },
-      { code: 9, time: '10:10 AM', callRoom: '09:40 AM', name: '100 mtr Hurdles', specification: '0.838 mtr', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 25, time: '10:00 AM', callRoom: '09:30 AM', name: 'Heptathlon — 100 mtr Hurdles', specification: '0.838 mtr • Heptathlon Discipline 1', round: 'Heptathlon', section: 'Women', venue: 'Main Mud Track', category: 'Combined' },
+      { code: 9, time: '10:10 AM', callRoom: '09:40 AM', name: '100 mtr Hurdles', specification: '0.838 mtr', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Hurdles' },
       { code: 24, time: '11:00 AM', callRoom: '10:30 AM', name: 'Decathlon — Shot Put', specification: '7.260 KG • Decathlon Discipline 3', round: 'Decathlon', section: 'Men', venue: 'Throwing Ring A', category: 'Combined' },
       { code: 25, time: '11:00 AM', callRoom: '10:30 AM', name: 'Heptathlon — High Jump', specification: 'Heptathlon Discipline 2', round: 'Heptathlon', section: 'Women', venue: 'High Jump Pit', category: 'Combined' },
-      { code: 1, time: '11:15 AM', callRoom: '10:45 AM', name: '100 mtr Run', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 1, time: '11:30 AM', callRoom: '11:00 AM', name: '100 mtr Run', round: 'Semi-Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 9, time: '12:15 PM', callRoom: '11:45 AM', name: '100 mtr Hurdles', specification: '0.838 mtr', round: 'Semi-Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Hurdles' },
-      { code: 22, time: '12:30 PM', callRoom: '12:00 PM', name: '4 x 400 mtr Mixed Relay', specification: 'Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M', round: 'Heats', section: 'Mixed', venue: 'Main Synthetic Track', category: 'Relay' },
+      { code: 1, time: '11:15 AM', callRoom: '10:45 AM', name: '100 mtr Run', round: 'Semi-Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 1, time: '11:30 AM', callRoom: '11:00 AM', name: '100 mtr Run', round: 'Semi-Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 9, time: '12:15 PM', callRoom: '11:45 AM', name: '100 mtr Hurdles', specification: '0.838 mtr', round: 'Semi-Final', section: 'Women', venue: 'Main Mud Track', category: 'Hurdles' },
+      { code: 22, time: '12:30 PM', callRoom: '12:00 PM', name: '4 x 400 mtr Mixed Relay', specification: 'Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M', round: 'Heats', section: 'Mixed', venue: 'Main Mud Track', category: 'Relay' },
       { code: 17, time: '02:30 PM', callRoom: '02:00 PM', name: 'Triple Jump', round: 'Trial & Final', section: 'Men', venue: 'Jumping Pit 2 (South)', category: 'Field' },
       { code: 12, time: '02:30 PM', callRoom: '02:00 PM', name: 'Discus Throw', specification: '1.0 KG', round: 'Trial & Final', section: 'Women', venue: 'Discus Cage', category: 'Field' },
-      { code: 9, time: '02:30 PM', callRoom: '02:00 PM', name: '100 mtr Hurdles', specification: '0.838 mtr', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 9, time: '02:30 PM', callRoom: '02:00 PM', name: '100 mtr Hurdles', specification: '0.838 mtr', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Hurdles' },
       { code: 24, time: '02:30 PM', callRoom: '02:00 PM', name: 'Decathlon — High Jump', specification: 'Decathlon Discipline 4', round: 'Decathlon', section: 'Men', venue: 'High Jump Pit', category: 'Combined' },
-      { code: 22, time: '02:45 PM', callRoom: '02:15 PM', name: '4 x 400 mtr Mixed Relay', round: 'Semi-Final', section: 'Mixed', venue: 'Main Synthetic Track', category: 'Relay' },
+      { code: 22, time: '02:45 PM', callRoom: '02:15 PM', name: '4 x 400 mtr Mixed Relay', round: 'Semi-Final', section: 'Mixed', venue: 'Main Mud Track', category: 'Relay' },
       { code: 25, time: '03:15 PM', callRoom: '02:45 PM', name: 'Heptathlon — Shot Put', specification: '4.0 KG • Heptathlon Discipline 3', round: 'Heptathlon', section: 'Women', venue: 'Throwing Ring B', category: 'Combined' },
-      { code: 1, time: '03:50 PM', callRoom: '03:20 PM', name: '100 mtrs Run', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 1, time: '04:00 PM', callRoom: '03:30 PM', name: '100 mtrs Run', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 6, time: '04:10 PM', callRoom: '03:40 PM', name: '5000 mtrs Run', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 6, time: '04:40 PM', callRoom: '04:10 PM', name: '5000 mtrs Run', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 25, time: '05:00 PM', callRoom: '04:30 PM', name: 'Heptathlon — 200 mtrs', specification: 'Heptathlon Discipline 4', round: 'Heptathlon', section: 'Women', venue: 'Main Synthetic Track', category: 'Combined' },
-      { code: 24, time: '05:20 PM', callRoom: '04:50 PM', name: 'Decathlon — 400 mtr', specification: 'Decathlon Discipline 5', round: 'Decathlon', section: 'Men', venue: 'Main Synthetic Track', category: 'Combined' },
-      { code: 22, time: '05:35 PM', callRoom: '05:05 PM', name: '4 x 400 mtr Mixed Relay', specification: 'Championship Decider', round: 'Final', section: 'Mixed', venue: 'Main Synthetic Track', category: 'Relay' },
+      { code: 1, time: '03:50 PM', callRoom: '03:20 PM', name: '100 mtrs Run', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 1, time: '04:00 PM', callRoom: '03:30 PM', name: '100 mtrs Run', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 6, time: '04:10 PM', callRoom: '03:40 PM', name: '5000 mtrs Run', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 6, time: '04:40 PM', callRoom: '04:10 PM', name: '5000 mtrs Run', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 25, time: '05:00 PM', callRoom: '04:30 PM', name: 'Heptathlon — 200 mtrs', specification: 'Heptathlon Discipline 4', round: 'Heptathlon', section: 'Women', venue: 'Main Mud Track', category: 'Combined' },
+      { code: 24, time: '05:20 PM', callRoom: '04:50 PM', name: 'Decathlon — 400 mtr', specification: 'Decathlon Discipline 5', round: 'Decathlon', section: 'Men', venue: 'Main Mud Track', category: 'Combined' },
+      { code: 22, time: '05:35 PM', callRoom: '05:05 PM', name: '4 x 400 mtr Mixed Relay', specification: 'Championship Decider', round: 'Final', section: 'Mixed', venue: 'Main Mud Track', category: 'Relay' },
     ],
   },
   3: {
@@ -100,27 +100,27 @@ const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
     events: [
       { code: 23, time: '06:15 AM', callRoom: '05:45 AM', name: '21km Half Marathon', round: 'Final', section: 'Men', venue: 'Campus Road Circuit', category: 'WalkMarathon' },
       { code: 23, time: '06:25 AM', callRoom: '05:55 AM', name: '21km Half Marathon', round: 'Final', section: 'Women', venue: 'Campus Road Circuit', category: 'WalkMarathon' },
-      { code: 24, time: '08:30 AM', callRoom: '08:00 AM', name: 'Decathlon — 110 mtr Hurdles', specification: 'Decathlon Discipline 6', round: 'Decathlon', section: 'Men', venue: 'Main Synthetic Track', category: 'Combined' },
-      { code: 8, time: '08:45 AM', callRoom: '08:15 AM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 24, time: '08:30 AM', callRoom: '08:00 AM', name: 'Decathlon — 110 mtr Hurdles', specification: 'Decathlon Discipline 6', round: 'Decathlon', section: 'Men', venue: 'Main Mud Track', category: 'Combined' },
+      { code: 8, time: '08:45 AM', callRoom: '08:15 AM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Hurdles' },
       { code: 25, time: '09:00 AM', callRoom: '08:30 AM', name: 'Heptathlon — Long Jump', specification: 'Heptathlon Discipline 5', round: 'Heptathlon', section: 'Women', venue: 'Jumping Pit 1 (North)', category: 'Combined' },
       { code: 11, time: '09:00 AM', callRoom: '08:30 AM', name: 'Shot Put', specification: '4.00 kg', round: 'Final', section: 'Women', venue: 'Throwing Ring A', category: 'Field' },
-      { code: 5, time: '09:05 AM', callRoom: '08:35 AM', name: '1500 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 5, time: '09:20 AM', callRoom: '08:50 AM', name: '1500 mtr Run', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 8, time: '09:45 AM', callRoom: '09:15 AM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 5, time: '09:05 AM', callRoom: '08:35 AM', name: '1500 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 5, time: '09:20 AM', callRoom: '08:50 AM', name: '1500 mtr Run', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 8, time: '09:45 AM', callRoom: '09:15 AM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Semi-Final', section: 'Men', venue: 'Main Mud Track', category: 'Hurdles' },
       { code: 15, time: '10:00 AM', callRoom: '09:30 AM', name: 'Long Jump', round: 'Final', section: 'Women', venue: 'Jumping Pit 2 (South)', category: 'Field' },
-      { code: 3, time: '10:10 AM', callRoom: '09:40 AM', name: '400 mtr Run', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
+      { code: 3, time: '10:10 AM', callRoom: '09:40 AM', name: '400 mtr Run', round: 'Semi-Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
       { code: 24, time: '10:15 AM', callRoom: '09:45 AM', name: 'Decathlon — Discus Throw', specification: '2.0 KG • Decathlon Discipline 7', round: 'Decathlon', section: 'Men', venue: 'Discus Cage', category: 'Combined' },
-      { code: 3, time: '10:15 AM', callRoom: '09:45 AM', name: '400 mtr Run', round: 'Semi-Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
+      { code: 3, time: '10:15 AM', callRoom: '09:45 AM', name: '400 mtr Run', round: 'Semi-Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
       { code: 25, time: '10:45 AM', callRoom: '10:15 AM', name: 'Heptathlon — Javelin Throw', specification: '600 gm • Heptathlon Discipline 6', round: 'Heptathlon', section: 'Women', venue: 'Javelin Runway & Sector', category: 'Combined' },
       { code: 24, time: '11:15 AM', callRoom: '10:45 AM', name: 'Decathlon — Pole Vault', specification: 'Decathlon Discipline 8', round: 'Decathlon', section: 'Men', venue: 'Pole Vault Runway', category: 'Combined' },
-      { code: 8, time: '02:30 PM', callRoom: '02:00 PM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 8, time: '02:30 PM', callRoom: '02:00 PM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Hurdles' },
       { code: 15, time: '02:45 PM', callRoom: '02:15 PM', name: 'Long Jump', round: 'Final', section: 'Men', venue: 'Jumping Pit 1 (North)', category: 'Field' },
       { code: 24, time: '03:00 PM', callRoom: '02:30 PM', name: 'Decathlon — Javelin Throw', specification: '800 gm • Decathlon Discipline 9', round: 'Decathlon', section: 'Men', venue: 'Javelin Runway & Sector', category: 'Combined' },
       { code: 11, time: '03:30 PM', callRoom: '03:00 PM', name: 'Shot Put', specification: '7.260 kg', round: 'Final', section: 'Men', venue: 'Throwing Ring A', category: 'Field' },
-      { code: 25, time: '04:00 PM', callRoom: '03:30 PM', name: 'Heptathlon — 800 mtr', specification: 'Final Heptathlon Discipline 7', round: 'Heptathlon', section: 'Women', venue: 'Main Synthetic Track', category: 'Combined' },
-      { code: 24, time: '04:30 PM', callRoom: '04:00 PM', name: 'Decathlon — 1500 mtr', specification: 'Final Decathlon Discipline 10', round: 'Decathlon', section: 'Men', venue: 'Main Synthetic Track', category: 'Combined' },
-      { code: 3, time: '04:40 PM', callRoom: '04:10 PM', name: '400 mtr Run', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 3, time: '04:45 PM', callRoom: '04:15 PM', name: '400 mtr Run', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
+      { code: 25, time: '04:00 PM', callRoom: '03:30 PM', name: 'Heptathlon — 800 mtr', specification: 'Final Heptathlon Discipline 7', round: 'Heptathlon', section: 'Women', venue: 'Main Mud Track', category: 'Combined' },
+      { code: 24, time: '04:30 PM', callRoom: '04:00 PM', name: 'Decathlon — 1500 mtr', specification: 'Final Decathlon Discipline 10', round: 'Decathlon', section: 'Men', venue: 'Main Mud Track', category: 'Combined' },
+      { code: 3, time: '04:40 PM', callRoom: '04:10 PM', name: '400 mtr Run', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 3, time: '04:45 PM', callRoom: '04:15 PM', name: '400 mtr Run', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
     ],
   },
   4: {
@@ -131,23 +131,23 @@ const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
     events: [
       { code: 14, time: '07:00 AM', callRoom: '06:30 AM', name: 'Hammer Throw', specification: '7.260 kg', round: 'Final', section: 'Men', venue: 'Hammer & Discus Cage', category: 'Field' },
       { code: 18, time: '07:15 AM', callRoom: '06:45 AM', name: 'Pole Vault', round: 'Final', section: 'Men', venue: 'Pole Vault Runway', category: 'Field' },
-      { code: 2, time: '07:30 AM', callRoom: '07:00 AM', name: '200 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 2, time: '08:00 AM', callRoom: '07:30 AM', name: '200 mtr Run', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 5, time: '08:20 AM', callRoom: '07:50 AM', name: '1500 mtr Run', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 5, time: '08:30 AM', callRoom: '08:00 AM', name: '1500 mtr Run', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
+      { code: 2, time: '07:30 AM', callRoom: '07:00 AM', name: '200 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 2, time: '08:00 AM', callRoom: '07:30 AM', name: '200 mtr Run', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 5, time: '08:20 AM', callRoom: '07:50 AM', name: '1500 mtr Run', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 5, time: '08:30 AM', callRoom: '08:00 AM', name: '1500 mtr Run', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
       { code: 18, time: '08:45 AM', callRoom: '08:15 AM', name: 'Pole Vault', round: 'Final', section: 'Women', venue: 'Pole Vault Runway', category: 'Field' },
       { code: 14, time: '09:00 AM', callRoom: '08:30 AM', name: 'Hammer Throw', specification: '4.00 kg', round: 'Final', section: 'Women', venue: 'Hammer & Discus Cage', category: 'Field' },
-      { code: 21, time: '09:15 AM', callRoom: '08:45 AM', name: '4 x 400 mtr Relay', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 21, time: '09:45 AM', callRoom: '09:15 AM', name: '4 x 400 mtr Relay', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 2, time: '10:30 AM', callRoom: '10:00 AM', name: '200 mtrs Run', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 2, time: '10:45 AM', callRoom: '10:15 AM', name: '200 mtrs Run', round: 'Semi-Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 21, time: '11:00 AM', callRoom: '10:30 AM', name: '4 x 400 mtr Relay', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 21, time: '11:15 AM', callRoom: '10:45 AM', name: '4 x 400 mtr Relay', round: 'Semi-Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Relay' },
+      { code: 21, time: '09:15 AM', callRoom: '08:45 AM', name: '4 x 400 mtr Relay', round: 'Heats', section: 'Men', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 21, time: '09:45 AM', callRoom: '09:15 AM', name: '4 x 400 mtr Relay', round: 'Heats', section: 'Women', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 2, time: '10:30 AM', callRoom: '10:00 AM', name: '200 mtrs Run', round: 'Semi-Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 2, time: '10:45 AM', callRoom: '10:15 AM', name: '200 mtrs Run', round: 'Semi-Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 21, time: '11:00 AM', callRoom: '10:30 AM', name: '4 x 400 mtr Relay', round: 'Semi-Final', section: 'Men', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 21, time: '11:15 AM', callRoom: '10:45 AM', name: '4 x 400 mtr Relay', round: 'Semi-Final', section: 'Women', venue: 'Main Mud Track', category: 'Relay' },
       { code: 0, time: '12:00 PM – 01:00 PM', callRoom: '11:30 AM', name: 'Championship Valedictory Program', specification: 'Dignitaries Address & Athletic Honours', round: 'Ceremony', section: 'Both', venue: 'Main Grandstand Arena', category: 'Ceremony' },
-      { code: 2, time: '02:30 PM', callRoom: '02:00 PM', name: '200 mtrs Run', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 2, time: '02:45 PM', callRoom: '02:15 PM', name: '200 mtrs Run', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 21, time: '03:00 PM', callRoom: '02:30 PM', name: '4 x 400 mtr Relay', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Relay' },
-      { code: 21, time: '03:15 PM', callRoom: '02:45 PM', name: '4 x 400 mtr Relay', round: 'Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Relay' },
+      { code: 2, time: '02:30 PM', callRoom: '02:00 PM', name: '200 mtrs Run', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Track' },
+      { code: 2, time: '02:45 PM', callRoom: '02:15 PM', name: '200 mtrs Run', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Track' },
+      { code: 21, time: '03:00 PM', callRoom: '02:30 PM', name: '4 x 400 mtr Relay', round: 'Final', section: 'Men', venue: 'Main Mud Track', category: 'Relay' },
+      { code: 21, time: '03:15 PM', callRoom: '02:45 PM', name: '4 x 400 mtr Relay', round: 'Final', section: 'Women', venue: 'Main Mud Track', category: 'Relay' },
       { code: 0, time: '04:00 PM', callRoom: '03:30 PM', name: 'Grand Medal Ceremony & Rolling Trophy Presentation', specification: 'Overall & Divisional Trophies', round: 'Ceremony', section: 'Both', venue: 'Main Stadium Podium', category: 'Ceremony' },
     ],
   },
@@ -198,13 +198,13 @@ export default function ScheduleView() {
 
   return (
     <div id="schedule-section-root" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-      
+
       {/* Control Deck: Days Tabs, Category Filters, Section Filter & PDF Download */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-        
+
         {/* Top Controls Row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          
+
           {/* Day Tabs */}
           <div style={{ display: 'flex', gap: '0.4rem', background: '#ffffff', padding: '0.35rem', borderRadius: '12px', border: '1.5px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', maxWidth: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {[
@@ -288,7 +288,7 @@ export default function ScheduleView() {
 
         {/* Filter & Search Bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.75rem 1rem' }}>
-          
+
           {/* Category Filter Chips */}
           <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
             {[
@@ -450,7 +450,7 @@ export default function ScheduleView() {
             {currentDayData.title}
           </h3>
           <p style={{ color: '#64748b', fontSize: '0.825rem', margin: '0.25rem 0 0' }}>
-            Dr. ACS College Synthetic Track Stadium &bull; Medal Slots: Morning {currentDayData.morningMedal} | Evening {currentDayData.eveningMedal}
+            Dr. ACS College Mud Track Stadium &bull; Medal Slots: Morning {currentDayData.morningMedal} | Evening {currentDayData.eveningMedal}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

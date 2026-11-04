@@ -108,7 +108,7 @@
 }
 
 .univ-host-clg {
-  font-size: clamp(1rem, 1.65vw, 1.3rem);
+  font-size: clamp(2rem, 1.65vw, 1.3rem);
   font-weight: 900;
   color: #1e3a8a;
   margin-top: 0.25rem;
@@ -117,7 +117,7 @@
 }
 
 .univ-accreditation-pill {
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: #0f172a;
   font-weight: 700;
   margin-top: 0.25rem;

@@ -25,10 +25,10 @@ export default function HomePage() {
       {/* 2. ASYMMETRIC EDITORIAL CHAMPIONSHIP HERO SECTION */}
       <section className="hero-editorial-section">
         <div className="hero-editorial-container">
-          
+
           {/* Left Column (60%): Tournament Identity & Authority */}
           <div className="hero-editorial-left">
-            
+
             {/* Taxonomy / Classification Header */}
             <div className="hero-kicker-bar">
               <span className="hero-kicker-dept">DIRECTORATE OF PHYSICAL EDUCATION &amp; SPORTS</span>
@@ -60,7 +60,7 @@ export default function HomePage() {
               <div className="meta-strip-sep" aria-hidden="true" />
               <div className="meta-strip-item">
                 <span className="meta-strip-label">COMPETITION ARENA</span>
-                <span className="meta-strip-val">Synthetic Track, ACSCE Campus</span>
+                <span className="meta-strip-val">Mud Track, Dr. ACSCE Campus</span>
               </div>
               <div className="meta-strip-sep" aria-hidden="true" />
               <div className="meta-strip-item">
@@ -98,7 +98,7 @@ export default function HomePage() {
       {/* 3. THREE OFFICIAL PORTAL ACCESS DESKS */}
       <section className="portal-cards-section" id="access-desks">
         <div className="section-wrapper">
-          
+
           <div className="editorial-section-header">
             <div className="editorial-header-left">
               <div className="editorial-category-tag">CHAMPIONSHIP OPERATIONS // SECURE DESKS</div>
@@ -113,7 +113,7 @@ export default function HomePage() {
           </div>
 
           <div className="cards-triple-grid">
-            
+
             {/* Card 1: Institution Squad Portal */}
             <div className="portal-official-card card-accent-blue">
               <div>
@@ -230,7 +230,7 @@ export default function HomePage() {
       {/* 4. CHAMPIONSHIP REGULATIONS & PARTICIPATION QUOTAS */}
       <section className="regulations-section" id="rules">
         <div className="section-wrapper">
-          
+
           <div className="editorial-section-header">
             <div className="editorial-header-left">
               <div className="editorial-category-tag">REGULATORY FRAMEWORK // VTU SPORTS CODE</div>
@@ -245,7 +245,7 @@ export default function HomePage() {
           </div>
 
           <div className="regulations-grid-modern">
-            
+
             {/* Rule 1: Individual Event Quota & Reserve Rule */}
             <div className="regulation-card">
               <div className="reg-card-header">
@@ -362,7 +362,7 @@ export default function HomePage() {
       {/* 5. INTERACTIVE 4-DAY EVENT TIMETABLE */}
       <section className="schedule-section" id="schedule">
         <div className="section-wrapper">
-          
+
           <div className="editorial-section-header">
             <div className="editorial-header-left">
               <div className="editorial-category-tag">EVENT TIMETABLE // 4-DAY CHAMPIONSHIP</div>
@@ -384,13 +384,13 @@ export default function HomePage() {
       {/* 6. STADIUM FACILITIES & TRANSIT LOGISTICS */}
       <section className="transit-section" id="venue">
         <div className="section-wrapper">
-          
+
           <div className="editorial-section-header">
             <div className="editorial-header-left">
               <div className="editorial-category-tag">CAMPUS &amp; LOGISTICS // BENGALURU-MYSURU EXPRESSWAY</div>
               <h2 className="editorial-section-title">Stadium Complex &amp; Campus Logistics</h2>
               <p className="editorial-section-desc">
-                World-class synthetic track infrastructure and transit connectivity at Dr. ACS College of Engineering, Bengaluru.
+                World-class Mud track infrastructure and transit connectivity at Dr. ACS College of Engineering, Bengaluru.
               </p>
             </div>
             <div className="editorial-header-right">
@@ -399,7 +399,7 @@ export default function HomePage() {
           </div>
 
           <div className="transit-modern-grid">
-            
+
             {/* Left: Stadium Specifications */}
             <div className="transit-card-box">
               <div className="transit-box-top-tag">FACILITY INFRASTRUCTURE</div>
@@ -410,7 +410,7 @@ export default function HomePage() {
                 <li className="transit-spec-item">
                   <span className="transit-spec-marker">&bull;</span>
                   <div>
-                    <strong>8-Lane 400m Synthetic Track:</strong> Full polyurethane synthetic surface complying with World Athletics technical specifications and ultrasonic wind gauges.
+                    <strong>8-Lane 400m Mud Track:</strong> Full polyurethane Mud surface complying with World Athletics technical specifications and ultrasonic wind gauges.
                   </div>
                 </li>
                 <li className="transit-spec-item">
@@ -481,9 +481,9 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="transit-map-header-right">
-                <a 
-                  href="https://maps.google.com/maps?q=12.8910233%2C77.4655618&z=17&hl=en" 
-                  target="_blank" 
+                <a
+                  href="https://maps.google.com/maps?q=12.8910233%2C77.4655618&z=17&hl=en"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="btn-open-maps"
                   title="Open live navigation in Google Maps (Exact Stadium Pin)"
@@ -536,7 +536,7 @@ export default function HomePage() {
       {/* 7. ABOUT THE INSTITUTION & HOST PROFILE */}
       <section className="host-section" id="host-college">
         <div className="section-wrapper">
-          
+
           <div className="editorial-section-header">
             <div className="editorial-header-left">
               <div className="editorial-category-tag">HOST INSTITUTION // ABOUT DR. ACSCE</div>
@@ -560,7 +560,7 @@ export default function HomePage() {
               <div style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '0.85rem', marginBottom: '1.25rem' }}>
                 Autonomous Institution under VTU, Belagavi &bull; Approved by AICTE, New Delhi &bull; NAAC &lsquo;A&rsquo; Grade &amp; NBA Accredited
               </div>
-              
+
               <p style={{ color: '#334155', lineHeight: 1.7, fontSize: '0.935rem', marginBottom: '1rem' }}>
                 <strong>Dr. ACS College of Engineering (Dr. ACSCE), Bengaluru</strong>, was established in <strong>2009</strong> under the aegis of the <strong>Moogambigai Charitable and Educational Trust</strong>, which was founded in <strong>1992</strong> by the visionary educationist <strong>Dr. A. C. Shanmugam</strong>, B.A., LL.B, FIMSA, FRCPS (Glasgow, UK), with the main objective of promoting higher education in Karnataka. Various professional institutions—including Medical, Dental, and Nursing colleges—function under the aegis of the Trust, collectively termed as the <strong>RajaRajeswari Group of Institutions (RRGI)</strong>.
               </p>
@@ -798,7 +798,7 @@ export default function HomePage() {
               <ul className="host-feature-list">
                 <li className="host-feature-item">
                   <span className="host-item-bullet">&bull;</span>
-                  <span><strong>8-Lane Synthetic Track:</strong> 400m standard synthetic running track with electronic lane markers, photo-finish timing mounts, and IAAF-compliant curves.</span>
+                  <span><strong>8-Lane Mud Track:</strong> 400m standard Mud running track with electronic lane markers, photo-finish timing mounts, and IAAF-compliant curves.</span>
                 </li>
                 <li className="host-feature-item">
                   <span className="host-item-bullet">&bull;</span>
@@ -880,7 +880,7 @@ export default function HomePage() {
       {/* 9. OFFICIAL FOOTER */}
       <footer className="modern-light-footer">
         <div className="footer-grid">
-          
+
           <div className="footer-col">
             <h4>Visvesvaraya Technological University</h4>
             <p style={{ marginBottom: '0.85rem' }}>

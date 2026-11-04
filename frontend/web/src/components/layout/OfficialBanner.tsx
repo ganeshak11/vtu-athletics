@@ -23,21 +23,12 @@ export function OfficialBanner({ portalBadge }: Props) {
 
         {/* Center: University & College Institutional Typography */}
         <div className="univ-center-titles">
-          <div className="univ-kannada-name">
-            ವಿಶ್ವೇಶ್ವರಯ್ಯ ತಾಂತ್ರಿಕ ವಿಶ್ವವಿದ್ಯಾಲಯ, ಬೆಳಗಾವಿ
-          </div>
-          <div className="univ-english-name">
-            VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI
-          </div>
-          <div className="univ-sub-state">
-            (A State Public University of Government of Karnataka &bull; Estd. 1998)
-          </div>
           <div className="univ-host-clg">
             DR. ACS COLLEGE OF ENGINEERING, BENGALURU
           </div>
           <div className="univ-accreditation-pill">
-            Approved by AICTE, New Delhi &bull; Affiliated to VTU &bull; NAAC &lsquo;A&rsquo; Grade &amp; NBA Accredited
-          </div>
+            An Autonomous Institution  Under VTU Belagavi, Approved by AICTE, UGC & GOK
+            </div>
           {portalBadge && (
             <div className="univ-meet-badge">
               {portalBadge}

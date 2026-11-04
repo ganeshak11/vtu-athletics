@@ -90,7 +90,7 @@ export default function CountdownTimer() {
         </div>
         <div className="param-row">
           <span className="param-title">Stadium Arena</span>
-          <span className="param-detail">Synthetic Track, Kambipura (NH 275)</span>
+          <span className="param-detail">Mud Track, Dr. ACSCE Campus</span>
         </div>
         <div className="param-row">
           <span className="param-title">GPS Coordinates</span>

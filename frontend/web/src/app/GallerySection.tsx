@@ -99,9 +99,9 @@ const GALLERY_ITEMS: GalleryItem[] = [
     category: 'track',
     categoryLabel: 'Track & Field',
     categoryIcon: '🏃',
-    venue: 'Main Synthetic Athletic Arena',
+    venue: 'Main Mud Athletic Arena',
     year: '2025',
-    description: 'Collegiate delegation in official team colors assembled on the synthetic track arena with campus facade in background.',
+    description: 'Collegiate delegation in official team colors assembled on the Mud track arena with campus facade in background.',
     gridSpan: 'span-4',
   },
   {
@@ -135,9 +135,9 @@ const GALLERY_ITEMS: GalleryItem[] = [
     category: 'track',
     categoryLabel: 'Track & Field',
     categoryIcon: '🏃',
-    venue: '8-Lane Synthetic Track Arena',
+    venue: '8-Lane Mud Track Arena',
     year: '2025',
-    description: 'Participating collegiate contingents marching on the synthetic track during the ceremonial opening parade.',
+    description: 'Participating collegiate contingents marching on the Mud track during the ceremonial opening parade.',
     gridSpan: 'span-4',
   },
   {
@@ -209,7 +209,7 @@ export default function GallerySection() {
   return (
     <section className="gallery-section" id="gallery">
       <div className="section-wrapper">
-        
+
         {/* Section Header */}
         <div className="gallery-header">
           <div className="gallery-badge">
@@ -275,7 +275,7 @@ export default function GallerySection() {
                     className="gallery-card-img"
                     loading="lazy"
                   />
-                  
+
                   {/* Floating Number Badge */}
                   <div className="gallery-card-top-badges">
                     <span className="gallery-top-badge">
@@ -297,8 +297,8 @@ export default function GallerySection() {
 
       {/* Interactive Lightbox Modal */}
       {currentItem && lightboxIndex !== null && (
-        <div 
-          className="gallery-lightbox-backdrop" 
+        <div
+          className="gallery-lightbox-backdrop"
           onClick={closeLightbox}
           role="dialog"
           aria-modal="true"
@@ -309,9 +309,9 @@ export default function GallerySection() {
             <div className="lightbox-counter">
               PHOTO {lightboxIndex + 1} OF {filteredItems.length}
             </div>
-            <button 
-              type="button" 
-              className="lightbox-close-btn" 
+            <button
+              type="button"
+              className="lightbox-close-btn"
               onClick={closeLightbox}
               aria-label="Close Lightbox (Esc)"
               title="Close (Esc)"
@@ -322,9 +322,9 @@ export default function GallerySection() {
 
           {/* Central Image Stage */}
           <div className="lightbox-stage" onClick={(e) => e.stopPropagation()}>
-            <button 
-              type="button" 
-              className="lightbox-nav-arrow prev" 
+            <button
+              type="button"
+              className="lightbox-nav-arrow prev"
               onClick={showPrev}
               aria-label="Previous Photo (Left Arrow)"
               title="Previous"
@@ -340,9 +340,9 @@ export default function GallerySection() {
               />
             </div>
 
-            <button 
-              type="button" 
-              className="lightbox-nav-arrow next" 
+            <button
+              type="button"
+              className="lightbox-nav-arrow next"
               onClick={showNext}
               aria-label="Next Photo (Right Arrow)"
               title="Next"

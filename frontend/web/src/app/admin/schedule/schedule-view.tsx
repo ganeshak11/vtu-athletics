@@ -163,7 +163,7 @@ export function ScheduleManagerView({
           }))
         );
       }
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const handlePrint = () => {
@@ -378,7 +378,7 @@ export function ScheduleManagerView({
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700 }}>8-LANE SYNTHETIC TRACK</div>
+                <div style={{ fontSize: '12px', fontWeight: 700 }}>8-LANE Mud TRACK</div>
                 <div style={{ fontSize: '11px' }}>World Athletics Rule 166.4 Seeding</div>
               </div>
             </div>
