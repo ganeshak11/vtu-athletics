@@ -1,59 +1,160 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface LeaderItem {
   role: string;
   roleBadge: string;
+  roleBadgeClass?: string;
   name: string;
   degrees: string;
   designation: string;
   organization: string;
   imageSrc: string;
   imageAlt: string;
+  imageFit?: 'cover' | 'contain';
 }
 
-const LEADERS: LeaderItem[] = [
+const CHIEF_PATRONS: LeaderItem[] = [
   {
     role: 'Chief Patron',
     roleBadge: 'CHIEF PATRON',
+    roleBadgeClass: 'chief',
+    name: 'Dr. Vidyashankar S.',
+    degrees: 'Ph.D',
+    designation: 'Hon. Vice-Chancellor',
+    organization: 'Visvesvaraya Technological University (VTU), Belagavi',
+    imageSrc: '/management/vidyashankar-sir.jpeg',
+    imageAlt: 'Dr. Vidyashankar S., Hon. Vice-Chancellor, VTU Belagavi',
+    imageFit: 'cover',
+  },
+  {
+    role: 'Chief Patron',
+    roleBadge: 'CHIEF PATRON',
+    roleBadgeClass: 'chief',
     name: 'Dr. A. C. Shanmugam',
     degrees: 'B.A., LL.B, FIMSA, FRCPS (Glasgow, UK)',
     designation: 'Founder Chairman',
-    organization: 'Dr. M.G.R. Educational & Research Institute, Chennai & Rajarajeswari Group of Institutions (RRGI), Bengaluru',
+    organization: 'RajaRajeswari Group of Institutions (RRGI), Bengaluru',
     imageSrc: '/management/image1.jpeg',
-    imageAlt: 'Dr. A.C. Shanmugam, Chief Patron & Founder Chairman'
+    imageAlt: 'Dr. A. C. Shanmugam, Chief Patron & Founder Chairman, RRGI',
+    imageFit: 'cover',
+  },
+];
+
+const PATRONS: LeaderItem[] = [
+  {
+    role: 'Patron',
+    roleBadge: 'PATRON',
+    roleBadgeClass: 'patron',
+    name: 'Dr. Prasad B. Rampure',
+    degrees: 'Ph.D',
+    designation: 'Registrar',
+    organization: 'Visvesvaraya Technological University (VTU), Belagavi',
+    imageSrc: '/management/prasanth-b-sir.jpeg',
+    imageAlt: 'Dr. Prasad B. Rampure, Registrar, VTU Belagavi',
+    imageFit: 'cover',
   },
   {
     role: 'Patron',
     roleBadge: 'PATRON',
-    name: 'Sri. A. C. S. ArunKumar',
+    roleBadgeClass: 'patron',
+    name: 'Dr. A. C. S. Arun Kumar',
     degrees: 'B.Tech (Hons), MBA, LMISTE, MIET (UK), LMCSI',
     designation: 'President',
-    organization: 'Dr. M.G.R. Educational & Research Institute, Chennai & Rajarajeswari Group of Institutions (RRGI), Bengaluru',
+    organization: 'RajaRajeswari Group of Institutions (RRGI), Bengaluru',
     imageSrc: '/management/image2.jpeg',
-    imageAlt: 'Sri. A.C.S. ArunKumar, Patron & President'
+    imageAlt: 'Dr. A. C. S. Arun Kumar, President, RRGI',
+    imageFit: 'cover',
   },
   {
-    role: 'Chairperson',
-    roleBadge: 'CHAIRPERSON',
+    role: 'Patron',
+    roleBadge: 'PATRON',
+    roleBadgeClass: 'patron',
+    name: 'Dr. Ujwal U. J.',
+    degrees: 'Ph.D',
+    designation: 'Registrar (Evaluation)',
+    organization: 'Visvesvaraya Technological University (VTU), Belagavi',
+    imageSrc: '/management/ujwal-u-j-sir.jpeg',
+    imageAlt: 'Dr. Ujwal U. J., Registrar (Evaluation), VTU Belagavi',
+    imageFit: 'cover',
+  },
+  {
+    role: 'Patron',
+    roleBadge: 'PATRON',
+    roleBadgeClass: 'patron',
+    name: 'Dr. Prashantha Nayaka G.',
+    degrees: 'Ph.D',
+    designation: 'Finance Officer',
+    organization: 'Visvesvaraya Technological University (VTU), Belagavi',
+    imageSrc: '/management/prasanth-nayak-sir.jpeg',
+    imageAlt: 'Dr. Prashantha Nayaka G., Finance Officer, VTU Belagavi',
+    imageFit: 'cover',
+  },
+  {
+    role: 'Patron',
+    roleBadge: 'PATRON',
+    roleBadgeClass: 'patron',
+    name: 'Dr. S. Vijayanand',
+    degrees: 'M.Tech, Ph.D',
+    designation: 'Executive Director',
+    organization: 'RajaRajeswari Group of Institutions (RRGI), Bengaluru',
+    imageSrc: '/management/image3.jpeg',
+    imageAlt: 'Dr. S. Vijayanand, Executive Director, RRGI',
+    imageFit: 'cover',
+  },
+  {
+    role: 'Patron',
+    roleBadge: 'PATRON',
+    roleBadgeClass: 'patron',
     name: 'Smt. S. Lalitha Lakshmi',
     degrees: '',
     designation: 'Chairperson',
     organization: 'RajaRajeswari Group of Institutions (RRGI), Bengaluru',
     imageSrc: '/management/chairperson-rr.png',
-    imageAlt: 'Smt. S. Lalitha Lakshmi, Chairperson, RRGI'
+    imageAlt: 'Smt. S. Lalitha Lakshmi, Chairperson, RRGI',
+    imageFit: 'cover',
+  },
+];
+
+const ORGANIZING_COMMITTEE: LeaderItem[] = [
+  {
+    role: 'Organizing Chairman',
+    roleBadge: 'ORGANIZING CHAIRMAN',
+    roleBadgeClass: 'organizing',
+    name: 'Dr. Shylaja B. S.',
+    degrees: 'M.Tech, Ph.D',
+    designation: 'Principal',
+    organization: 'Dr. ACS College of Engineering, Bengaluru',
+    imageSrc: '/acsce-crest.jpg',
+    imageAlt: 'Dr. Shylaja B. S., Principal, Dr. ACSCE',
+    imageFit: 'contain',
   },
   {
-    role: 'Executive Director',
-    roleBadge: 'EXECUTIVE DIRECTOR',
-    name: 'Dr. S. Vijayanand',
-    degrees: 'M.Tech, Ph.D',
-    designation: 'Executive Director',
-    organization: 'Rajarajeswari Group of Institutions (RRGI), Bengaluru',
-    imageSrc: '/management/image3.jpeg',
-    imageAlt: 'Dr. S. Vijayanand, Executive Director, RRGI'
-  }
+    role: 'Director of the Meet',
+    roleBadge: 'DIRECTOR OF THE MEET',
+    roleBadgeClass: 'director',
+    name: 'Dr. Rajesh Y. H.',
+    degrees: 'M.P.Ed, Ph.D',
+    designation: 'Director of Physical Education',
+    organization: 'Visvesvaraya Technological University (VTU), Belagavi',
+    imageSrc: '/management/rajesh-sir.jpeg',
+    imageAlt: 'Dr. Rajesh Y. H., Director of Physical Education, VTU Belagavi',
+    imageFit: 'cover',
+  },
+  {
+    role: 'Organizing Secretary',
+    roleBadge: 'ORGANIZING SECRETARY',
+    roleBadgeClass: 'secretary',
+    name: 'Mr. Devendra Naik R. S.',
+    degrees: 'M.P.Ed, M.Phil',
+    designation: 'Physical Education Director',
+    organization: 'Dr. ACS College of Engineering, Bengaluru',
+    imageSrc: '/management/devendra-nayak-sir.jpeg',
+    imageAlt: 'Mr. Devendra Naik R. S., Physical Education Director, Dr. ACSCE',
+    imageFit: 'cover',
+  },
 ];
 
 interface PosterItem {
@@ -209,41 +310,143 @@ const HISTORICAL_RANKS: RankEntry[] = [
 export default function LeadershipAndRanks() {
   const [activeModalPoster, setActiveModalPoster] = useState<PosterItem | null>(null);
   const [activeRankYear, setActiveRankYear] = useState<string>(HISTORICAL_RANKS[0].year);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (activeModalPoster) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeModalPoster]);
 
   return (
     <div className="leadership-ranks-section">
-      {/* 1. ORGANIZING PATRONS & LEADERSHIP */}
-      <div className="leadership-subwrapper">
+      {/* 1. CHIEF PATRONS TIER */}
+      <div className="leadership-subwrapper" id="chief-patrons">
         <div className="editorial-section-header">
           <div className="editorial-header-left">
-            <div className="editorial-category-tag">INSTITUTIONAL PATRONAGE // ACSCE &amp; RRGI</div>
-            <h3 className="editorial-section-title">Organizing Patrons &amp; Leadership</h3>
+            <div className="editorial-category-tag">HONORARY CHIEF PATRONS // VTU &amp; RRGI</div>
+            <h3 className="editorial-section-title">Chief Patrons</h3>
             <p className="editorial-section-desc">
-              Under the visionary stewardship of our Chief Patron and Executive Leadership, Dr. ACS College of Engineering hosts the 28th VTU State Level Inter-Collegiate Athletic Meet – 2026.
+              Distinguished university and institutional leadership steering the 28th VTU State Level Inter-Collegiate Athletic Meet – 2026.
             </p>
           </div>
           <div className="editorial-header-right">
-            <span className="editorial-header-badge">ESTD. 1992</span>
+            <span className="editorial-header-badge" style={{ background: '#b45309', color: '#ffffff', borderColor: '#b45309' }}>CHIEF PATRONAGE</span>
           </div>
         </div>
 
-        <div className="leaders-grid">
-          {LEADERS.map((leader, idx) => (
+        <div className="chief-patrons-grid">
+          {CHIEF_PATRONS.map((leader, idx) => (
+            <div key={idx} className="leader-card chief-patron-card">
+              <div className="leader-image-box chief-image-box">
+                <img
+                  src={leader.imageSrc}
+                  alt={leader.imageAlt}
+                  className="leader-img"
+                  style={{ objectFit: leader.imageFit || 'cover', objectPosition: 'top center' }}
+                  loading="lazy"
+                />
+                <span className="leader-tag-badge chief">
+                  {leader.roleBadge}
+                </span>
+              </div>
+              <div className="leader-info">
+                <h4 className="leader-name chief-name">{leader.name}</h4>
+                {leader.degrees && <div className="leader-degrees">{leader.degrees}</div>}
+                <div className="leader-desig chief-desig">{leader.designation}</div>
+                <div className="leader-org">{leader.organization}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 2. PATRONS TIER */}
+      <div className="leadership-subwrapper" id="patrons">
+        <div className="editorial-section-header">
+          <div className="editorial-header-left">
+            <div className="editorial-category-tag">UNIVERSITY &amp; TRUST PATRONAGE</div>
+            <h3 className="editorial-section-title">Patrons</h3>
+            <p className="editorial-section-desc">
+              Esteemed statutory officers of Visvesvaraya Technological University and Executive Officers of RajaRajeswari Group of Institutions.
+            </p>
+          </div>
+          <div className="editorial-header-right">
+            <span className="editorial-header-badge">PATRONS</span>
+          </div>
+        </div>
+
+        <div className="patrons-grid">
+          {PATRONS.map((leader, idx) => (
             <div key={idx} className="leader-card">
               <div className="leader-image-box">
                 <img
                   src={leader.imageSrc}
                   alt={leader.imageAlt}
                   className="leader-img"
+                  style={{ objectFit: leader.imageFit || 'cover', objectPosition: 'top center' }}
                   loading="lazy"
                 />
-                <span className="leader-tag-badge">
+                <span className="leader-tag-badge patron">
                   {leader.roleBadge}
                 </span>
               </div>
               <div className="leader-info">
                 <h4 className="leader-name">{leader.name}</h4>
-                <div className="leader-degrees">{leader.degrees}</div>
+                {leader.degrees && <div className="leader-degrees">{leader.degrees}</div>}
+                <div className="leader-desig">{leader.designation}</div>
+                <div className="leader-org">{leader.organization}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. ORGANIZING COMMITTEE & MEET DIRECTORATE */}
+      <div className="leadership-subwrapper" id="organizing-committee">
+        <div className="editorial-section-header">
+          <div className="editorial-header-left">
+            <div className="editorial-category-tag">ATHLETIC MEET SECRETARIAT // HOST &amp; VTU SPORTS DIRECTORATE</div>
+            <h3 className="editorial-section-title">Organizing Committee &amp; Meet Directorate</h3>
+            <p className="editorial-section-desc">
+              Key executive leadership, Director of the Meet, and Organizing Secretary coordinating the state-level athletic championship.
+            </p>
+          </div>
+          <div className="editorial-header-right">
+            <span className="editorial-header-badge" style={{ background: '#047857', color: '#ffffff', borderColor: '#047857' }}>ORGANIZING EXECUTIVE</span>
+          </div>
+        </div>
+
+        <div className="organizing-grid">
+          {ORGANIZING_COMMITTEE.map((leader, idx) => (
+            <div key={idx} className="leader-card organizing-card">
+              <div className={`leader-image-box ${leader.imageFit === 'contain' ? 'crest-box' : ''}`}>
+                <img
+                  src={leader.imageSrc}
+                  alt={leader.imageAlt}
+                  className={`leader-img ${leader.imageFit === 'contain' ? 'crest-img' : ''}`}
+                  style={{ 
+                    objectFit: leader.imageFit || 'cover', 
+                    objectPosition: leader.imageSrc.includes('devendra') ? 'center 20%' : 'top center' 
+                  }}
+                  loading="lazy"
+                />
+                <span className={`leader-tag-badge ${leader.roleBadgeClass || 'organizing'}`}>
+                  {leader.roleBadge}
+                </span>
+              </div>
+              <div className="leader-info">
+                <h4 className="leader-name">{leader.name}</h4>
+                {leader.degrees && <div className="leader-degrees">{leader.degrees}</div>}
                 <div className="leader-desig">{leader.designation}</div>
                 <div className="leader-org">{leader.organization}</div>
               </div>
@@ -379,7 +582,7 @@ export default function LeadershipAndRanks() {
       </div>
 
       {/* HIGH-RES LIGHTBOX MODAL */}
-      {activeModalPoster && (
+      {mounted && activeModalPoster && createPortal(
         <div 
           className="poster-modal-backdrop"
           onClick={() => setActiveModalPoster(null)}
@@ -428,7 +631,8 @@ export default function LeadershipAndRanks() {
               </a>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

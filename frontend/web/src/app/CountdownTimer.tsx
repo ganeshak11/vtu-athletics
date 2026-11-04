@@ -96,6 +96,10 @@ export default function CountdownTimer() {
           <span className="param-title">GPS Coordinates</span>
           <span className="param-detail">12.8910233° N, 77.4655618° E</span>
         </div>
+        <div className="param-row">
+          <span className="param-title">Registration Deadline</span>
+          <span className="param-detail">25-11-2026</span>
+        </div>
       </div>
 
       {/* Quick Access Link */}

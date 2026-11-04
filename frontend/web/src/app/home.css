@@ -1677,6 +1677,110 @@
   margin-top: 1.5rem;
 }
 
+/* Tier 1: Chief Patrons Grid */
+.chief-patrons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.25rem;
+  max-width: 920px;
+  margin: 1.5rem auto 0;
+}
+
+.chief-patron-card {
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.12);
+  transition: all 0.25s ease;
+}
+
+.chief-patron-card:hover {
+  transform: translateY(-4px);
+  border-color: #b45309;
+  box-shadow: 0 12px 32px rgba(180, 83, 9, 0.18);
+}
+
+.chief-image-box {
+  height: 330px;
+}
+
+.chief-name {
+  font-size: 1.3rem;
+  color: #0f172a;
+}
+
+.chief-desig {
+  color: #b45309;
+  font-weight: 850;
+  font-size: 0.95rem;
+}
+
+/* Tier 2: Patrons Grid */
+.patrons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+  margin-top: 1.5rem;
+}
+
+/* Tier 3: Organizing Committee & Meet Directorate Grid */
+.organizing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+  margin-top: 1.5rem;
+}
+
+.organizing-card {
+  border: 1.5px solid #cbd5e1;
+  transition: all 0.25s ease;
+}
+
+.organizing-card:hover {
+  border-color: #047857;
+  box-shadow: 0 8px 24px rgba(4, 120, 87, 0.12);
+}
+
+.crest-box {
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.crest-img {
+  max-height: 85%;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.1));
+}
+
+.leader-tag-badge.chief {
+  background: linear-gradient(135deg, #0f172a 0%, #b45309 100%);
+  color: #ffffff;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.leader-tag-badge.patron {
+  background: #1e3a8a;
+  color: #ffffff;
+}
+
+.leader-tag-badge.organizing {
+  background: #047857;
+  color: #ffffff;
+}
+
+.leader-tag-badge.director {
+  background: #4338ca;
+  color: #ffffff;
+}
+
+.leader-tag-badge.secretary {
+  background: #0d9488;
+  color: #ffffff;
+}
+
 .leader-card {
   background: #ffffff;
   border: 1.5px solid #e2e8f0;

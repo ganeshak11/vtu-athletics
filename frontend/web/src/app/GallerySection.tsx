@@ -14,10 +14,42 @@ export interface GalleryItem {
   year: string;
   description: string;
   featured?: boolean;
+  spotlight?: boolean;
+  badgeLabel?: string;
   gridSpan: 'span-7' | 'span-5' | 'span-4' | 'span-6' | 'span-12';
 }
 
 const GALLERY_ITEMS: GalleryItem[] = [
+  {
+    id: 'gal-14',
+    src: '/gallery/gallery-14-all-india-national-taekwendo-gold.jpeg',
+    title: 'All India National Taekwondo Gold Medalist',
+    category: 'championship',
+    categoryLabel: 'Championship Triumphs',
+    categoryIcon: '🏆',
+    venue: 'National Championship Arena',
+    year: '2026',
+    description: 'National Gold Medal victory at the All India National Taekwondo Championship, bringing top honors to Dr. ACS College of Engineering.',
+    featured: true,
+    spotlight: true,
+    badgeLabel: 'ALL INDIA GOLD MEDALIST',
+    gridSpan: 'span-6',
+  },
+  {
+    id: 'gal-15',
+    src: '/gallery/gallery-15-2-gold-in-national-karate.jpeg',
+    title: 'Double Gold in National Karate Championship',
+    category: 'championship',
+    categoryLabel: 'Championship Triumphs',
+    categoryIcon: '🏆',
+    venue: 'National Martial Arts Podium',
+    year: '2026',
+    description: 'Spectacular athletic feat with 2 Gold Medals won at the National Karate Championship representing Dr. ACSCE.',
+    featured: true,
+    spotlight: true,
+    badgeLabel: '2× NATIONAL GOLD MEDALIST',
+    gridSpan: 'span-6',
+  },
   {
     id: 'gal-01',
     src: '/gallery/gallery-01-champions-men.jpg',
@@ -42,6 +74,30 @@ const GALLERY_ITEMS: GalleryItem[] = [
     year: '2026',
     description: 'Women’s track and field squad triumphant with gold medals and the prestigious state championship banner.',
     featured: true,
+    gridSpan: 'span-6',
+  },
+  {
+    id: 'gal-12',
+    src: '/gallery/gallery-12-south-division-kabbaddi.jpeg',
+    title: 'South Division Kabaddi Championship',
+    category: 'championship',
+    categoryLabel: 'Championship Triumphs',
+    categoryIcon: '🏆',
+    venue: 'University Sports Complex',
+    year: '2026',
+    description: 'Dr. ACSCE collegiate Kabaddi squad celebrating victory with trophies and medals in the South Division Tournament.',
+    gridSpan: 'span-6',
+  },
+  {
+    id: 'gal-13',
+    src: '/gallery/gallery-13-south-division-kabbaddi-1.jpeg',
+    title: 'Kabaddi Squad Felicitation & Honors',
+    category: 'ceremonies',
+    categoryLabel: 'Ceremonies & Podiums',
+    categoryIcon: '📜',
+    venue: 'Central Honors Foyer',
+    year: '2026',
+    description: 'Management and Physical Education Directorate felicitating the collegiate Kabaddi champions with honors and rolling trophies.',
     gridSpan: 'span-6',
   },
   {
@@ -152,56 +208,6 @@ const GALLERY_ITEMS: GalleryItem[] = [
     description: 'Permanent showcase displaying university championship trophies, rolling shields, and collegiate athletic records.',
     gridSpan: 'span-4',
   },
-  {
-    id: 'gal-12',
-    src: '/gallery/gallery-12-south-division-kabbaddi.jpeg',
-    title: 'South Division Kabaddi Championship',
-    category: 'championship',
-    categoryLabel: 'Championship Triumphs',
-    categoryIcon: '🏆',
-    venue: 'University Sports Complex',
-    year: '2026',
-    description: 'Dr. ACSCE collegiate Kabaddi squad celebrating victory with trophies and medals in the South Division Tournament.',
-    gridSpan: 'span-4',
-  },
-  {
-    id: 'gal-13',
-    src: '/gallery/gallery-13-south-division-kabbaddi-1.jpeg',
-    title: 'Kabaddi Squad Felicitation & Honors',
-    category: 'ceremonies',
-    categoryLabel: 'Ceremonies & Podiums',
-    categoryIcon: '📜',
-    venue: 'Central Honors Foyer',
-    year: '2026',
-    description: 'Management and Physical Education Directorate felicitating the collegiate Kabaddi champions with honors and rolling trophies.',
-    gridSpan: 'span-4',
-  },
-  {
-    id: 'gal-14',
-    src: '/gallery/gallery-14-all-india-national-taekwendo-gold.jpeg',
-    title: 'All India National Taekwondo Gold Medalist',
-    category: 'championship',
-    categoryLabel: 'Championship Triumphs',
-    categoryIcon: '🏆',
-    venue: 'National Martial Arts Arena',
-    year: '2026',
-    description: 'National Gold Medal victory at the All India National Taekwondo Championship representing Dr. ACSCE.',
-    featured: true,
-    gridSpan: 'span-4',
-  },
-  {
-    id: 'gal-15',
-    src: '/gallery/gallery-15-2-gold-in-national-karate.jpeg',
-    title: 'Double Gold in National Karate Championship',
-    category: 'championship',
-    categoryLabel: 'Championship Triumphs',
-    categoryIcon: '🏆',
-    venue: 'National Karate Championship Podium',
-    year: '2026',
-    description: 'Outstanding athletic triumph with 2 Gold Medals clinched at the National Karate Championship.',
-    featured: true,
-    gridSpan: 'span-4',
-  },
 ];
 
 const CATEGORIES = [
@@ -305,7 +311,7 @@ export default function GallerySection() {
             return (
               <div
                 key={item.id}
-                className={`gallery-card ${item.gridSpan}`}
+                className={`gallery-card ${item.gridSpan} ${item.spotlight ? 'gallery-card-spotlight' : ''}`}
                 onClick={() => openLightbox(index)}
                 tabIndex={0}
                 role="button"
@@ -317,12 +323,27 @@ export default function GallerySection() {
                   }
                 }}
               >
-                {/* Pure Photo Stage */}
-                <div className="gallery-card-img-wrapper">
+                {/* Gold Medalist Header Badge */}
+                {item.spotlight && (
+                  <div className="gallery-gold-badge">
+                    <span>🥇 {item.badgeLabel || 'NATIONAL GOLD MEDALIST'}</span>
+                  </div>
+                )}
+
+                {/* Photo Stage */}
+                <div className={`gallery-card-img-wrapper ${item.spotlight ? 'spotlight-wrapper' : ''}`}>
+                  {item.spotlight && (
+                    <img
+                      src={item.src}
+                      alt=""
+                      className="gallery-card-blur-bg"
+                      aria-hidden="true"
+                    />
+                  )}
                   <img
                     src={item.src}
-                    alt={`Championship photo ${itemNumber}`}
-                    className="gallery-card-img"
+                    alt={`Championship photo ${itemNumber} - ${item.title}`}
+                    className={`gallery-card-img ${item.spotlight ? 'spotlight-img' : ''}`}
                     loading="lazy"
                   />
 
@@ -338,6 +359,18 @@ export default function GallerySection() {
                     <span>🔍 View Full Photo</span>
                   </div>
                 </div>
+
+                {/* Spotlight Caption Info */}
+                {item.spotlight && (
+                  <div className="gallery-spotlight-caption">
+                    <div className="gallery-spotlight-tag">
+                      <span>🏆 {item.categoryLabel}</span>
+                      <span className="gallery-spotlight-year">{item.year} &bull; {item.venue}</span>
+                    </div>
+                    <h3 className="gallery-spotlight-title">{item.title}</h3>
+                    <p className="gallery-spotlight-desc">{item.description}</p>
+                  </div>
+                )}
               </div>
             );
           })}
