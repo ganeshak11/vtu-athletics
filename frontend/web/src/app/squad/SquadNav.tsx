@@ -25,7 +25,7 @@ export function SquadNav({ collegeName, collegeCode, gender }: SquadNavProps) {
   ];
 
   return (
-    <nav className="univ-main-nav" style={{ borderBottom: '1px solid #e2e8f0', background: 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 2px 10px rgba(15, 23, 42, 0.05)' }}>
+    <nav className="univ-main-nav" style={{ borderBottom: '1px solid #e2e8f0', background: 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 10px rgba(15, 23, 42, 0.05)' }}>
       <div className="univ-nav-inner" style={{ padding: '0 1.25rem', minHeight: '52px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         
         {/* Brand / Championship Context */}

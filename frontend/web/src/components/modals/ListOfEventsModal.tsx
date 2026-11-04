@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { OFFICIAL_CHAMPIONSHIP_EVENTS, OfficialEventDefinition } from '@/lib/championship-events';
 
 interface Props {
@@ -11,8 +12,24 @@ interface Props {
 export default function ListOfEventsModal({ isOpen, onClose }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [search, setSearch] = useState('');
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const categories = ['All', 'Track', 'Hurdles', 'Field Throw', 'Field Jump', 'Relay', 'Road', 'Combined'];
 
@@ -25,14 +42,15 @@ export default function ListOfEventsModal({ isOpen, onClose }: Props) {
     return matchesCat && matchesSearch;
   });
 
-  return (
+  return createPortal(
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 9999,
+        zIndex: 100000,
         background: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(6px)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -332,7 +350,8 @@ export default function ListOfEventsModal({ isOpen, onClose }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

@@ -735,7 +735,8 @@ export default function FeeInvoiceModal({
           }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 }
 

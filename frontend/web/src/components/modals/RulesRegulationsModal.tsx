@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface Props {
   isOpen: boolean;
@@ -150,8 +151,24 @@ const CHAMPIONSHIP_RULES: RuleItem[] = [
 export default function RulesRegulationsModal({ isOpen, onClose }: Props) {
   const [activeTab, setActiveTab] = useState<'all' | 'eligibility' | 'relay' | 'technical' | 'documents' | 'scoring'>('all');
   const [search, setSearch] = useState('');
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const filteredRules = CHAMPIONSHIP_RULES.filter((r) => {
     const matchesTab = activeTab === 'all' || r.category === activeTab;
@@ -161,14 +178,15 @@ export default function RulesRegulationsModal({ isOpen, onClose }: Props) {
     return matchesTab && matchesSearch;
   });
 
-  return (
+  return createPortal(
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 9999,
+        zIndex: 100000,
         background: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(6px)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -442,7 +460,8 @@ export default function RulesRegulationsModal({ isOpen, onClose }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
