@@ -102,7 +102,7 @@ export default function FeeInvoiceModal({
 
           {/* 2. MEET BANNER & INVOICE TITLE */}
           <div className="invoice-meet-banner">
-            <div className="invoice-meet-tag">DR. ACS AURA – 2026</div>
+            <div className="invoice-meet-tag">DR. ACS ATHLETICS AURA – 2026</div>
             <h1 className="invoice-meet-title">
               28th VTU Inter-Collegiate State Level Athletic Meet 2026
             </h1>
@@ -289,7 +289,7 @@ export default function FeeInvoiceModal({
                 <span className="seal-text">VTU DPE&amp;S<br />OFFICIAL SEAL</span>
               </div>
               <div className="sig-title">Finance Scrutiny Desk</div>
-              <div className="sig-sub">Dr. ACS Aura – 2026</div>
+              <div className="sig-sub">Dr. ACS Athletics Aura – 2026</div>
             </div>
 
             <div className="sig-block">
