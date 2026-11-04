@@ -822,6 +822,7 @@ export default function HomePage() {
               <li><a href="#rules">Championship Regulations</a></li>
               <li><a href="#schedule">Discipline Timetable</a></li>
               <li><a href="#venue">Stadium Location &amp; Transit</a></li>
+              <li><a href="#host-college">About the Institution</a></li>
               <li><a href="#gallery">Championship Gallery</a></li>
             </ul>
           </div>
