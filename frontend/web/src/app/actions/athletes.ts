@@ -30,17 +30,6 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
       return { success: false, error: 'Championship registrations are officially closed by the VTU Directorate.' };
     }
 
-    // Check if squad roster is locked
-    const { data: squad } = await supabaseAdmin
-      .from('squads')
-      .select('roster_locked')
-      .eq('id', session.squadId)
-      .single();
-
-    if (squad?.roster_locked) {
-      return { success: false, error: 'Roster is locked post-payment. Contact the Meet Director to request changes.' };
-    }
-
   const sslcName = (formData.get('sslcName') as string || '').trim();
   const usn = (formData.get('usn') as string || '').trim().toUpperCase();
   const semester = parseInt(formData.get('semester') as string, 10);
@@ -115,12 +104,39 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
   }
 
   // Event Selection Validation
-  if (!event1Id) {
-    return { success: false, error: 'Event 1 is compulsory. Please select at least one primary event.' };
+  // Every kind of relay (4x100m, 4x400m, Mixed Relay) and Half Marathon can be standalone
+  const isRelaySelected = Boolean(isRelay || isRelay400 || isMixedRelay);
+  const isStandaloneAllowed = Boolean(isRelaySelected || isHalfMarathon);
+
+  if (!event1Id && !isStandaloneAllowed) {
+    return { 
+      success: false, 
+      error: 'Event 1 is compulsory unless registering for a Relay (4x100m, 4x400m, Mixed) or Half Marathon.' 
+    };
   }
 
-  if (event2Id && event1Id === event2Id) {
+  if (!event1Id && !event2Id && !isStandaloneAllowed) {
+    return { success: false, error: 'Please select at least one event or relay discipline.' };
+  }
+
+  if (event2Id && event1Id && event1Id === event2Id) {
     return { success: false, error: 'Event 1 and Event 2 cannot be the same event.' };
+  }
+
+  // Rule: If an athlete chooses both Event 1 and Event 2, they cannot nominate a reserve event
+  if (event1Id && event2Id && reserveEventId) {
+    return {
+      success: false,
+      error: 'VTU Regulation: An athlete registered for both Event 1 and Event 2 cannot nominate a reserve event.',
+    };
+  }
+
+  // Rule 36: A reserve participant must also be a participant of one of the regular events
+  if (!event1Id && !event2Id && reserveEventId) {
+    return {
+      success: false,
+      error: 'VTU Regulation (Rule 36): A reserve event can only be nominated if the athlete is registered for an individual regular event.',
+    };
   }
 
   if (reserveEventId && (reserveEventId === event1Id || reserveEventId === event2Id)) {
@@ -159,7 +175,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     }
   }
 
-  // 4x100m Relay Quota Enforcement (Max 4 athletes per college squad)
+  // 4x100m Relay Quota Enforcement (Team consists of 6 members: 4 runners + 2 reserves)
   let relayEventId: string | null = null;
   if (isRelay) {
     const relayCode = session.gender === 'men' ? '4X100M-M' : '4X100M-W';
@@ -178,17 +194,17 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
           .in('profile_id', squadProfileIds)
           .eq('event_id', relayEvent.id);
 
-        if ((relayCount || 0) >= 4) {
+        if ((relayCount || 0) >= 6) {
           return {
             success: false,
-            error: 'Your college squad has already reached the maximum quota of 4 athletes for the 4x100m relay.',
+            error: 'Your college squad has already reached the maximum quota of 6 athletes for the 4x100m relay (4 active runners + 2 reserves).',
           };
         }
       }
     }
   }
 
-  // 4x400m Relay Quota Enforcement (Max 4 athletes per college squad)
+  // 4x400m Relay Quota Enforcement (Team consists of 6 members: 4 runners + 2 reserves)
   let relay400EventId: string | null = null;
   if (isRelay400) {
     const relay400Code = session.gender === 'men' ? '4X400M-M' : '4X400M-W';
@@ -207,17 +223,17 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
           .in('profile_id', squadProfileIds)
           .eq('event_id', relay400Event.id);
 
-        if ((relay400Count || 0) >= 4) {
+        if ((relay400Count || 0) >= 6) {
           return {
             success: false,
-            error: 'Your college squad has already reached the maximum quota of 4 athletes for the 4x400m relay.',
+            error: 'Your college squad has already reached the maximum quota of 6 athletes for the 4x400m relay (4 active runners + 2 reserves).',
           };
         }
       }
     }
   }
 
-  // 4x400m Mixed Relay Quota Enforcement (Max 2 athletes per squad division)
+  // 4x400m Mixed Relay (Unrestricted registration for athletes across events)
   let mixedRelayEventId: string | null = null;
   if (isMixedRelay) {
     const { data: mixedEvent } = await supabaseAdmin
@@ -228,20 +244,6 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 
     if (mixedEvent) {
       mixedRelayEventId = mixedEvent.id;
-      if (squadProfileIds.length > 0) {
-        const { count: mixedCount } = await supabaseAdmin
-          .from('registrations')
-          .select('id', { count: 'exact', head: true })
-          .in('profile_id', squadProfileIds)
-          .eq('event_id', mixedEvent.id);
-
-        if ((mixedCount || 0) >= 2) {
-          return {
-            success: false,
-            error: 'Your squad has already reached the maximum quota of 2 athletes for the 4x400m mixed relay pool (2 Men + 2 Women per college).',
-          };
-        }
-      }
     }
   }
 
@@ -366,9 +368,11 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 
   // Build registration records
   type RegKind = 'regular' | 'reserve' | 'relay' | 'half_marathon';
-  const registrationInserts: { profile_id: string; event_id: string; kind: RegKind }[] = [
-    { profile_id: profile.id, event_id: event1Id, kind: 'regular' },
-  ];
+  const registrationInserts: { profile_id: string; event_id: string; kind: RegKind }[] = [];
+
+  if (event1Id) {
+    registrationInserts.push({ profile_id: profile.id, event_id: event1Id, kind: 'regular' });
+  }
 
   if (event2Id) {
     registrationInserts.push({ profile_id: profile.id, event_id: event2Id, kind: 'regular' });
@@ -390,7 +394,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     registrationInserts.push({ profile_id: profile.id, event_id: mixedRelayEventId, kind: 'relay' });
   }
 
-  // If half-marathon selected via legacy checkbox, register in the gender-appropriate HM event
+  // If half-marathon selected, register in the gender-appropriate HM event
   if (isHalfMarathon) {
     const { data: hmEvent } = await supabaseAdmin
       .from('events')
@@ -401,6 +405,11 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     if (hmEvent && !registrationInserts.some(r => r.event_id === hmEvent.id)) {
       registrationInserts.push({ profile_id: profile.id, event_id: hmEvent.id, kind: 'half_marathon' });
     }
+  }
+
+  if (registrationInserts.length === 0) {
+    await supabaseAdmin.from('profiles').delete().eq('id', profile.id);
+    return { success: false, error: 'No valid events were selected for this athlete registration.' };
   }
 
   // Insert event registrations
@@ -441,15 +450,10 @@ export async function deleteAthleteAction(profileId: string): Promise<{ success:
     return { success: false, error: 'Registration is officially closed. Contact the Meet Director to request athlete removals.' };
   }
 
-  const { data: squad } = await supabaseAdmin
-    .from('squads')
-    .select('roster_locked')
-    .eq('id', session.squadId)
-    .single();
-
-  if (squad?.roster_locked) {
-    return { success: false, error: 'Cannot remove athletes while roster is locked.' };
-  }
+  // Safely clean up associated registrations, relay memberships, and heat slots first to prevent FK constraint errors
+  await supabaseAdmin.from('registrations').delete().eq('profile_id', profileId);
+  await supabaseAdmin.from('relay_members').delete().eq('profile_id', profileId);
+  await supabaseAdmin.from('heat_athletes').delete().eq('athlete_id', profileId);
 
   const { error } = await supabaseAdmin
     .from('profiles')
@@ -486,6 +490,19 @@ export async function listSquadAthletesAction() {
       bid_number,
       accreditation_status,
       created_at,
+      squads (
+        id,
+        gender,
+        squad_code,
+        payment_status,
+        ped_name,
+        ped_phone,
+        colleges (
+          name,
+          code,
+          district
+        )
+      ),
       registrations (
         id,
         kind,

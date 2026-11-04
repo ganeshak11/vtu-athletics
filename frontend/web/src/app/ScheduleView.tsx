@@ -26,7 +26,7 @@ interface DaySchedule {
 const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
   1: {
     title: 'Day 1 — Inaugural Track & Field Finals',
-    date: 'Tuesday, Dec 8, 2026',
+    date: 'Monday, Dec 7, 2026',
     morningMedal: '11:00 AM – 12:00 Noon',
     eveningMedal: '04:30 PM – 05:30 PM',
     events: [
@@ -55,7 +55,7 @@ const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
   },
   2: {
     title: 'Day 2 — 100m Sprint Crown & Combined Multi-Events Day 1',
-    date: 'Wednesday, Dec 9, 2026',
+    date: 'Tuesday, Dec 8, 2026',
     morningMedal: '11:00 AM – 12:00 Noon',
     eveningMedal: '04:30 PM – 05:30 PM',
     events: [
@@ -94,26 +94,26 @@ const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
   },
   3: {
     title: 'Day 3 — Half Marathon & Combined Multi-Events Climax',
-    date: 'Thursday, Dec 10, 2026',
+    date: 'Wednesday, Dec 9, 2026',
     morningMedal: '11:00 AM – 12:00 Noon',
     eveningMedal: '04:30 PM – 05:30 PM',
     events: [
       { code: 23, time: '06:15 AM', callRoom: '05:45 AM', name: '21km Half Marathon', round: 'Final', section: 'Men', venue: 'Campus Road Circuit', category: 'WalkMarathon' },
       { code: 23, time: '06:25 AM', callRoom: '05:55 AM', name: '21km Half Marathon', round: 'Final', section: 'Women', venue: 'Campus Road Circuit', category: 'WalkMarathon' },
       { code: 24, time: '08:30 AM', callRoom: '08:00 AM', name: 'Decathlon — 110 mtr Hurdles', specification: 'Decathlon Discipline 6', round: 'Decathlon', section: 'Men', venue: 'Main Synthetic Track', category: 'Combined' },
-      { code: 8, time: '08:45 AM', callRoom: '08:15 AM', name: '110 mtr Hurdles', specification: '0.914 mtr', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 8, time: '08:45 AM', callRoom: '08:15 AM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
       { code: 25, time: '09:00 AM', callRoom: '08:30 AM', name: 'Heptathlon — Long Jump', specification: 'Heptathlon Discipline 5', round: 'Heptathlon', section: 'Women', venue: 'Jumping Pit 1 (North)', category: 'Combined' },
       { code: 11, time: '09:00 AM', callRoom: '08:30 AM', name: 'Shot Put', specification: '4.00 kg', round: 'Final', section: 'Women', venue: 'Throwing Ring A', category: 'Field' },
       { code: 5, time: '09:05 AM', callRoom: '08:35 AM', name: '1500 mtr Run', round: 'Heats', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
       { code: 5, time: '09:20 AM', callRoom: '08:50 AM', name: '1500 mtr Run', round: 'Heats', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
-      { code: 8, time: '09:45 AM', callRoom: '09:15 AM', name: '110 mtr Hurdles', specification: '0.914 mtr', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 8, time: '09:45 AM', callRoom: '09:15 AM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
       { code: 15, time: '10:00 AM', callRoom: '09:30 AM', name: 'Long Jump', round: 'Final', section: 'Women', venue: 'Jumping Pit 2 (South)', category: 'Field' },
       { code: 3, time: '10:10 AM', callRoom: '09:40 AM', name: '400 mtr Run', round: 'Semi-Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Track' },
       { code: 24, time: '10:15 AM', callRoom: '09:45 AM', name: 'Decathlon — Discus Throw', specification: '2.0 KG • Decathlon Discipline 7', round: 'Decathlon', section: 'Men', venue: 'Discus Cage', category: 'Combined' },
       { code: 3, time: '10:15 AM', callRoom: '09:45 AM', name: '400 mtr Run', round: 'Semi-Final', section: 'Women', venue: 'Main Synthetic Track', category: 'Track' },
       { code: 25, time: '10:45 AM', callRoom: '10:15 AM', name: 'Heptathlon — Javelin Throw', specification: '600 gm • Heptathlon Discipline 6', round: 'Heptathlon', section: 'Women', venue: 'Javelin Runway & Sector', category: 'Combined' },
       { code: 24, time: '11:15 AM', callRoom: '10:45 AM', name: 'Decathlon — Pole Vault', specification: 'Decathlon Discipline 8', round: 'Decathlon', section: 'Men', venue: 'Pole Vault Runway', category: 'Combined' },
-      { code: 8, time: '02:30 PM', callRoom: '02:00 PM', name: '110 mtr Hurdles', specification: '0.914 mtr', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
+      { code: 8, time: '02:30 PM', callRoom: '02:00 PM', name: '110 mtr Hurdles', specification: '1.067 mtr', round: 'Final', section: 'Men', venue: 'Main Synthetic Track', category: 'Hurdles' },
       { code: 15, time: '02:45 PM', callRoom: '02:15 PM', name: 'Long Jump', round: 'Final', section: 'Men', venue: 'Jumping Pit 1 (North)', category: 'Field' },
       { code: 24, time: '03:00 PM', callRoom: '02:30 PM', name: 'Decathlon — Javelin Throw', specification: '800 gm • Decathlon Discipline 9', round: 'Decathlon', section: 'Men', venue: 'Javelin Runway & Sector', category: 'Combined' },
       { code: 11, time: '03:30 PM', callRoom: '03:00 PM', name: 'Shot Put', specification: '7.260 kg', round: 'Final', section: 'Men', venue: 'Throwing Ring A', category: 'Field' },
@@ -125,7 +125,7 @@ const OFFICIAL_SCHEDULE_DATA: Record<number, DaySchedule> = {
   },
   4: {
     title: 'Day 4 — 4x400m Baton Finals, 200m Climax & Valedictory',
-    date: 'Friday, Dec 11, 2026',
+    date: 'Thursday, Dec 10, 2026',
     morningMedal: '11:00 AM – 12:00 Noon',
     eveningMedal: '04:00 PM – 05:30 PM',
     events: [

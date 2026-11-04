@@ -19,6 +19,14 @@ export interface FeeBreakdown {
   hostAccountName: string;
   squadPaymentStatus: 'DRAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
   rosterLocked: boolean;
+  collegeName?: string;
+  collegeCode?: string;
+  district?: string;
+  gender?: string;
+  pedName?: string;
+  pedPhone?: string;
+  pedEmail?: string;
+  athletesCount?: number;
 }
 
 export interface PaymentRecord {
@@ -34,6 +42,60 @@ export interface PaymentRecord {
 }
 
 /**
+ * Accurately calculates squad fees:
+ * - Regular events = ₹100
+ * - Reserve events = Free (₹0)
+ * - 21km Half Marathon = ₹100
+ * - Relay teams = Flat ₹400 per relay team (regardless of having 4 active + 2 reserves = 6 members)
+ */
+export async function calculateSquadFees(squadId: string) {
+  const { data: squadProfiles } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('squad_id', squadId);
+  const profileIds = (squadProfiles || []).map((p: any) => p.id);
+
+  let regularEventsCount = 0;
+  let reserveEventsCount = 0;
+  let hmCount = 0;
+  const relayEventIds = new Set<string>();
+
+  if (profileIds.length > 0) {
+    const { data: regs } = await supabaseAdmin
+      .from('registrations')
+      .select('id, kind, event_id')
+      .in('profile_id', profileIds);
+
+    (regs || []).forEach((r: any) => {
+      if (r.kind === 'regular') regularEventsCount++;
+      else if (r.kind === 'reserve') reserveEventsCount++;
+      else if (r.kind === 'half_marathon') hmCount++;
+      else if (r.kind === 'relay' && r.event_id) relayEventIds.add(r.event_id);
+    });
+  }
+
+  const relayTeamsCount = relayEventIds.size;
+  const regularFeeRate = 100;
+  const hmFeeRate = 100;
+  const relayFeeRate = 400; // Flat ₹400 per relay team
+  const totalAmount =
+    regularEventsCount * regularFeeRate +
+    hmCount * hmFeeRate +
+    relayTeamsCount * relayFeeRate;
+
+  return {
+    regularEventsCount,
+    regularFeeRate,
+    reserveEventsCount,
+    hmCount,
+    hmFeeRate,
+    relayTeamsCount,
+    relayFeeRate,
+    totalAmount,
+  };
+}
+
+/**
  * Calculates current squad fee breakdown and fetches meet host UPI details.
  */
 export async function getSquadFeeBreakdownAction(): Promise<{
@@ -42,12 +104,8 @@ export async function getSquadFeeBreakdownAction(): Promise<{
 }> {
   const session = await requireSquad();
 
-  // Call database fee calculation RPC
-  const { data: feeData, error: feeErr } = await supabaseAdmin.rpc('compute_squad_fee', {
-    p_squad_id: session.squadId,
-  });
-
-  if (feeErr) throw new Error(feeErr.message);
+  // Fetch fees
+  const feeCalc = await calculateSquadFees(session.squadId);
 
   // Fetch meet settings
   const { data: settings } = await supabaseAdmin
@@ -56,12 +114,31 @@ export async function getSquadFeeBreakdownAction(): Promise<{
     .limit(1)
     .maybeSingle();
 
-  // Fetch squad status
+  // Fetch squad status and college details for invoice
   const { data: squad } = await supabaseAdmin
     .from('squads')
-    .select('payment_status, roster_locked')
+    .select(`
+      payment_status,
+      roster_locked,
+      gender,
+      ped_name,
+      ped_phone,
+      ped_email,
+      squad_code,
+      colleges (
+        id,
+        name,
+        code,
+        district
+      )
+    `)
     .eq('id', session.squadId)
     .single();
+
+  const { count: athletesCount } = await supabaseAdmin
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('squad_id', session.squadId);
 
   // Fetch payment history
   const { data: payments } = await supabaseAdmin
@@ -74,18 +151,20 @@ export async function getSquadFeeBreakdownAction(): Promise<{
     .filter((p: any) => p.status === 'VERIFIED')
     .reduce((sum: number, p: any) => sum + (p.amount_submitted || 0), 0);
 
-  const totalAmount = feeData.total_amount || 0;
+  const totalAmount = feeCalc.totalAmount;
   const balanceDue = Math.max(0, totalAmount - totalPaid);
+
+  const college = squad?.colleges as any;
 
   return {
     breakdown: {
-      regularEventsCount: feeData.regular_events_count,
-      regularFeeRate: feeData.regular_fee_rate,
-      reserveEventsCount: feeData.reserve_events_count,
-      hmCount: feeData.hm_count,
-      hmFeeRate: feeData.hm_fee_rate,
-      relayTeamsCount: feeData.relay_teams_count,
-      relayFeeRate: feeData.relay_fee_rate,
+      regularEventsCount: feeCalc.regularEventsCount,
+      regularFeeRate: feeCalc.regularFeeRate,
+      reserveEventsCount: feeCalc.reserveEventsCount,
+      hmCount: feeCalc.hmCount,
+      hmFeeRate: feeCalc.hmFeeRate,
+      relayTeamsCount: feeCalc.relayTeamsCount,
+      relayFeeRate: feeCalc.relayFeeRate,
       totalAmount,
       totalPaid,
       balanceDue,
@@ -93,6 +172,14 @@ export async function getSquadFeeBreakdownAction(): Promise<{
       hostAccountName: settings?.host_account_name || 'VTU Sports Board',
       squadPaymentStatus: squad?.payment_status || 'DRAFT',
       rosterLocked: squad?.roster_locked || false,
+      collegeName: college?.name || 'VTU Affiliated Institution',
+      collegeCode: college?.code || '',
+      district: college?.district || '',
+      gender: squad?.gender || '',
+      pedName: squad?.ped_name || '',
+      pedPhone: squad?.ped_phone || '',
+      pedEmail: squad?.ped_email || '',
+      athletesCount: athletesCount || 0,
     },
     payments: payments || [],
   };
@@ -201,12 +288,9 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
       console.error('Payment screenshot storage upload warning:', storageErr);
     }
 
-    // Get expected total fee
-    const { data: feeData } = await supabaseAdmin.rpc('compute_squad_fee', {
-      p_squad_id: session.squadId,
-    });
-
-    const totalAmount = feeData?.total_amount || 0;
+    // Get expected total fee calculated accurately with flat ₹400 per relay team
+    const feeCalc = await calculateSquadFees(session.squadId);
+    const totalAmount = feeCalc.totalAmount;
     if (totalAmount <= 0) {
       return {
         success: false,
@@ -247,11 +331,10 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
       return { success: false, error: error.message };
     }
 
-    // Lock roster and update status explicitly (defense-in-depth)
+    // Update status to SUBMITTED without locking roster (colleges can add students & pay differential balance)
     await supabaseAdmin
       .from('squads')
       .update({
-        roster_locked: true,
         payment_status: 'SUBMITTED',
         updated_at: new Date().toISOString(),
       })
@@ -350,7 +433,6 @@ export async function verifyPaymentAction(
           .from('squads')
           .update({
             payment_status: 'VERIFIED',
-            roster_locked: true,
             updated_at: new Date().toISOString(),
           })
           .eq('id', updatedPayment.squad_id);

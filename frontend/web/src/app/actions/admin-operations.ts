@@ -351,6 +351,8 @@ export async function listAllAthletesAction() {
         gender,
         squad_code,
         payment_status,
+        ped_name,
+        ped_phone,
         colleges (
           name,
           code,
@@ -472,15 +474,11 @@ export async function verifySquadPaymentAction(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
 
-  // Update squad status
+  // Update squad status (Roster remains unlocked so colleges can register additional students & pay differential balance)
   const squadUpdate: any = {
     payment_status: status,
     updated_at: new Date().toISOString(),
   };
-
-  if (status === 'VERIFIED') {
-    squadUpdate.roster_locked = true;
-  }
 
   const { error: sqError } = await supabaseAdmin
     .from('squads')

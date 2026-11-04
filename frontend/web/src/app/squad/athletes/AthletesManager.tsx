@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { StatBox } from '@/components/ui/StatBox';
 import { Button } from '@/components/ui/Button';
 import { DB_CODE_TO_OFFICIAL_MAP } from '@/lib/championship-events';
+import RegistrationReportModal from '@/components/invoice/RegistrationReportModal';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -62,6 +63,7 @@ export default function AthletesManager({
 }: Props) {
   const [athletes, setAthletes] = useState<AthleteItem[]>(initialAthletes);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,42 +105,68 @@ export default function AthletesManager({
       .sort((a, b) => a.codeNum - b.codeNum);
   }, [availableEvents]);
 
-  // Live relay squad counts strictly derived from current squad roster
+  // Live relay squad counts strictly derived from current squad roster (6 members per relay team)
   const registered100mRelay = athletes.filter((a) =>
     a.registrations.some((r) => r.events?.code?.includes('4X100'))
   ).length;
-  const is100mRelayFull = registered100mRelay >= 4;
+  const is100mRelayFull = registered100mRelay >= 6;
 
   const registered400mRelay = athletes.filter((a) =>
     a.registrations.some((r) => r.events?.code?.includes('4X400M-M') || r.events?.code?.includes('4X400M-W'))
   ).length;
-  const is400mRelayFull = registered400mRelay >= 4;
+  const is400mRelayFull = registered400mRelay >= 6;
 
   const registeredMixedRelay = athletes.filter((a) =>
     a.registrations.some((r) => r.events?.code?.includes('4X400M-MIX'))
   ).length;
-  const isMixedRelayFull = registeredMixedRelay >= 2;
 
   // Real-time fee calculation for current athlete modal:
-  // ₹100 per billable event, Reserve is FREE (₹0)
+  // ₹100 per regular event / HM. Reserve is FREE (₹0).
+  // For relays, a team is ₹400 for 4 active legs (reserves 5 & 6 are FREE).
   const modalFee = useMemo(() => {
     let fee = 0;
     if (event1) fee += 100;
     if (event2) fee += 100;
-    if (relayChoice === '4x100' || relayChoice === '4x400') fee += 100;
-    if (isMixedRelay) fee += 100;
     if (isHalfMarathon) fee += 100;
+    if (relayChoice === '4x100') {
+      fee += registered100mRelay < 4 ? 100 : 0;
+    } else if (relayChoice === '4x400') {
+      fee += registered400mRelay < 4 ? 100 : 0;
+    }
+    if (isMixedRelay) {
+      fee += registeredMixedRelay < 4 ? 100 : 0;
+    }
     return fee;
-  }, [event1, event2, relayChoice, isMixedRelay, isHalfMarathon]);
+  }, [event1, event2, relayChoice, isMixedRelay, isHalfMarathon, registered100mRelay, registered400mRelay, registeredMixedRelay]);
 
   // Squad total computed fee:
+  // Regular events (@ ₹100) + Half Marathon (@ ₹100) + Relay Teams (@ ₹400 flat per team, covering up to 6 members)
+  const totalSquadFee = useMemo(() => {
+    const regularEntries = athletes.reduce((acc, a) => {
+      return acc + a.registrations.filter((r) => r.kind === 'regular').length;
+    }, 0);
+    const hmEntries = athletes.reduce((acc, a) => {
+      return acc + a.registrations.filter((r) => r.kind === 'half_marathon').length;
+    }, 0);
+
+    const enteredRelays = new Set<string>();
+    athletes.forEach((a) => {
+      a.registrations
+        .filter((r) => r.kind === 'relay')
+        .forEach((r) => {
+          if (r.event_id) enteredRelays.add(r.event_id);
+        });
+    });
+
+    return (regularEntries * 100) + (hmEntries * 100) + (enteredRelays.size * 400);
+  }, [athletes]);
+
   const totalBillableEntries = useMemo(() => {
     return athletes.reduce((acc, athlete) => {
       const billable = athlete.registrations.filter((r) => r.kind !== 'reserve').length;
       return acc + billable;
     }, 0);
   }, [athletes]);
-  const totalSquadFee = totalBillableEntries * 100;
 
   const confirmedCount = paymentStatus === 'VERIFIED' ? athletes.length : 0;
   const pendingCount = paymentStatus !== 'VERIFIED' ? athletes.length : 0;
@@ -236,8 +264,18 @@ export default function AthletesManager({
     }
 
     // 4. Validate Event Selection
-    if (!event1) {
-      setError('Event 1 (Compulsory) must be selected.');
+    // Every kind of relay (4x100m, 4x400m, Mixed Relay) and Half Marathon can be standalone
+    const isRelaySelected = Boolean(relayChoice === '4x100' || relayChoice === '4x400' || isMixedRelay);
+    const isStandaloneAllowed = Boolean(isRelaySelected || isHalfMarathon);
+
+    if (!event1 && !isStandaloneAllowed) {
+      setError('Event 1 is compulsory unless registering for a Relay (4x100m, 4x400m, Mixed) or Half Marathon.');
+      setLoading(false);
+      return;
+    }
+
+    if (!event1 && !event2 && !isStandaloneAllowed) {
+      setError('Please select at least one event or relay discipline.');
       setLoading(false);
       return;
     }
@@ -248,28 +286,38 @@ export default function AthletesManager({
       return;
     }
 
+    // Rule: If athlete chooses both Event 1 and Event 2, reserve cannot be nominated
+    if (event1 && event2 && reserveEvent) {
+      setError('VTU Regulation: An athlete registered for both Event 1 and Event 2 cannot nominate a reserve event.');
+      setLoading(false);
+      return;
+    }
+
+    // Rule 36: A reserve participant must also be a participant of one of the regular events
+    if (!event1 && !event2 && reserveEvent) {
+      setError('VTU Regulation (Rule 36): A reserve event can only be nominated if the athlete is registered for an individual regular event.');
+      setLoading(false);
+      return;
+    }
+
     if (reserveEvent && (reserveEvent === event1 || reserveEvent === event2)) {
       setError('Reserve Event must be different from regular registered events.');
       setLoading(false);
       return;
     }
 
-    // 5. Check Official Relay Quotas (per VTU Rule 3)
+    // 5. Check Official Relay Quotas (Max 6 athletes per relay team)
     if (relayChoice === '4x100' && is100mRelayFull) {
-      setError('4x100m Relay quota is full. Maximum 4 athletes per college division are allowed.');
+      setError('4x100m Relay quota is full. Maximum 6 athletes per college division are allowed (4 runners + 2 reserves).');
       setLoading(false);
       return;
     }
     if (relayChoice === '4x400' && is400mRelayFull) {
-      setError('4x400m Relay quota is full. Maximum 4 athletes per college division are allowed.');
+      setError('4x400m Relay quota is full. Maximum 6 athletes per college division are allowed (4 runners + 2 reserves).');
       setLoading(false);
       return;
     }
-    if (isMixedRelay && isMixedRelayFull) {
-      setError('4x400m Mixed Relay pool quota is full. Maximum 2 athletes per squad division are allowed (2 Men + 2 Women per college team).');
-      setLoading(false);
-      return;
-    }
+    // Mixed Relay and Half Marathon are unrestricted across events and squad entries.
 
     // 6. Photo is strongly required for official VTU call room & ID badge issuance
     if (!photoPreview) {
@@ -345,88 +393,103 @@ export default function AthletesManager({
         </div>
 
         <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          {rosterLocked ? (
-            <div style={{ padding: '0.75rem 1.25rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 'var(--radius-sm)', color: 'var(--danger)', fontSize: '0.9rem', fontWeight: 700 }}>
-              🔒 Roster Locked (Post-Payment)
-            </div>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  resetModalForm();
-                  setShowAddModal(true);
-                }}
-                id="btn-register-new-student"
-                style={{
-                  background: 'var(--accent-primary)',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 14px var(--accent-glow)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                + Register New Athlete
-              </button>
+          <button
+            type="button"
+            onClick={() => setShowReportModal(true)}
+            id="btn-download-reg-report-top"
+            style={{
+              background: '#0f172a',
+              color: '#ffffff',
+              border: '1px solid #334155',
+              padding: '0.75rem 1.25rem',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>📋</span> Registration Report (PDF)
+          </button>
 
-              <Link href="/squad/payment">
-                <button
-                  type="button"
-                  id="btn-proceed-payment-top"
-                  disabled={athletes.length === 0}
-                  style={{
-                    background: athletes.length === 0 ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
-                    color: athletes.length === 0 ? 'var(--text-muted)' : 'var(--accent-primary)',
-                    border: '1px solid var(--border-color)',
-                    padding: '0.75rem 1.25rem',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    cursor: athletes.length === 0 ? 'not-allowed' : 'pointer',
-                    opacity: athletes.length === 0 ? 0.6 : 1,
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  Settle Entry Dues (₹{totalSquadFee}) &rarr;
-                </button>
-              </Link>
-            </>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              resetModalForm();
+              setShowAddModal(true);
+            }}
+            id="btn-register-new-student"
+            style={{
+              background: 'var(--accent-primary)',
+              color: '#fff',
+              border: 'none',
+              padding: '0.75rem 1.5rem',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '1rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px var(--accent-glow)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            + Register New Athlete
+          </button>
+
+          <Link href="/squad/payment">
+            <button
+              type="button"
+              id="btn-proceed-payment-top"
+              disabled={athletes.length === 0}
+              style={{
+                background: athletes.length === 0 ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+                color: athletes.length === 0 ? 'var(--text-muted)' : 'var(--accent-primary)',
+                border: '1px solid var(--border-color)',
+                padding: '0.75rem 1.25rem',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '1rem',
+                fontWeight: 700,
+                cursor: athletes.length === 0 ? 'not-allowed' : 'pointer',
+                opacity: athletes.length === 0 ? 0.6 : 1,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              Fee Settlement &amp; Invoice &rarr;
+            </button>
+          </Link>
         </div>
       </div>
 
-      {/* Emergency Guidance Banner when Locked */}
-      {rosterLocked && (
+      {paymentStatus === 'VERIFIED' && (
         <div style={{
-          padding: '1rem 1.25rem',
-          background: '#fff7ed',
-          border: '1.5px solid #ffedd5',
+          padding: '0.85rem 1.25rem',
+          background: 'rgba(16, 185, 129, 0.08)',
+          border: '1px solid rgba(16, 185, 129, 0.25)',
           borderRadius: '12px',
-          color: '#9a3412',
+          color: '#065f46',
           fontSize: '0.875rem',
           lineHeight: 1.5,
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
           gap: '0.75rem',
         }}>
-          <span style={{ fontSize: '1.35rem', flexShrink: 0 }}>🔒</span>
-          <div>
-            <strong style={{ display: 'block', color: '#7c2d12', marginBottom: '0.2rem' }}>
-              Squad Roster is Locked Post-Payment
-            </strong>
-            Nominated entries are locked to allow Directorate heat generation and bib number serial allocation.
-            <div style={{ fontSize: '0.8rem', color: '#c2410c', marginTop: '0.35rem' }}>
-              <strong>Emergency late addition or medical injury substitution?</strong> Contact the <strong>VTU Meet Directorate / Helpdesk</strong>. Once an administrator unlocks your squad or approves an amendment, you can register the athlete and settle any differential balance due.
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>✓</span>
+            <span>
+              <strong>Registration Active:</strong> You can continue registering student-athletes until registration closes. If you add new athletes, any differential fee balance can be paid on the Fee Settlement page.
+            </span>
           </div>
+          <Link href="/squad/payment" style={{ fontWeight: 700, color: 'var(--accent-primary)', fontSize: '0.85rem' }}>
+            View Payment &amp; Invoice &rarr;
+          </Link>
         </div>
       )}
 
@@ -462,22 +525,22 @@ export default function AthletesManager({
           </span>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline', marginTop: '0.25rem' }}>
             <div>
-              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registered100mRelay === 4 ? 'var(--success)' : 'var(--accent-primary)' }}>{registered100mRelay}</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/4 (4x100)</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registered100mRelay >= 4 ? 'var(--success)' : 'var(--accent-primary)' }}>{registered100mRelay}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/6 (4x100)</span>
             </div>
             <span style={{ color: 'var(--border-color)' }}>&bull;</span>
             <div>
-              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registered400mRelay === 4 ? 'var(--success)' : 'var(--accent-primary)' }}>{registered400mRelay}</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/4 (4x400)</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registered400mRelay >= 4 ? 'var(--success)' : 'var(--accent-primary)' }}>{registered400mRelay}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/6 (4x400)</span>
             </div>
             <span style={{ color: 'var(--border-color)' }}>&bull;</span>
             <div>
-              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registeredMixedRelay === 2 ? 'var(--success)' : 'var(--accent-primary)' }}>{registeredMixedRelay}</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/2 (Mixed)</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: registeredMixedRelay >= 2 ? 'var(--success)' : 'var(--accent-primary)' }}>{registeredMixedRelay}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>/6 (Mixed)</span>
             </div>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            Rule 3: Max 1 divisional + 1 mixed relay
+            Up to 6 members/relay (4 active + 2 reserves free) &bull; Flat ₹400/team
           </span>
         </div>
       </div>
@@ -504,13 +567,13 @@ export default function AthletesManager({
                   <th style={{ padding: '1rem', fontWeight: 600 }}>Blood</th>
                   <th style={{ padding: '1rem', fontWeight: 600 }}>Events Registered</th>
                   <th style={{ padding: '1rem', fontWeight: 600 }}>Reserve Event</th>
-                  {!rosterLocked && <th style={{ padding: '1rem', fontWeight: 600, textAlign: 'right' }}>Actions</th>}
+                  <th style={{ padding: '1rem', fontWeight: 600, textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {athletes.length === 0 ? (
                   <tr>
-                    <td colSpan={rosterLocked ? 7 : 8} style={{ textAlign: 'center', padding: '3.5rem', color: 'var(--text-muted)' }}>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '3.5rem', color: 'var(--text-muted)' }}>
                       No students registered yet in this college division. Click &quot;+ Register New Athlete&quot; to begin.
                     </td>
                   </tr>
@@ -723,7 +786,6 @@ export default function AthletesManager({
                           )}
                         </td>
 
-                        {!rosterLocked && (
                           <td style={{ padding: '1rem', textAlign: 'right' }}>
                             <button
                               type="button"
@@ -744,7 +806,6 @@ export default function AthletesManager({
                               ✕ Remove
                             </button>
                           </td>
-                        )}
                       </tr>
                     );
                   })
@@ -756,7 +817,7 @@ export default function AthletesManager({
       </Card>
 
       {/* Bottom Payment Callout Banner */}
-      {athletes.length > 0 && !rosterLocked && (
+      {athletes.length > 0 && (
         <Card style={{ border: '2px solid var(--accent-primary)', background: 'linear-gradient(to right, #ffffff, #eff6ff)' }}>
           <CardContent style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
@@ -1028,80 +1089,121 @@ export default function AthletesManager({
                     </CardHeader>
                     <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                       
-                      {/* Event 1 (Compulsory) */}
-                      <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid var(--accent-primary)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>Event 1 (Compulsory) *</label>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--accent-primary)' }}>₹100</span>
-                        </div>
-                        <select
-                          required
-                          value={event1}
-                          onChange={(e) => {
-                            setEvent1(e.target.value);
-                            if (e.target.value === event2) setEvent2('');
-                            if (e.target.value === reserveEvent) setReserveEvent('');
-                          }}
-                          style={inputStyle}
-                        >
-                          <option value="">-- Choose Individual Event 1 --</option>
-                          {individualEvents.map((ev) => (
-                            <option key={ev.id} value={ev.id}>
-                              [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      {/* Event 1 (Compulsory unless any relay or marathon selected) */}
+                      {(() => {
+                        const isRelaySelected = Boolean(relayChoice === '4x100' || relayChoice === '4x400' || isMixedRelay);
+                        const isStandaloneAllowed = Boolean(isRelaySelected || isHalfMarathon);
+                        const isReserveDisabled = Boolean(event1 && event2);
+                        const isReserveNotApplicable = !event1 && !event2;
+                        const isReserveBlocked = isReserveDisabled || isReserveNotApplicable;
 
-                      {/* Event 2 (Optional) */}
-                      <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid var(--accent-secondary)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>Event 2 (Optional)</label>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--accent-secondary)' }}>+₹100</span>
-                        </div>
-                        <select
-                          value={event2}
-                          onChange={(e) => {
-                            setEvent2(e.target.value);
-                            if (e.target.value === reserveEvent) setReserveEvent('');
-                          }}
-                          style={inputStyle}
-                        >
-                          <option value="">-- None (Single Event Only) --</option>
-                          {individualEvents
-                            .filter((ev) => ev.id !== event1)
-                            .map((ev) => (
-                              <option key={ev.id} value={ev.id}>
-                                [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
-                              </option>
-                            ))}
-                        </select>
-                      </div>
+                        return (
+                          <>
+                            <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid var(--accent-primary)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>
+                                  Event 1 {!isStandaloneAllowed ? '(Compulsory) *' : '(Optional — Standalone Relay/Marathon active)'}
+                                </label>
+                                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--accent-primary)' }}>₹100</span>
+                              </div>
+                              <select
+                                required={!isStandaloneAllowed}
+                                value={event1}
+                                onChange={(e) => {
+                                  setEvent1(e.target.value);
+                                  if (e.target.value === event2) setEvent2('');
+                                  if (e.target.value && event2) setReserveEvent('');
+                                  else if (e.target.value === reserveEvent) setReserveEvent('');
+                                }}
+                                style={inputStyle}
+                              >
+                                <option value="">-- Choose Individual Event 1 --</option>
+                                {individualEvents.map((ev) => (
+                                  <option key={ev.id} value={ev.id}>
+                                    [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
 
-                      {/* Reserve Event (Optional) */}
-                      <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid var(--warning)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>Reserve Event (Optional)</label>
-                          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--success)' }}>FREE</span>
-                        </div>
-                        <select
-                          value={reserveEvent}
-                          onChange={(e) => setReserveEvent(e.target.value)}
-                          style={inputStyle}
-                        >
-                          <option value="">-- None (No Reserve Discipline) --</option>
-                          {individualEvents
-                            .filter((ev) => ev.id !== event1 && ev.id !== event2)
-                            .map((ev) => (
-                              <option key={ev.id} value={ev.id}>
-                                [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
-                              </option>
-                            ))}
-                        </select>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginTop: '0.35rem' }}>
-                          If the athlete is unable to compete in Event 1 or 2, they can be substituted into their reserve event during call room.
-                        </span>
-                      </div>
+                            {/* Event 2 (Optional) */}
+                            <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid var(--accent-secondary)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>Event 2 (Optional)</label>
+                                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--accent-secondary)' }}>+₹100</span>
+                              </div>
+                              <select
+                                value={event2}
+                                onChange={(e) => {
+                                  setEvent2(e.target.value);
+                                  if (e.target.value && event1) setReserveEvent('');
+                                  else if (e.target.value === reserveEvent) setReserveEvent('');
+                                }}
+                                style={inputStyle}
+                              >
+                                <option value="">-- None (Single Event Only) --</option>
+                                {individualEvents
+                                  .filter((ev) => ev.id !== event1)
+                                  .map((ev) => (
+                                    <option key={ev.id} value={ev.id}>
+                                      [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
+                                    </option>
+                                  ))}
+                              </select>
+                            </div>
+
+                            {/* Reserve Event (Optional — Disabled if both Event 1 & 2 selected or no event selected) */}
+                            <div style={{
+                              background: 'var(--bg-tertiary)',
+                              padding: '1rem',
+                              borderRadius: 'var(--radius-sm)',
+                              borderLeft: `4px solid ${isReserveBlocked ? 'var(--border-color)' : 'var(--warning)'}`,
+                              opacity: isReserveBlocked ? 0.7 : 1,
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
+                                <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>
+                                  Reserve Event {isReserveDisabled ? '(Disabled — 2 Individual Events Chosen)' : isReserveNotApplicable ? '(Requires Event 1 Selection — Rule 36)' : '(Optional)'}
+                                </label>
+                                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: isReserveBlocked ? 'var(--text-muted)' : 'var(--success)' }}>
+                                  {isReserveBlocked ? 'N/A' : 'FREE'}
+                                </span>
+                              </div>
+                              <select
+                                value={reserveEvent}
+                                disabled={isReserveBlocked}
+                                onChange={(e) => setReserveEvent(e.target.value)}
+                                style={{
+                                  ...inputStyle,
+                                  cursor: isReserveBlocked ? 'not-allowed' : 'pointer',
+                                  background: isReserveBlocked ? 'var(--bg-primary)' : 'var(--bg-secondary)',
+                                }}
+                              >
+                                <option value="">
+                                  {isReserveDisabled 
+                                    ? '-- Reserve Blocked When 2 Events Selected --' 
+                                    : isReserveNotApplicable 
+                                    ? '-- Select Event 1 First to Nominate Reserve (Rule 36) --'
+                                    : '-- None (No Reserve Discipline) --'}
+                                </option>
+                                {!isReserveBlocked && individualEvents
+                                  .filter((ev) => ev.id !== event1 && ev.id !== event2)
+                                  .map((ev) => (
+                                    <option key={ev.id} value={ev.id}>
+                                      [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
+                                    </option>
+                                  ))}
+                              </select>
+                              <span style={{ fontSize: '0.75rem', color: isReserveBlocked ? 'var(--danger)' : 'var(--text-secondary)', display: 'block', marginTop: '0.35rem' }}>
+                                {isReserveDisabled
+                                  ? 'Per VTU regulations, reserve events cannot be nominated when an athlete competes in two individual disciplines.'
+                                  : isReserveNotApplicable
+                                  ? 'Per VTU Rule 36: A reserve participant must also be a participant in at least one individual regular event.'
+                                  : 'If the athlete is unable to compete in Event 1, they can be substituted into their reserve event during call room.'}
+                              </span>
+                            </div>
+                          </>
+                        );
+                      })()}
 
                       {/* Official Relays & Common Events (per VTU Rule 3) */}
                       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -1170,7 +1272,7 @@ export default function AthletesManager({
                               <div>
                                 <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Code 20: 4x100m</div>
                                 <div style={{ fontSize: '0.7rem', color: is100mRelayFull ? 'var(--danger)' : 'var(--text-secondary)' }}>
-                                  {is100mRelayFull ? 'Quota full (4/4)' : `${registered100mRelay}/4 registered`}
+                                  {is100mRelayFull ? 'Quota full (6/6)' : `${registered100mRelay}/6 registered`}
                                 </div>
                               </div>
                             </label>
@@ -1199,7 +1301,7 @@ export default function AthletesManager({
                               <div>
                                 <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Code 21: 4x400m</div>
                                 <div style={{ fontSize: '0.7rem', color: is400mRelayFull ? 'var(--danger)' : 'var(--text-secondary)' }}>
-                                  {is400mRelayFull ? 'Quota full (4/4)' : `${registered400mRelay}/4 registered`}
+                                  {is400mRelayFull ? 'Quota full (6/6)' : `${registered400mRelay}/6 registered`}
                                 </div>
                               </div>
                             </label>
@@ -1218,24 +1320,20 @@ export default function AthletesManager({
                             border: '1px solid',
                             borderColor: isMixedRelay ? 'var(--accent-primary)' : 'var(--border-color)',
                             background: isMixedRelay ? 'rgba(139, 92, 246, 0.06)' : 'var(--bg-tertiary)',
-                            cursor: isMixedRelayFull && !isMixedRelay ? 'not-allowed' : 'pointer',
-                            opacity: isMixedRelayFull && !isMixedRelay ? 0.6 : 1,
+                            cursor: 'pointer',
                           }}>
                             <input
                               type="checkbox"
                               checked={isMixedRelay}
-                              disabled={isMixedRelayFull && !isMixedRelay}
                               onChange={(e) => setIsMixedRelay(e.target.checked)}
                               style={{ marginTop: '0.25rem', transform: 'scale(1.2)' }}
                             />
                             <div>
                               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                                Code 22: 4x400m Mixed Relay Pool (+₹100)
+                                Code 22: 4x400m Mixed Relay Pool (+₹100) — Standalone &amp; Unrestricted
                               </div>
-                              <div style={{ fontSize: '0.725rem', color: isMixedRelayFull ? 'var(--danger)' : 'var(--text-secondary)' }}>
-                                {isMixedRelayFull
-                                  ? 'Squad division quota full (2/2 registered). College mixed team requires 2 Men + 2 Women.'
-                                  : `Common championship event: ${registeredMixedRelay}/2 registered from this squad. (Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M)`}
+                              <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>
+                                Unrestricted entry: athlete can register regardless of other event entries. (Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M)
                               </div>
                             </div>
                           </label>
@@ -1259,11 +1357,16 @@ export default function AthletesManager({
                             />
                             <div>
                               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                                Code 23: 21 km Half Marathon Participant (+₹100)
+                                Code 23: 21 km Half Marathon Participant (+₹100) — Standalone &amp; Unrestricted
                               </div>
                               <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>
-                                Scheduled Day 3 morning (6:15 AM Men / 6:25 AM Women) on Campus Road Loop.
+                                Standalone &amp; unrestricted entry: can be registered alone or added to any event roster. Scheduled Day 3 morning.
                               </div>
+                              {isHalfMarathon && (
+                                <div style={{ fontSize: '0.725rem', color: '#b45309', fontWeight: 700, marginTop: '0.35rem' }}>
+                                  ⚠️ Note: Medical Fitness Certificate is mandatory for 21km Road Half Marathon participants and must be submitted during reporting (VTU Rule 48).
+                                </div>
+                              )}
                             </div>
                           </label>
                         </div>
@@ -1326,27 +1429,36 @@ export default function AthletesManager({
                           </span>
                         </div>
 
-                        <button
-                          type="submit"
-                          disabled={loading || !event1 || modalFee === 0}
-                          id="btn-save-athlete"
-                          style={{
-                            width: '100%',
-                            marginTop: '0.5rem',
-                            background: 'var(--accent-primary)',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '0.9rem',
-                            borderRadius: 'var(--radius-sm)',
-                            fontSize: '1rem',
-                            fontWeight: 800,
-                            cursor: loading || !event1 ? 'not-allowed' : 'pointer',
-                            opacity: loading || !event1 ? 0.6 : 1,
-                            boxShadow: '0 4px 14px var(--accent-glow)'
-                          }}
-                        >
-                          {loading ? 'Registering Student...' : `Register Athlete (₹${modalFee}) →`}
-                        </button>
+                        {(() => {
+                          const isRelaySelected = Boolean(relayChoice === '4x100' || relayChoice === '4x400' || isMixedRelay);
+                          const isStandaloneAllowed = Boolean(isRelaySelected || isHalfMarathon);
+                          const hasDisciplineSelected = Boolean(event1 || event2 || isStandaloneAllowed);
+                          const isSubmitDisabled = loading || !hasDisciplineSelected;
+
+                          return (
+                            <button
+                              type="submit"
+                              disabled={isSubmitDisabled}
+                              id="btn-save-athlete"
+                              style={{
+                                width: '100%',
+                                marginTop: '0.5rem',
+                                background: 'var(--accent-primary)',
+                                color: '#fff',
+                                border: 'none',
+                                padding: '0.9rem',
+                                borderRadius: 'var(--radius-sm)',
+                                fontSize: '1rem',
+                                fontWeight: 800,
+                                cursor: isSubmitDisabled ? 'not-allowed' : 'pointer',
+                                opacity: isSubmitDisabled ? 0.6 : 1,
+                                boxShadow: '0 4px 14px var(--accent-glow)'
+                              }}
+                            >
+                              {loading ? 'Registering Student...' : `Register Athlete (${modalFee > 0 ? `₹${modalFee}` : 'Included in Squad/Relay Fee'}) →`}
+                            </button>
+                          );
+                        })()}
 
                         <button
                           type="button"
@@ -1382,6 +1494,18 @@ export default function AthletesManager({
           </div>
         </div>
       )}
+
+      {/* Official Contingent Registration Report & Eligibility Proforma Modal */}
+      <RegistrationReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        squad={{
+          squadCode,
+          collegeName,
+          gender,
+        }}
+        athletes={athletes}
+      />
 
     </div>
   );

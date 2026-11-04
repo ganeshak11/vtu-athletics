@@ -33,29 +33,29 @@ export default function HomePage() {
             <div className="hero-kicker-bar">
               <span className="hero-kicker-dept">DIRECTORATE OF PHYSICAL EDUCATION &amp; SPORTS</span>
               <span className="hero-kicker-sep">/</span>
-              <span className="hero-kicker-meet">26TH VTU STATE ATHLETICS</span>
+              <span className="hero-kicker-meet">28TH VTU STATE ATHLETICS</span>
             </div>
 
             {/* Display Headline */}
             <h1 className="hero-editorial-title">
-              ACS ATHLETICS AURA <span className="hero-title-year">2026</span>
+              DR. ACS AURA <span className="hero-title-year">2026</span>
             </h1>
 
             {/* Edition Subtitle */}
             <div className="hero-edition-line">
-              26th VTU Inter-Collegiate Athletics Championship &amp; State Selection Trials
+              28th VTU Inter-Collegiate State Level Athletic Meet – 2026
             </div>
 
             {/* Institutional Summary */}
             <p className="hero-editorial-desc">
-              Organized by <strong>Visvesvaraya Technological University (VTU), Belagavi</strong> and hosted at the synthetic track stadium of <strong>Dr. ACS College of Engineering, Bengaluru</strong>. Bringing together 200+ affiliated engineering institutions, 3,000+ student-athletes, and All India Inter-University selection trials.
+              Organized under the aegis of <strong>Visvesvaraya Technological University (VTU), Belagavi</strong> and hosted by <strong>Dr. ACS College of Engineering, Bengaluru</strong>. Bringing together 200+ affiliated engineering institutions, 3,000+ student-athletes, and All India Inter-University selection trials.
             </p>
 
             {/* Structured Event Metadata Strip */}
             <div className="hero-meta-strip">
               <div className="meta-strip-item">
                 <span className="meta-strip-label">CHAMPIONSHIP DATES</span>
-                <span className="meta-strip-val">Dec 08 – 11, 2026</span>
+                <span className="meta-strip-val">Dec 07 – 10, 2026</span>
               </div>
               <div className="meta-strip-sep" aria-hidden="true" />
               <div className="meta-strip-item">
@@ -246,75 +246,111 @@ export default function HomePage() {
 
           <div className="regulations-grid-modern">
             
-            {/* Rule 1: Individual Event Quota */}
+            {/* Rule 1: Individual Event Quota & Reserve Rule */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 01</span>
-                <span className="reg-badge-quota">MAX 2 EVENTS + 1 RESERVE</span>
+                <span className="reg-badge-quota">MAX 2 EVENTS + RESERVE RULE</span>
               </div>
-              <h3 className="reg-card-title">Individual Discipline Quota</h3>
+              <h3 className="reg-card-title">Individual Discipline Quota &amp; Reserve Rule</h3>
               <p className="reg-card-desc">
-                Each athlete may compete in a maximum of 2 individual track or field events, plus 1 distinct reserve discipline. Event 1 is compulsory; Event 2 is optional.
+                Each athlete may compete in a maximum of 2 individual track or field events. <strong>If an athlete chooses both Event 1 and Event 2, they cannot nominate a reserve event</strong> (reserve is strictly disabled). Athletes can still register for 4&times;400m Mixed Relay and 21km Half Marathon unrestricted.
               </p>
             </div>
 
-            {/* Rule 2: Relay Squads & Mixed Relay (VTU Rule 3 & 8) */}
+            {/* Rule 2: Standalone Disciplines & Relay Squads */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 02</span>
-                <span className="reg-badge-quota">RULE 3: RELAY &amp; MIXED</span>
+                <span className="reg-badge-quota">STANDALONE &bull; 6 PER TEAM</span>
               </div>
-              <h3 className="reg-card-title">Relay Nominations &amp; Mixed Relay</h3>
+              <h3 className="reg-card-title">Standalone Relays &amp; Relay Team Quota</h3>
               <p className="reg-card-desc">
-                Athletes can take part in any 2 individual events + 1 relay event (4&times;100m or 4&times;400m). 4&times;400m Mixed Relay is a common event with any 2 men and 2 women (Leg 1: W, Leg 2: M, Leg 3: W, Leg 4: M). Mixed relay points count toward the Overall Championship Trophy.
+                All relays (4&times;100m, 4&times;400m, Mixed Relay) and 21km Half Marathon can be registered <strong>standalone</strong> (no Event 1 required). A college can enter up to 3 relay teams with <strong>6 members per relay team</strong> (4 active runners + 2 reserves). Only 1 divisional relay team per member. Call Room Officials can approve and update substitutes before race start.
               </p>
             </div>
 
-            {/* Rule 3: 21km Road Half Marathon & 20km Walk (VTU Rule 6) */}
+            {/* Rule 3: Hurdle Specifications */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 03</span>
-                <span className="reg-badge-quota">ENDURANCE &amp; 3-LAP RULE</span>
+                <span className="reg-badge-quota">HURDLE HEIGHT NORMS</span>
               </div>
-              <h3 className="reg-card-title">21km Half Marathon &amp; 20km Walk</h3>
+              <h3 className="reg-card-title">Official Hurdle Height Specifications</h3>
               <p className="reg-card-desc">
-                Official championship endurance races on Day 2 (20km Walk) and Day 3 (21km Half Marathon). Per VTU Rule 6, any athlete lagging more than 3 laps behind the leaders will be asked to stop and vacate the track to prevent overlap confusion.
+                World Athletics &amp; VTU standard hurdle heights: <strong>110m Hurdles (Men) &ndash; 1.067 m</strong> (3.5 ft / 42 in); <strong>100m Hurdles (Women) &ndash; 0.838 m</strong> (2.75 ft / 33 in); <strong>400m Hurdles (Men) &ndash; 0.914 m</strong> (3.0 ft / 36 in); <strong>400m Hurdles (Women) &ndash; 0.762 m</strong> (2.5 ft / 30 in).
               </p>
             </div>
 
-            {/* Rule 4: Student Verification & Aadhaar */}
+            {/* Rule 4: Field Events Pass Rules */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 04</span>
-                <span className="reg-badge-quota">GOVT VERIFICATION</span>
+                <span className="reg-badge-quota">VERTICAL &amp; HORIZONTAL PASS</span>
               </div>
-              <h3 className="reg-card-title">Identity &amp; Aadhaar Verification</h3>
+              <h3 className="reg-card-title">Field Jumps &amp; Throws Pass Protocols</h3>
               <p className="reg-card-desc">
-                Every nominated student must provide a valid 12-digit Aadhaar number, passport photograph, and institutional credentials. Spot Aadhaar fingerprint verification is mandatory at call-room desk clearance.
+                <strong>Vertical Jumps</strong> (High Jump, Pole Vault): Athletes may pass at any given height. <strong>Horizontal Jumps</strong> (Long Jump, Triple Jump) &amp; <strong>Throws</strong> (Shot Put, Discus, Javelin, Hammer): Athletes may pass on any individual attempt / trial.
               </p>
             </div>
 
-            {/* Rule 5: Entry Fee Structure */}
+            {/* Rule 5: Championship Scoring Matrix */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 05</span>
-                <span className="reg-badge-quota">FINANCE VERIFICATION</span>
+                <span className="reg-badge-quota">POINTS: 10-6-2 &amp; 5-3-1</span>
               </div>
-              <h3 className="reg-card-title">Registration Fees &amp; Accounts</h3>
+              <h3 className="reg-card-title">Championship Points &amp; Scoring Matrix</h3>
               <p className="reg-card-desc">
-                Standard entry fee of ₹100 per nominated billable event (individual, relay, or half marathon). All reserve nominations are strictly free of charge (₹0). Roster locks upon host college finance verification.
+                <strong>Team / Relay Events:</strong> 1st = 10 pts, 2nd = 6 pts, 3rd = 2 pts (<strong>only the final 4 running members who compete in the relay receive points</strong>). <strong>Individual Events:</strong> 1st = 5 pts, 2nd = 3 pts, 3rd = 1 pt.
               </p>
             </div>
 
-            {/* Rule 6: Call Room Protocol & Marchpast (VTU Rule 4 & 7) */}
+            {/* Rule 6: Track Heats Progression */}
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 06</span>
-                <span className="reg-badge-quota">30 MINS STRICT CALL ROOM</span>
+                <span className="reg-badge-quota">TOP 2 ADVANCE TO FINALS</span>
               </div>
-              <h3 className="reg-card-title">Call Room &amp; Compulsory Marchpast</h3>
+              <h3 className="reg-card-title">Preliminary Track Progression Rule</h3>
               <p className="reg-card-desc">
-                All athletes must report to the Call Room strictly 30 minutes before their scheduled event time without fail. Per VTU Rule 7, marchpast participation in the inaugural ceremony is compulsory for all teams to compete.
+                <strong>Top 2 athletes from each preliminary heat automatically advance to the Finals</strong> (position-based Q1 &amp; Q2). Progression is <strong>strictly position-based, NOT based on fastest times</strong> for preliminary heats.
+              </p>
+            </div>
+
+            {/* Rule 7: 5 Major Championship Awards */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 07</span>
+                <span className="reg-badge-quota">5 CHAMPIONSHIP TROPHIES</span>
+              </div>
+              <h3 className="reg-card-title">Championship Trophies &amp; Best Athletes</h3>
+              <p className="reg-card-desc">
+                Five major championship trophies will be awarded: (1) <strong>Best Male Athlete</strong> (Individual Champion), (2) <strong>Best Female Athlete</strong> (Individual Champion), (3) <strong>Best Men&rsquo;s College Team</strong>, (4) <strong>Best Women&rsquo;s College Team</strong>, and (5) <strong>Overall Championship Trophy</strong>.
+              </p>
+            </div>
+
+            {/* Rule 8: Results & Attendance to College PEDs */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 08</span>
+                <span className="reg-badge-quota">PED DESK DISTRIBUTION</span>
+              </div>
+              <h3 className="reg-card-title">Results Bulletins &amp; Contingent Attendance</h3>
+              <p className="reg-card-desc">
+                Official verified competition result bulletins and contingent daily attendance certificates will be issued directly to college Physical Education Directors (PEDs) at the Directorate Control Desk and downloadable online.
+              </p>
+            </div>
+
+            {/* Rule 9: Entry Fee Structure & Differential Settlement */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 09</span>
+                <span className="reg-badge-quota">FLAT ₹400 RELAY &bull; ₹100 INDIVIDUAL</span>
+              </div>
+              <h3 className="reg-card-title">Transparent Fee Structure &amp; Differential Pay</h3>
+              <p className="reg-card-desc">
+                Individual &amp; 21km Half Marathon: <strong>₹100/entry</strong>. Reserves: <strong>FREE (₹0)</strong>. Relays: <strong>Flat ₹400 per relay team</strong> (even with 6 members: 4 runners + 2 reserves free). If colleges register more athletes later, they pay only the differential balance due. Printable official invoice with VTU &amp; ACSCE logos provided.
               </p>
             </div>
 
@@ -497,64 +533,156 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. HOST INSTITUTION SPOTLIGHT */}
+      {/* 7. ABOUT THE INSTITUTION & HOST PROFILE */}
       <section className="host-section" id="host-college">
         <div className="section-wrapper">
           
+          <div className="editorial-section-header">
+            <div className="editorial-header-left">
+              <div className="editorial-category-tag">HOST INSTITUTION // ABOUT DR. ACSCE</div>
+              <h2 className="editorial-section-title">About the Institution</h2>
+              <p className="editorial-section-desc">
+                Dr. ACS College of Engineering (Dr. ACSCE), Bengaluru &bull; Autonomous Institution under VTU, Belagavi
+              </p>
+            </div>
+            <div className="editorial-header-right">
+              <span className="editorial-header-badge">ESTD. 2009 &bull; RRGI</span>
+            </div>
+          </div>
+
           {/* Main Institution Profile Card */}
           <div className="host-modern-container">
             <div>
-              <div className="editorial-category-tag">HOST INSTITUTION PROFILE // BENGALURU</div>
-              <h2 className="editorial-section-title" style={{ marginBottom: '0.5rem' }}>
-                Dr. ACS College of Engineering, Bengaluru
+              <div className="editorial-category-tag">MOOGAMBIGAI CHARITABLE &amp; EDUCATIONAL TRUST</div>
+              <h2 className="editorial-section-title" style={{ marginBottom: '0.4rem', fontSize: '1.75rem' }}>
+                Dr. ACS College of Engineering (Dr. ACSCE)
               </h2>
               <div style={{ color: '#1d4ed8', fontWeight: 700, fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-                Approved by AICTE, New Delhi &bull; Affiliated to VTU, Belagavi &bull; NAAC &lsquo;A&rsquo; Grade &amp; NBA Accredited
+                Autonomous Institution under VTU, Belagavi &bull; Approved by AICTE, New Delhi &bull; NAAC &lsquo;A&rsquo; Grade &amp; NBA Accredited
               </div>
-              <p style={{ color: '#334155', lineHeight: 1.7, fontSize: '0.95rem', marginBottom: '1.5rem' }}>
-                Established under the benevolent stewardship of <strong>Moogambigai Charitable and Educational Trust</strong>, founded by renowned visionary leader <strong>Dr. A. C. Shanmugam</strong>, Dr. ACS College of Engineering (ACSCE) stands as a beacon of academic rigor and collegiate athletic prominence in Karnataka. The institution features a 35+ acre campus along the Bengaluru-Mysuru Expressway, integrating state-of-the-art engineering laboratories with world-class athletic facilities, multi-sport arenas, and full residential hospitality for inter-university championships.
+              
+              <p style={{ color: '#334155', lineHeight: 1.7, fontSize: '0.935rem', marginBottom: '1rem' }}>
+                <strong>Dr. ACS College of Engineering (Dr. ACSCE), Bengaluru</strong>, was established in <strong>2009</strong> under the aegis of the <strong>Moogambigai Charitable and Educational Trust</strong>, which was founded in <strong>1992</strong> by the visionary educationist <strong>Dr. A. C. Shanmugam</strong>, B.A., LL.B, FIMSA, FRCPS (Glasgow, UK), with the main objective of promoting higher education in Karnataka. Various professional institutions—including Medical, Dental, and Nursing colleges—function under the aegis of the Trust, collectively termed as the <strong>RajaRajeswari Group of Institutions (RRGI)</strong>.
               </p>
 
+              <p style={{ color: '#334155', lineHeight: 1.7, fontSize: '0.935rem', marginBottom: '1rem' }}>
+                The institution is an <strong>Autonomous Institution under Visvesvaraya Technological University (VTU), Belagavi</strong>, and approved by the <strong>All India Council for Technical Education (AICTE), New Delhi</strong>. Located at Kambipura, Mysore Road, Bengaluru, along the Bengaluru-Mysuru Expressway, the institution provides a conducive learning environment supported by modern infrastructure, qualified faculty members, well-equipped laboratories, and extensive facilities for academic, research, and extracurricular activities.
+              </p>
+
+              <p style={{ color: '#334155', lineHeight: 1.7, fontSize: '0.935rem', marginBottom: '1.25rem' }}>
+                Dr. ACSCE is committed to imparting holistic engineering education by integrating academic knowledge, practical skills, professional ethics, innovation, entrepreneurship, and social responsibility. Its educational philosophy aligns with the vision of transforming students into technically competent professionals, innovative leaders, and responsible citizens.
+              </p>
+
+              {/* Chairperson's Motto Card */}
+              <div className="host-motto-box">
+                <div className="host-motto-quote">
+                  &ldquo;To Create Job creators not job seekers&rdquo;
+                </div>
+                <div className="host-motto-author">
+                  &mdash; Chairperson&rsquo;s Motto &bull; <strong>Dr. A. C. Shanmugam</strong>, Founder Chairman, Moogambigai Educational Trust &amp; RRGI
+                </div>
+              </div>
+
+              {/* Quick Institutional Stats Strip */}
               <div className="host-stats-row-6">
                 <div className="host-stat-box">
-                  <div className="host-stat-val">35+ Acres</div>
-                  <div className="host-stat-lbl">Sports &amp; Tech Campus</div>
+                  <div className="host-stat-val">2009</div>
+                  <div className="host-stat-lbl">College Established</div>
+                </div>
+                <div className="host-stat-box">
+                  <div className="host-stat-val">Autonomous</div>
+                  <div className="host-stat-lbl">Under VTU Belagavi</div>
+                </div>
+                <div className="host-stat-box">
+                  <div className="host-stat-val">AICTE</div>
+                  <div className="host-stat-lbl">New Delhi Approved</div>
                 </div>
                 <div className="host-stat-box">
                   <div className="host-stat-val">NAAC &lsquo;A&rsquo;</div>
                   <div className="host-stat-lbl">Grade &amp; NBA Accredited</div>
                 </div>
                 <div className="host-stat-box">
-                  <div className="host-stat-val">4,000+</div>
-                  <div className="host-stat-lbl">ACS Convention Center</div>
-                </div>
-                <div className="host-stat-box">
-                  <div className="host-stat-val">600+ Beds</div>
-                  <div className="host-stat-lbl">Delegation Hostels</div>
-                </div>
-                <div className="host-stat-box">
-                  <div className="host-stat-val">24/7 Care</div>
-                  <div className="host-stat-lbl">RRMCH Medical Support</div>
-                </div>
-              </div>
-
-              <div style={{ background: '#f8fafc', borderLeft: '3px solid #1e3a8a', padding: '1rem 1.25rem', borderRadius: '4px', fontSize: '0.9rem', color: '#1e3a8a', fontStyle: 'italic', fontWeight: 600 }}>
-                &ldquo;To create job creators not job seekers &mdash; fostering holistic discipline, competitive spirit, and character through collegiate athletics.&rdquo;
-                <div style={{ fontSize: '0.785rem', color: '#64748b', fontWeight: 600, fontStyle: 'normal', marginTop: '0.35rem' }}>
-                  &mdash; <strong>Dr. A. C. Shanmugam</strong>, Chairman, Moogambigai Educational Trust
+                  <div className="host-stat-val">35+ Acres</div>
+                  <div className="host-stat-lbl">Modern Campus</div>
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
               <img
                 src="/acsce-logo.png"
                 alt="Dr. ACS College of Engineering Official Red Emblem"
-                style={{ maxWidth: '100%', maxHeight: '240px', objectFit: 'contain' }}
+                style={{ maxWidth: '100%', maxHeight: '220px', objectFit: 'contain' }}
               />
               <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>
-                Campus #207, Kambipura, Mysore Road, Bengaluru &bull; Estd. 1992
+                Campus #207, Kambipura, Mysore Road, Bengaluru &bull; Estd. 2009
               </div>
+
+              {/* Institutional Fact Sheet Box */}
+              <div className="host-fact-sheet">
+                <div className="host-fact-row">
+                  <span className="host-fact-label">Governing Trust:</span>
+                  <span className="host-fact-val">Moogambigai Trust (Estd. 1992)</span>
+                </div>
+                <div className="host-fact-row">
+                  <span className="host-fact-label">Founder Chairman:</span>
+                  <span className="host-fact-val">Dr. A. C. Shanmugam</span>
+                </div>
+                <div className="host-fact-row">
+                  <span className="host-fact-label">Group:</span>
+                  <span className="host-fact-val">RajaRajeswari Group (RRGI)</span>
+                </div>
+                <div className="host-fact-row">
+                  <span className="host-fact-label">Affiliation:</span>
+                  <span className="host-fact-val">Autonomous under VTU, Belagavi</span>
+                </div>
+                <div className="host-fact-row">
+                  <span className="host-fact-label">Approval:</span>
+                  <span className="host-fact-val">AICTE, New Delhi</span>
+                </div>
+                <div className="host-fact-row">
+                  <span className="host-fact-label">Location:</span>
+                  <span className="host-fact-val">Kambipura, Mysore Rd, Bengaluru</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Institutional Vision & Mission Cards */}
+          <div className="host-vm-grid">
+            {/* Vision Card */}
+            <div className="host-vm-card host-vm-vision">
+              <div className="host-vm-tag">
+                <span>&#x25C6;</span>
+                <span>INSTITUTIONAL VISION</span>
+              </div>
+              <h3 className="host-vm-title">Vision</h3>
+              <p className="host-vm-text">
+                &ldquo;Engineering the future of the nation by transforming the students to be technically skilled managers, innovative leaders and environmentally receptive citizens.&rdquo;
+              </p>
+            </div>
+
+            {/* Mission Card */}
+            <div className="host-vm-card host-vm-mission">
+              <div className="host-vm-tag">
+                <span>&#x25C6;</span>
+                <span>INSTITUTIONAL MISSION</span>
+              </div>
+              <h3 className="host-vm-title">Mission</h3>
+              <ul className="host-vm-list">
+                <li className="host-vm-item">
+                  <span className="host-vm-bullet">&bull;</span>
+                  <div>
+                    <strong>Holistic Pedagogy &amp; Industry Integration:</strong> To implement holistic approach in curriculum and pedagogy through Industry Integrated Interactions to meet the needs of Global Engineering Environment.
+                  </div>
+                </li>
+                <li className="host-vm-item">
+                  <span className="host-vm-bullet">&bull;</span>
+                  <div>
+                    <strong>Employability &amp; Entrepreneurship:</strong> To develop students with knowledge, attitude and skill of employability, entrepreneurship (<em>&ldquo;Be Job creators than job seekers&rdquo;</em>), research potential and professionally ethical citizens.
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
 

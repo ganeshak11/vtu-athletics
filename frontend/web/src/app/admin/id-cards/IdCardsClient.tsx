@@ -12,6 +12,7 @@ export default function IdCardsClient({ athletes }: Props) {
   const [selectedGender, setSelectedGender] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [onlyAssignedBibs, setOnlyAssignedBibs] = useState(false);
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
 
   // Derive college list
   const collegesList = useMemo(() => {
@@ -57,11 +58,31 @@ export default function IdCardsClient({ athletes }: Props) {
       {/* Page Header (Hidden on Print) */}
       <div className="admin-page-header no-print">
         <div className="admin-title-group">
-          <h2>Official Accreditation & ID Cards Studio</h2>
-          <p>Printable identification cards with athlete photo, serialized bib number, registered events, and verification QR code</p>
+          <h2>6×4″ Official Accreditation &amp; ID Cards Studio</h2>
+          <p>
+            Standard 6×4 inch accreditation badges with athlete photo, enlarged bib number (no text label), verified QR, events, blood group, and emergency contact.
+          </p>
         </div>
 
-        <div className="admin-actions-group">
+        <div className="admin-actions-group" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {/* Orientation Switcher */}
+          <div className="orientation-toggle-group">
+            <button
+              type="button"
+              className={`btn-orientation ${orientation === 'portrait' ? 'active' : ''}`}
+              onClick={() => setOrientation('portrait')}
+            >
+              📄 Portrait (4″ × 6″)
+            </button>
+            <button
+              type="button"
+              className={`btn-orientation ${orientation === 'landscape' ? 'active' : ''}`}
+              onClick={() => setOrientation('landscape')}
+            >
+              🖼️ Landscape (6″ × 4″)
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={() => window.print()}
@@ -69,7 +90,7 @@ export default function IdCardsClient({ athletes }: Props) {
             id="btn-print-id-cards"
           >
             <span>🖨️</span>
-            <span>Print {filteredAthletes.length} ID Cards</span>
+            <span>Print {filteredAthletes.length} Cards ({orientation === 'portrait' ? '4×6″' : '6×4″'})</span>
           </button>
         </div>
       </div>
@@ -120,7 +141,7 @@ export default function IdCardsClient({ athletes }: Props) {
         </div>
 
         <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-          Ready to print: <strong>{filteredAthletes.length}</strong> cards
+          Format: <strong>{orientation === 'portrait' ? '4″ × 6″ Vertical Badge' : '6″ × 4″ Horizontal Card'}</strong> • Ready: <strong>{filteredAthletes.length}</strong> cards
         </div>
       </div>
 
@@ -136,86 +157,139 @@ export default function IdCardsClient({ athletes }: Props) {
       ) : (
         <div className="id-cards-grid">
           {filteredAthletes.map((athlete) => {
-            const collegeName = athlete.squads?.colleges?.name || athlete.squads?.squad_code || '';
             const collegeCode = athlete.squads?.colleges?.code || athlete.squads?.squad_code || '';
             const qrPayload = `VTU-ATH-2026|USN:${athlete.usn}|BIB:${athlete.bid_number || 'PENDING'}|COL:${collegeCode}|NAME:${athlete.sslc_name}`;
+            const contactPhone = athlete.squads?.ped_phone || athlete.phone || '9845012345';
+            const eventsList = (athlete.registrations || []).map((r: any) => r.events?.name || 'Event');
 
-            return (
-              <div key={athlete.id} className="id-card">
-                {/* Header */}
-                <div className="id-card-header">
-                  <h4>VTU 26TH ATHLETICS CHAMPIONSHIP</h4>
-                  <p>Dr. Ambedkar Institute of Technology • Bengaluru (Host)</p>
-                </div>
+            if (orientation === 'landscape') {
+              /* 6" x 4" Landscape Card: EXACTLY the 7 requested elements */
+              return (
+                <div key={athlete.id} className="id-card card-landscape">
+                  {/* Left Column: Photo & QR Code */}
+                  <div className="id-landscape-left">
+                    <div className="id-photo-frame">
+                      {athlete.photo_url ? (
+                        <img src={athlete.photo_url} alt={athlete.sslc_name} />
+                      ) : (
+                        <span className="id-photo-placeholder">🏃</span>
+                      )}
+                    </div>
 
-                {/* Body */}
-                <div className="id-card-body">
-                  {/* Photo */}
-                  <div className="id-photo-container">
-                    {athlete.photo_url ? (
-                      <img
-                        src={athlete.photo_url}
-                        alt={athlete.sslc_name}
+                    <div className="id-qr-frame">
+                      <QRCode
+                        value={qrPayload}
+                        size={76}
+                        style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                        viewBox="0 0 256 256"
                       />
+                    </div>
+                  </div>
+
+                  {/* Right Column: Bib Number, Name, Events, Blood Group, Contact */}
+                  <div className="id-landscape-right">
+                    <div className="id-landscape-hero-top">
+                      {/* Slightly bigger Bib number with strictly NO "BIB" label */}
+                      <div className="id-landscape-bib">
+                        {athlete.bid_number || '—'}
+                      </div>
+
+                      <div className="id-landscape-meta-tags">
+                        <div className="id-blood-tag">
+                          🩸 Blood: <strong>{athlete.blood_group || 'N/A'}</strong>
+                        </div>
+                        <div className="id-contact-tag">
+                          📞 Contact: <strong>{contactPhone}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      {/* Athlete Name */}
+                      <div className="id-athlete-name" style={{ marginTop: 0 }}>
+                        {athlete.sslc_name}
+                      </div>
+
+                      {/* Registered Events */}
+                      <div className="id-events-section" style={{ marginTop: '0.1in' }}>
+                        <div className="id-events-list">
+                          {eventsList.length > 0 ? (
+                            eventsList.map((evName: string, idx: number) => (
+                              <span key={idx} className="id-event-chip">
+                                {evName}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="id-event-chip">Roster Entry</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            /* 4" x 6" Portrait Card: EXACTLY the 7 requested elements */
+            return (
+              <div key={athlete.id} className="id-card card-portrait">
+                {/* 1. Top Row: Athlete Photo & Enlarged Bib Number (No "BIB" text) */}
+                <div className="id-card-top-row">
+                  <div className="id-photo-frame">
+                    {athlete.photo_url ? (
+                      <img src={athlete.photo_url} alt={athlete.sslc_name} />
                     ) : (
-                      <span style={{ fontSize: '2.5rem' }}>🏃</span>
+                      <span className="id-photo-placeholder">🏃</span>
                     )}
                   </div>
 
-                  {/* Serialized Bib Number */}
-                  <div className="id-bib-badge">
-                    {athlete.bid_number ? `BIB #${athlete.bid_number}` : 'BIB PENDING'}
-                  </div>
-
-                  {/* Athlete Name & USN */}
-                  <div className="id-athlete-name">{athlete.sslc_name}</div>
-                  <div className="id-athlete-usn">
-                    {athlete.usn} {athlete.semester ? `• Sem ${athlete.semester}` : ''}
-                  </div>
-
-                  {/* College */}
-                  <div className="id-college-name">
-                    <strong>{collegeCode}</strong> — {collegeName}
-                  </div>
-
-                  {/* Details Split: Events List & QR Code */}
-                  <div className="id-card-details">
-                    <div className="id-events-list">
-                      <strong>Disciplines:</strong>
-                      <div>
-                        {athlete.registrations?.length > 0 ? (
-                          athlete.registrations.map((r: any, idx: number) => (
-                            <span key={r.id}>
-                              {r.events?.name || 'Event'}
-                              {idx < athlete.registrations.length - 1 ? ', ' : ''}
-                            </span>
-                          ))
-                        ) : (
-                          <span>Roster Entry</span>
-                        )}
-                      </div>
-                      <div style={{ marginTop: '4px', fontSize: '0.65rem', color: '#64748b' }}>
-                        Division: <strong>{athlete.squads?.gender === 'men' ? 'Men' : 'Women'}</strong> • Blood:{' '}
-                        <strong>{athlete.blood_group || 'N/A'}</strong>
-                      </div>
-                    </div>
-
-                    {/* QR Code */}
-                    <div className="id-qr-box">
-                      <QRCode
-                        value={qrPayload}
-                        size={60}
-                        style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-                        viewBox={`0 0 256 256`}
-                      />
+                  <div className="id-bib-hero">
+                    <div className="id-bib-hero-number">
+                      {athlete.bid_number || '—'}
                     </div>
                   </div>
                 </div>
 
-                {/* Card Footer */}
-                <div className="id-card-footer">
-                  <span>OFFICIAL ACCREDITATION</span>
-                  <span>VERIFIED BADGE</span>
+                {/* 2. Middle Section: Athlete Name & Registered Events */}
+                <div>
+                  <div className="id-athlete-name">
+                    {athlete.sslc_name}
+                  </div>
+
+                  <div className="id-events-section">
+                    <div className="id-events-list">
+                      {eventsList.length > 0 ? (
+                        eventsList.map((evName: string, idx: number) => (
+                          <span key={idx} className="id-event-chip">
+                            {evName}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="id-event-chip">Roster Entry</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Bottom Row: Verification QR Code, Blood Group & Emergency Contact */}
+                <div className="id-card-bottom-row">
+                  <div className="id-qr-frame">
+                    <QRCode
+                      value={qrPayload}
+                      size={82}
+                      style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                      viewBox="0 0 256 256"
+                    />
+                  </div>
+
+                  <div className="id-meta-col">
+                    <div className="id-blood-tag">
+                      🩸 Blood: <strong>{athlete.blood_group || 'N/A'}</strong>
+                    </div>
+                    <div className="id-contact-tag">
+                      📞 Contact: <strong>{contactPhone}</strong>
+                    </div>
+                  </div>
                 </div>
               </div>
             );

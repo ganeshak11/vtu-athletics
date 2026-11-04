@@ -29,6 +29,9 @@ export default async function AdminLayout({
             <Link href="/admin" className="univ-nav-link">
               <span>📊 Dashboard</span>
             </Link>
+            <Link href="/admin/colleges" className="univ-nav-link">
+              <span>🏛️ Colleges &amp; Squads</span>
+            </Link>
             <Link href="/admin/athletes" className="univ-nav-link">
               <span>🏃 Athletes Management</span>
             </Link>

@@ -57,7 +57,7 @@ export default function HeatsClient({ heats }: Props) {
     <div>
       <div className="admin-page-header">
         <div className="admin-title-group">
-          <h2>Automated Track Heats & Lane Seeding</h2>
+          <h2>Automated Track Heats &amp; Lane Seeding</h2>
           <p>World Athletics standard lane assignment (preferred lanes 4, 5, 3, 6, 2, 7, 1, 8) for verified athletes</p>
         </div>
 
@@ -71,6 +71,27 @@ export default function HeatsClient({ heats }: Props) {
           >
             <span>{loading ? 'Seeding Heats...' : '⚡ Generate / Re-seed Heats'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Official VTU Progression Rule Banner */}
+      <div
+        style={{
+          background: '#eff6ff',
+          border: '1.5px solid #bfdbfe',
+          borderRadius: '8px',
+          padding: '0.85rem 1.25rem',
+          marginBottom: '1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          color: '#1e40af',
+          fontSize: '0.875rem',
+        }}
+      >
+        <span style={{ fontSize: '1.25rem' }}>ℹ️</span>
+        <div>
+          <strong>VTU Track Progression Rule (Preliminary Heats):</strong> Top 2 athletes from each heat qualify automatically for the final (Q1 and Q2). Progression is strictly position-based, <strong>NOT based on fastest times</strong> for preliminary heats.
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { submitPaymentAction, FeeBreakdown, PaymentRecord } from '@/app/actions/payment';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import FeeInvoiceModal from '@/components/invoice/FeeInvoiceModal';
 import Link from 'next/link';
 
 interface Props {
@@ -36,6 +37,7 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
 
   const isZeroSquad = breakdown.totalAmount <= 0;
   const isFullySettled = breakdown.balanceDue === 0 && breakdown.totalPaid > 0 && breakdown.squadPaymentStatus === 'VERIFIED';
@@ -93,13 +95,9 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
       return;
     }
 
-    // Confirmation to prevent accidental premature roster locking
+    // Confirmation prompt
     const confirmed = window.confirm(
-      "⚠️ CONFIRM ROSTER LOCK:\n\n" +
-      "Submitting payment will PERMANENTLY LOCK your squad nominations.\n\n" +
-      "Have you registered ALL your student-athletes, reserve disciplines, and relay squads?\n\n" +
-      "• Click OK to lock nominations & submit payment proof.\n" +
-      "• Click Cancel if you still need to add or edit athletes."
+      `Confirm submission of ₹${amount} with UTR "${utr.trim()}" for entry fee settlement?\n\n(You can still register more athletes later; any remaining balance can be settled in an additional payment).`
     );
 
     if (!confirmed) {
@@ -146,9 +144,34 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
           </p>
         </div>
 
-        <Badge variant={breakdown.squadPaymentStatus === 'VERIFIED' ? 'success' : 'warning'} style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
-          Status: {breakdown.squadPaymentStatus}
-        </Badge>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => setShowInvoice(true)}
+            id="btn-download-invoice-top"
+            style={{
+              background: '#0f172a',
+              color: '#ffffff',
+              border: '1px solid #334155',
+              padding: '0.45rem 1rem',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.875rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>📄</span> Download Fee Invoice (PDF)
+          </button>
+
+          <Badge variant={breakdown.squadPaymentStatus === 'VERIFIED' ? 'success' : 'warning'} style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
+            Status: {breakdown.squadPaymentStatus}
+          </Badge>
+        </div>
       </div>
 
       {isZeroSquad && (
@@ -175,9 +198,14 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.6rem', borderBottom: '1px solid var(--border-color)' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>
-                  Relay Squad Members ({breakdown.relayTeamsCount} &times; ₹{breakdown.relayFeeRate})
-                </span>
+                <div>
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    Relay Teams ({breakdown.relayTeamsCount} teams &times; ₹{breakdown.relayFeeRate})
+                  </span>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                    Flat ₹400 per team (covers 4 active runners + 2 reserves free)
+                  </div>
+                </div>
                 <span style={{ fontWeight: 700 }}>₹{breakdown.relayTeamsCount * breakdown.relayFeeRate}</span>
               </div>
 
@@ -292,51 +320,32 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
           </CardHeader>
           <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             
-            {/* Prominent Roster Lock Alert */}
+            {/* Payment & Registration Workflow Notice */}
             {!isFullySettled && (
               <div style={{
                 padding: '1rem 1.15rem',
-                background: '#fffbeb',
-                border: '1.5px solid #fde68a',
+                background: '#eff6ff',
+                border: '1.5px solid #bfdbfe',
                 borderRadius: '12px',
-                color: '#92400e',
+                color: '#1e40af',
                 fontSize: '0.875rem',
                 lineHeight: 1.5,
                 display: 'flex',
                 gap: '0.75rem',
                 alignItems: 'flex-start',
               }}>
-                <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>⚠️</span>
+                <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>💡</span>
                 <div>
-                  <strong style={{ display: 'block', marginBottom: '0.2rem', color: '#78350f', fontSize: '0.925rem' }}>
-                    IMPORTANT: Ensure Entire Squad is Registered Before Paying
+                  <strong style={{ display: 'block', marginBottom: '0.2rem', color: '#1e3a8a', fontSize: '0.925rem' }}>
+                    Registration &amp; Differential Payment Policy
                   </strong>
-                  Submitting payment proof <strong>permanently locks your squad nominations</strong>. Once locked, athlete entries, events, and relay compositions cannot be modified directly.
-                  <div style={{ marginTop: '0.45rem', fontSize: '0.8rem', color: '#b45309' }}>
-                    Need to add more athletes first? <Link href="/squad/athletes" style={{ color: '#1d4ed8', fontWeight: 700, textDecoration: 'underline' }}>Return to Athlete Nominations &rarr;</Link>
+                  You may register athletes and submit fee payments in stages. If you nominate additional athletes or events after paying, the remaining balance will be automatically calculated and due before championship scrutiny. Relay baton squads can be edited until the final registration deadline.
+                  <div style={{ marginTop: '0.45rem', fontSize: '0.8rem', color: '#2563eb' }}>
+                    Need to nominate more athletes? <Link href="/squad/athletes" style={{ color: '#1d4ed8', fontWeight: 700, textDecoration: 'underline' }}>Go to Athlete Nominations &rarr;</Link>
                   </div>
                 </div>
               </div>
             )}
-
-            {/* Emergency & Amendment Protocol Notice */}
-            <div style={{
-              padding: '0.85rem 1rem',
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '10px',
-              fontSize: '0.8rem',
-              color: '#475569',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '0.6rem',
-              lineHeight: 1.45,
-            }}>
-              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>🚨</span>
-              <div>
-                <strong>Accidental Lock or Emergency Changes?</strong> If you accidentally submitted payment before finishing, or need an emergency athlete medical substitution, contact the <strong>VTU Meet Directorate Desk</strong>. The Administrator can unlock your roster or approve official late entries.
-              </div>
-            </div>
 
             {isFullySettled && (
               <div style={{ padding: '0.85rem 1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: 'var(--radius-sm)', color: 'var(--success)', fontSize: '0.9rem' }}>
@@ -501,6 +510,15 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
           </div>
         </CardContent>
       </Card>
+
+      {/* Official Fee Invoice PDF Modal */}
+      <FeeInvoiceModal
+        isOpen={showInvoice}
+        onClose={() => setShowInvoice(false)}
+        breakdown={breakdown}
+        payments={payments}
+        squadCode={squadCode}
+      />
 
     </div>
   );

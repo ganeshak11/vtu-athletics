@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { loginSquad } from '@/app/actions/auth';
 import Link from 'next/link';
 import Image from 'next/image';
+import RulesRegulationsModal from '@/components/modals/RulesRegulationsModal';
+import ListOfEventsModal from '@/components/modals/ListOfEventsModal';
 import '../login.css';
 
 export default function SquadLoginPage() {
@@ -14,6 +16,8 @@ export default function SquadLoginPage() {
   const [collegeCode, setCollegeCode] = useState('');
   const [gender, setGender] = useState<'men' | 'women'>('men');
   const [passphrase, setPassphrase] = useState('');
+  const [showRulesModal, setShowRulesModal] = useState(false);
+  const [showEventsModal, setShowEventsModal] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,6 +56,56 @@ export default function SquadLoginPage() {
         </div>
 
           <div className="login-body">
+            {/* Quick Championship Handbook & Events Actions */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '1.25rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowRulesModal(true)}
+                id="btn-login-rules-regulations"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.45rem',
+                  padding: '0.65rem 0.6rem',
+                  borderRadius: '8px',
+                  background: '#f8fafc',
+                  border: '1.5px solid #cbd5e1',
+                  color: '#0f172a',
+                  fontSize: '0.8rem',
+                  fontWeight: 750,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                }}
+              >
+                <span>📜</span> Rules &amp; Regulations
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowEventsModal(true)}
+                id="btn-login-list-of-events"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.45rem',
+                  padding: '0.65rem 0.6rem',
+                  borderRadius: '8px',
+                  background: '#f8fafc',
+                  border: '1.5px solid #cbd5e1',
+                  color: '#0f172a',
+                  fontSize: '0.8rem',
+                  fontWeight: 750,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                }}
+              >
+                <span>🏅</span> List of Events
+              </button>
+            </div>
+
             {error && (
               <div className="login-error-alert" id="squad-login-error" style={{ marginBottom: '1.25rem' }}>
                 ⚠️ {error}
@@ -185,6 +239,18 @@ export default function SquadLoginPage() {
             </div>
           </div>
         </div>
+
+        {/* Modal: Rules & Regulations */}
+        <RulesRegulationsModal
+          isOpen={showRulesModal}
+          onClose={() => setShowRulesModal(false)}
+        />
+
+        {/* Modal: List of Events */}
+        <ListOfEventsModal
+          isOpen={showEventsModal}
+          onClose={() => setShowEventsModal(false)}
+        />
       </div>
   );
 }

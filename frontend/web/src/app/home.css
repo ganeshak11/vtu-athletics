@@ -1310,6 +1310,156 @@
   margin-top: 0.2rem;
 }
 
+/* Vision & Mission Cards Grid */
+.host-vm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.75rem;
+}
+
+.host-vm-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+
+.host-vm-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.host-vm-vision {
+  border-top: 3.5px solid #1e3a8a;
+}
+
+.host-vm-mission {
+  border-top: 3.5px solid #0f172a;
+}
+
+.host-vm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.65rem;
+}
+
+.host-vm-vision .host-vm-tag {
+  color: #1e3a8a;
+}
+
+.host-vm-mission .host-vm-tag {
+  color: #0f172a;
+}
+
+.host-vm-title {
+  font-size: 1.15rem;
+  font-weight: 850;
+  color: #0f172a;
+  margin: 0 0 0.85rem 0;
+}
+
+.host-vm-text {
+  font-size: 0.925rem;
+  line-height: 1.65;
+  color: #334155;
+  margin: 0;
+}
+
+.host-vm-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.host-vm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.885rem;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.host-vm-bullet {
+  color: #1e3a8a;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Motto Quote Card */
+.host-motto-box {
+  background: #f8fafc;
+  border-left: 3.5px solid #1e3a8a;
+  border-radius: 6px;
+  padding: 1.15rem 1.35rem;
+  margin-top: 1.25rem;
+}
+
+.host-motto-quote {
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 700;
+  color: #1e3a8a;
+  letter-spacing: -0.01em;
+}
+
+.host-motto-author {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+/* Institutional Fact Sheet */
+.host-fact-sheet {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.host-fact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed #e2e8f0;
+  font-size: 0.825rem;
+}
+
+.host-fact-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.host-fact-label {
+  color: #64748b;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.host-fact-val {
+  color: #0f172a;
+  font-weight: 750;
+  text-align: right;
+}
+
 /* Three Pillars */
 .host-features-grid {
   display: grid;
@@ -1904,7 +2054,8 @@
   .cards-triple-grid,
   .regulations-grid-modern,
   .leaders-grid,
-  .rank-posters-grid {
+  .rank-posters-grid,
+  .host-vm-grid {
     grid-template-columns: 1fr;
     gap: 1.25rem;
   }

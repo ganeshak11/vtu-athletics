@@ -6,7 +6,7 @@ import './dashboard.css';
 
 export const metadata = {
   title: 'Contingent Overview — VTU SportsOS',
-  description: 'Executive overview, roster verification, and squad operations for VTU 26th Athletics Championship',
+  description: 'Executive overview, roster verification, and squad operations for 28th VTU Inter-Collegiate Athletic Meet – 2026',
 };
 
 export default async function SquadDashboardPage() {
@@ -25,9 +25,16 @@ export default async function SquadDashboardPage() {
   const collegeCode = college?.code || session.collegeCode || squad?.squad_code || 'VTU';
   const district = college?.district || 'Karnataka';
   const squadCode = squad?.squad_code || session.squadCode || '';
-  const isLocked = Boolean(squad?.roster_locked);
   const paymentStatus = squad?.payment_status || 'DRAFT';
   const isPaymentVerified = paymentStatus === 'VERIFIED';
+
+  // Fetch championship registration status
+  const { data: meetSettings } = await supabaseAdmin
+    .from('meet_settings')
+    .select('registration_open')
+    .limit(1)
+    .maybeSingle();
+  const isRegistrationOpen = meetSettings ? meetSettings.registration_open !== false : true;
 
   // Fetch athletes and relay count
   const athletes = await listSquadAthletesAction();
@@ -48,11 +55,29 @@ export default async function SquadDashboardPage() {
   const maxQuota = 25;
   const quotaPercent = Math.min(100, Math.round((totalAthletes / maxQuota) * 100));
 
+  const regularCount = formattedAthletes.reduce(
+    (acc: number, a: any) => acc + a.registrations.filter((r: any) => r.kind === 'regular').length,
+    0
+  );
+  const hmCount = formattedAthletes.reduce(
+    (acc: number, a: any) => acc + a.registrations.filter((r: any) => r.kind === 'half_marathon').length,
+    0
+  );
+  const relayEvents = new Set<string>();
+  formattedAthletes.forEach((a: any) => {
+    a.registrations
+      .filter((r: any) => r.kind === 'relay')
+      .forEach((r: any) => {
+        if (r.event_id) relayEvents.add(r.event_id);
+      });
+  });
+  // Flat ₹400 per relay team (regardless of up to 6 members: 4 runners + 2 reserves)
+  const totalSquadFee = (regularCount * 100) + (hmCount * 100) + (relayEvents.size * 400);
+
   const billableEntries = formattedAthletes.reduce((acc: number, athlete: any) => {
     const billable = athlete.registrations.filter((r: any) => r.kind !== 'reserve').length;
     return acc + billable;
   }, 0);
-  const totalSquadFee = billableEntries * 100;
 
   const totalEventEntries = formattedAthletes.reduce(
     (acc: number, athlete: any) => acc + athlete.registrations.length,
@@ -78,7 +103,7 @@ export default async function SquadDashboardPage() {
             </div>
             <div className="squad-identity-info">
               <div className="squad-micro-eyebrow">
-                <span>VTU 26TH ATHLETICS CHAMPIONSHIP 2026</span>
+                <span>VTU 28TH INTER-COLLEGIATE ATHLETIC MEET 2026</span>
                 <span>&bull;</span>
                 <span>OFFICIAL CONTINGENT DELEGATION</span>
               </div>
@@ -113,47 +138,25 @@ export default async function SquadDashboardPage() {
               >
                 {isPaymentVerified ? '✓ Payment: Verified' : `⚠️ Payment: ${paymentStatus}`}
               </span>
-              <span
-                className={`squad-status-badge ${
-                  isLocked ? 'squad-badge-locked' : 'squad-badge-open'
-                }`}
-              >
-                {isLocked ? '🔒 Roster: Certified & Locked' : '🔓 Roster: Open'}
+              <span className={`squad-status-badge ${isRegistrationOpen ? 'squad-badge-open' : 'squad-badge-pending'}`}>
+                {isRegistrationOpen ? '🔓 Registration: Open' : '🔒 Registration: Closed'}
               </span>
             </div>
 
             <div className="squad-hero-buttons">
-              {!isLocked ? (
-                <Link href="/squad/athletes" className="squad-cta-primary">
-                  <span>+</span> Nominate Athlete
-                </Link>
-              ) : null}
+              <Link href="/squad/athletes" className="squad-cta-primary">
+                <span>+</span> Nominate Athlete
+              </Link>
               <Link href="/squad/athletes" className="squad-cta-secondary">
                 Manage Full Roster &rarr;
               </Link>
               <Link href="/squad/payment" className="squad-cta-secondary">
-                {isPaymentVerified ? 'View Fee Receipt' : 'Settle Dues'} &rarr;
+                Fee Settlement &amp; Invoice &rarr;
               </Link>
             </div>
           </div>
         </div>
       </section>
-
-      {/* 2. EMERGENCY / ROSTER LOCK GUIDANCE NOTICE */}
-      {isLocked && (
-        <section className="squad-lock-notice">
-          <span className="squad-lock-icon">🔒</span>
-          <div className="squad-lock-content">
-            <div className="squad-lock-title">Contingent Roster is Certified &amp; Locked Post-Payment</div>
-            <div className="squad-lock-desc">
-              Your athlete roster has been frozen following verified payment settlement. This enables the VTU Meet Directorate to finalize event heat draws and print serialized chest bib badges.
-            </div>
-            <div className="squad-lock-help">
-              <strong>Emergency late addition or medical substitution?</strong> Contact the <strong>VTU Meet Directorate / Helpdesk</strong> at the venue. An authorized administrator can unlock your delegation to register additional athletes and settle the differential entry dues.
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* 3. EXECUTIVE KPI METRICS GRID */}
       <section className="squad-kpi-grid">
@@ -181,6 +184,12 @@ export default async function SquadDashboardPage() {
             <div className="squad-kpi-footer">
               <span>{quotaPercent}% quota utilized</span>
               <span style={{ color: '#2563eb', fontWeight: 700 }}>{maxQuota - totalAthletes} slots open</span>
+            </div>
+            <div style={{ marginTop: '0.45rem', paddingTop: '0.35rem', borderTop: '1px dashed #e2e8f0', fontSize: '0.72rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ color: totalAthletes >= 8 ? '#16a34a' : '#d97706', fontWeight: 600 }}>
+                {totalAthletes >= 8 ? '✓ Rule 23: Min 8 athletes met' : `⚠️ Rule 23: Min 8 required (${8 - totalAthletes} needed)`}
+              </span>
+              <span style={{ color: '#94a3b8' }}>Meet Entry Rule</span>
             </div>
           </div>
         </div>
@@ -276,9 +285,14 @@ export default async function SquadDashboardPage() {
           </div>
 
           <div className="squad-roster-actions">
-            {!isLocked && (
+            {isRegistrationOpen && (
               <Link href="/squad/athletes" className="squad-cta-primary" style={{ padding: '0.45rem 0.95rem', fontSize: '0.825rem' }}>
                 <span>+</span> Nominate Athlete
+              </Link>
+            )}
+            {totalAthletes > 0 && (
+              <Link href="/squad/athletes" className="squad-cta-secondary" style={{ padding: '0.45rem 0.95rem', fontSize: '0.825rem', borderColor: '#94a3b8' }}>
+                📋 Registration Report (PDF)
               </Link>
             )}
             <Link href="/squad/athletes" className="squad-cta-secondary" style={{ padding: '0.45rem 0.95rem', fontSize: '0.825rem' }}>
@@ -292,9 +306,9 @@ export default async function SquadDashboardPage() {
             <div className="squad-empty-icon">🏃</div>
             <div className="squad-empty-title">No Athletes Registered Yet</div>
             <div className="squad-empty-desc">
-              Your college delegation currently has 0 athletes nominated for the VTU 26th Athletics Championship. Nominate students from your college to participate in track, field, and relay events.
+              Your college delegation currently has 0 athletes nominated for the 28th VTU Inter-Collegiate Athletic Meet – 2026. Nominate students from your college to participate in track, field, and relay events.
             </div>
-            {!isLocked && (
+            {isRegistrationOpen && (
               <Link href="/squad/athletes" className="squad-cta-primary">
                 + Register First Athlete
               </Link>
@@ -520,24 +534,32 @@ export default async function SquadDashboardPage() {
         <div className="squad-advisory-icon">📋</div>
         <div className="squad-advisory-content">
           <div className="squad-advisory-title">
-            VTU Technical Regulations &amp; Call Room Reporting Protocols
+            VTU Technical Regulations, Scoring &amp; Championship Protocols
           </div>
           <div className="squad-advisory-grid">
             <div className="squad-advisory-item">
-              <strong>📅 Championship Schedule</strong>
-              December 8 &ndash; 11, 2026 at Dr. ACS College of Engineering, Mysore Road, Bengaluru.
+              <strong>📅 Championship Dates &amp; Arena</strong>
+              December 7 &ndash; 10, 2026 at Dr. ACS College of Engineering, Mysore Road, Bengaluru.
             </div>
             <div className="squad-advisory-item">
-              <strong>⏱️ Call Room Reporting</strong>
-              Athletes must report to Call Room 1 exactly 45 minutes before track heats and 60 minutes before field events.
+              <strong>🏆 Points Scoring Matrix</strong>
+              Team/Relays: <strong>10, 6, 2 pts</strong> (final 4 runners score points). Individual events: <strong>5, 3, 1 pts</strong>.
             </div>
             <div className="squad-advisory-item">
-              <strong>👟 Spike Specifications</strong>
-              Only 6mm pyramid spikes permitted on the synthetic track (maximum 9mm for High Jump &amp; Javelin).
+              <strong>🥇 5 Major Championship Trophies</strong>
+              Best Male Athlete, Best Female Athlete, Best Men&rsquo;s College, Best Women&rsquo;s Team, Overall Championship.
             </div>
             <div className="squad-advisory-item">
-              <strong>🪪 Physical Verification</strong>
-              College PED must produce original VTU Smart Identity Card and SSLC marks card for each nominated student.
+              <strong>⚡ Track Progression Rule</strong>
+              Top 2 from each preliminary heat automatically advance to Finals (position-based, not based on time).
+            </div>
+            <div className="squad-advisory-item">
+              <strong>🏃 Jump &amp; Throw Pass Protocols</strong>
+              Vertical Jumps (High Jump/PV): Pass for height. Horizontal Jumps/Throws: Pass for individual attempts.
+            </div>
+            <div className="squad-advisory-item">
+              <strong>📊 Results &amp; Daily Attendance to PEDs</strong>
+              Official verified result bulletins and daily attendance sheets are issued directly to College PEDs at the Control Desk.
             </div>
           </div>
         </div>

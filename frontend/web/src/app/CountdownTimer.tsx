@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 
-// Official Inaugural Ceremony Date: December 8, 2026 at 08:00 AM IST
-const TARGET_DATE = new Date('2026-12-08T08:00:00+05:30');
+// Official Inaugural Ceremony Date: December 7, 2026 at 08:00 AM IST
+const TARGET_DATE = new Date('2026-12-07T08:00:00+05:30');
 
 function getTimeRemaining() {
   const now = new Date().getTime();
@@ -52,7 +52,7 @@ export default function CountdownTimer() {
       <div className="control-deck-clock-body">
         <div className="deck-inaugural-meta">
           <span className="inaugural-title">Inaugural Track &amp; Field Ceremony</span>
-          <span className="inaugural-timestamp">Dec 08, 2026 &bull; 08:00 AM IST</span>
+          <span className="inaugural-timestamp">Dec 07, 2026 &bull; 08:00 AM IST</span>
         </div>
 
         <div className="scoreboard-digits-grid">

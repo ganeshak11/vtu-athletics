@@ -101,7 +101,7 @@ export default function LeadershipAndRanks() {
             <div className="editorial-category-tag">INSTITUTIONAL PATRONAGE // ACSCE &amp; RRGI</div>
             <h3 className="editorial-section-title">Organizing Patrons &amp; Leadership</h3>
             <p className="editorial-section-desc">
-              Under the visionary stewardship of our Chief Patron and Executive Leadership, Dr. ACS College of Engineering hosts the 26th VTU State Athletics Championship.
+              Under the visionary stewardship of our Chief Patron and Executive Leadership, Dr. ACS College of Engineering hosts the 28th VTU State Level Inter-Collegiate Athletic Meet – 2026.
             </p>
           </div>
           <div className="editorial-header-right">
