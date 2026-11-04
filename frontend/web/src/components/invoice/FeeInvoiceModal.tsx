@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FeeBreakdown, PaymentRecord } from '@/app/actions/payment';
 
 interface Props {
@@ -18,7 +19,24 @@ export default function FeeInvoiceModal({
   payments,
   squadCode,
 }: Props) {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const invoiceNumber = `INV-VTU2026-${squadCode.toUpperCase()}`;
   const currentDate = new Date().toLocaleDateString('en-IN', {
@@ -33,7 +51,7 @@ export default function FeeInvoiceModal({
     window.print();
   }
 
-  return (
+  return createPortal(
     <div className="invoice-modal-overlay">
       {/* Top Action Bar (hidden when printing) */}
       <div className="invoice-action-bar no-print">
@@ -316,7 +334,8 @@ export default function FeeInvoiceModal({
           bottom: 0;
           background: rgba(15, 23, 42, 0.85);
           backdrop-filter: blur(8px);
-          z-index: 9999;
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 100000;
           overflow-y: auto;
           display: flex;
           flex-direction: column;

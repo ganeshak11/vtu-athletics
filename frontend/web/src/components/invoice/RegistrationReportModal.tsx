@@ -768,6 +768,7 @@ export default function RegistrationReportModal({
           }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 }
