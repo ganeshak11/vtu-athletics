@@ -26,73 +26,92 @@ export default function HomePage() {
       <section className="hero-editorial-section">
         <div className="hero-editorial-container">
 
-          {/* Tournament Identity & Authority (Full-Width Top Stage) */}
-          <div className="hero-editorial-main">
+          {/* Tournament Identity & Authority (2-Column Hero Stage) */}
+          <div className="hero-editorial-stage">
+            <div className="hero-editorial-main">
 
-            {/* Taxonomy / Classification Header */}
-            <div className="hero-kicker-bar">
-              <span className="hero-kicker-dept">DIRECTORATE OF PHYSICAL EDUCATION &amp; SPORTS</span>
-              <span className="hero-kicker-sep">/</span>
-              <span className="hero-kicker-meet">28TH VTU STATE ATHLETICS</span>
+              {/* Taxonomy / Classification Header */}
+              <div className="hero-kicker-bar">
+                <span className="hero-kicker-dept">DIRECTORATE OF PHYSICAL EDUCATION &amp; SPORTS</span>
+                <span className="hero-kicker-sep">/</span>
+                <span className="hero-kicker-meet">28TH VTU STATE ATHLETICS</span>
+              </div>
+
+              {/* Display Headline */}
+              <h1 className="hero-editorial-title">
+                <span className="hero-title-brand">
+                  D<span className="hero-title-dr-r">r</span>. ACS AURA
+                </span>{' '}
+                <span className="hero-title-year">2026</span>
+              </h1>
+
+              {/* Edition Subtitle */}
+              <div className="hero-edition-line">
+                28th VTU Inter-Collegiate State Level Athletic Meet – 2026
+              </div>
+
+              {/* Institutional Summary */}
+              <p className="hero-editorial-desc">
+                Organized under the aegis of <strong>Visvesvaraya Technological University (VTU), Belagavi</strong> and hosted by <strong>Dr. ACS College of Engineering, Bengaluru</strong>. Bringing together 200+ affiliated engineering institutions, 3,000+ student-athletes, and All India Inter-University selection trials.
+              </p>
+
+              {/* Structured Event Metadata Strip */}
+              <div className="hero-meta-strip">
+                <div className="meta-strip-item">
+                  <span className="meta-strip-label">CHAMPIONSHIP DATES</span>
+                  <span className="meta-strip-val">Dec 07 – 10, 2026</span>
+                </div>
+                <div className="meta-strip-sep" aria-hidden="true" />
+                <div className="meta-strip-item">
+                  <span className="meta-strip-label">COMPETITION ARENA</span>
+                  <span className="meta-strip-val">Mud Track, Dr. ACSCE Campus</span>
+                </div>
+                <div className="meta-strip-sep" aria-hidden="true" />
+                <div className="meta-strip-item">
+                  <span className="meta-strip-label">DISCIPLINES</span>
+                  <span className="meta-strip-val">25 Event Codes (45 Competitions)</span>
+                </div>
+                <div className="meta-strip-sep" aria-hidden="true" />
+                <div className="meta-strip-item">
+                  <span className="meta-strip-label">REGISTRATION DEADLINE</span>
+                  <span className="meta-strip-val">25-11-2026</span>
+                </div>
+              </div>
+
+              {/* Primary Action Buttons (Left-Aligned, High-Contrast) */}
+              <div className="hero-action-buttons">
+                <Link href="/login/squad" className="btn-hero-solid" id="hero-btn-squad-login">
+                  <span>Institution Squad Portal</span>
+                  <span className="btn-arrow" aria-hidden="true">&rarr;</span>
+                </Link>
+
+                <Link href="/login/admin" className="btn-hero-outline" id="hero-btn-admin-login">
+                  <span>Directorate Admin</span>
+                </Link>
+
+                <a href="#schedule" className="btn-hero-text">
+                  <span>Discipline Timetable &darr;</span>
+                </a>
+              </div>
+
             </div>
 
-            {/* Display Headline */}
-            <h1 className="hero-editorial-title">
-              <span className="hero-title-brand">
-                D<span className="hero-title-dr-r">r</span>. ACS AURA
-              </span>{' '}
-              <span className="hero-title-year">2026</span>
-            </h1>
-
-            {/* Edition Subtitle */}
-            <div className="hero-edition-line">
-              28th VTU Inter-Collegiate State Level Athletic Meet – 2026
-            </div>
-
-            {/* Institutional Summary */}
-            <p className="hero-editorial-desc">
-              Organized under the aegis of <strong>Visvesvaraya Technological University (VTU), Belagavi</strong> and hosted by <strong>Dr. ACS College of Engineering, Bengaluru</strong>. Bringing together 200+ affiliated engineering institutions, 3,000+ student-athletes, and All India Inter-University selection trials.
-            </p>
-
-            {/* Structured Event Metadata Strip */}
-            <div className="hero-meta-strip">
-              <div className="meta-strip-item">
-                <span className="meta-strip-label">CHAMPIONSHIP DATES</span>
-                <span className="meta-strip-val">Dec 07 – 10, 2026</span>
-              </div>
-              <div className="meta-strip-sep" aria-hidden="true" />
-              <div className="meta-strip-item">
-                <span className="meta-strip-label">COMPETITION ARENA</span>
-                <span className="meta-strip-val">Mud Track, Dr. ACSCE Campus</span>
-              </div>
-              <div className="meta-strip-sep" aria-hidden="true" />
-              <div className="meta-strip-item">
-                <span className="meta-strip-label">DISCIPLINES</span>
-                <span className="meta-strip-val">25 Event Codes (45 Competitions)</span>
-              </div>
-              <div className="meta-strip-sep" aria-hidden="true" />
-              <div className="meta-strip-item">
-                <span className="meta-strip-label">REGISTRATION DEADLINE</span>
-                <span className="meta-strip-val">25-11-2026</span>
+            {/* Right Stage: Official Torchbearer Athletic Visual */}
+            <div className="hero-editorial-visual">
+              <div className="hero-torchbearer-wrapper">
+                <div className="hero-torchbearer-card">
+                  <img
+                    src="/torchbearer.png"
+                    alt="28th VTU State Athletics Torchbearer Sprinting with the Championship Flame"
+                    className="hero-torchbearer-img"
+                  />
+                  <div className="hero-torchbearer-badge">
+                    <span className="torchbearer-badge-dot" aria-hidden="true" />
+                    <span>CHAMPIONSHIP FLAME OF EXCELLENCE</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* Primary Action Buttons (Left-Aligned, High-Contrast) */}
-            <div className="hero-action-buttons">
-              <Link href="/login/squad" className="btn-hero-solid" id="hero-btn-squad-login">
-                <span>Institution Squad Portal</span>
-                <span className="btn-arrow" aria-hidden="true">&rarr;</span>
-              </Link>
-
-              <Link href="/login/admin" className="btn-hero-outline" id="hero-btn-admin-login">
-                <span>Directorate Admin</span>
-              </Link>
-
-              <a href="#schedule" className="btn-hero-text">
-                <span>Discipline Timetable &darr;</span>
-              </a>
-            </div>
-
           </div>
 
           {/* Tournament Control Deck & Precision Clock (Brought Down & Scaled Up) */}
