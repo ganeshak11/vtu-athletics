@@ -127,7 +127,7 @@ const ORGANIZING_COMMITTEE: LeaderItem[] = [
     degrees: 'M.Tech, Ph.D',
     designation: 'Principal',
     organization: 'Dr. ACS College of Engineering, Bengaluru',
-    imageSrc: '/acsce-crest.jpg',
+    imageSrc: '/management/principal.png',
     imageAlt: 'Dr. Shylaja B. S., Principal, Dr. ACSCE',
     imageFit: 'contain',
   },
@@ -434,9 +434,9 @@ export default function LeadershipAndRanks() {
                   src={leader.imageSrc}
                   alt={leader.imageAlt}
                   className={`leader-img ${leader.imageFit === 'contain' ? 'crest-img' : ''}`}
-                  style={{ 
-                    objectFit: leader.imageFit || 'cover', 
-                    objectPosition: leader.imageSrc.includes('devendra') ? 'center 20%' : 'top center' 
+                  style={{
+                    objectFit: leader.imageFit || 'cover',
+                    objectPosition: leader.imageSrc.includes('devendra') ? 'center 20%' : 'top center'
                   }}
                   loading="lazy"
                 />
@@ -464,7 +464,7 @@ export default function LeadershipAndRanks() {
               Dr. ACS College of Engineering &bull; Top University Ranks
             </h3>
             <p className="editorial-section-desc">
-              Institutional excellence in academic engineering alongside state inter-collegiate athletic prominence under 
+              Institutional excellence in academic engineering alongside state inter-collegiate athletic prominence under
               <strong> Visvesvaraya Technological University (VTU)</strong>. Click any official poster to preview in high resolution.
             </p>
           </div>
@@ -583,13 +583,13 @@ export default function LeadershipAndRanks() {
 
       {/* HIGH-RES LIGHTBOX MODAL */}
       {mounted && activeModalPoster && createPortal(
-        <div 
+        <div
           className="poster-modal-backdrop"
           onClick={() => setActiveModalPoster(null)}
           role="dialog"
           aria-modal="true"
         >
-          <div 
+          <div
             className="poster-modal-container"
             onClick={(e) => e.stopPropagation()}
           >
