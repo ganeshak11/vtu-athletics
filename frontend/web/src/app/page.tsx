@@ -22,12 +22,12 @@ export default function HomePage() {
       {/* 1. OFFICIAL UNIVERSITY IDENTITY & NAVIGATION */}
       <Navbar />
 
-      {/* 2. ASYMMETRIC EDITORIAL CHAMPIONSHIP HERO SECTION */}
+      {/* 2. GRAND EDITORIAL CHAMPIONSHIP HERO SECTION */}
       <section className="hero-editorial-section">
         <div className="hero-editorial-container">
 
-          {/* Left Column (60%): Tournament Identity & Authority */}
-          <div className="hero-editorial-left">
+          {/* Tournament Identity & Authority (Full-Width Top Stage) */}
+          <div className="hero-editorial-main">
 
             {/* Taxonomy / Classification Header */}
             <div className="hero-kicker-bar">
@@ -87,8 +87,8 @@ export default function HomePage() {
 
           </div>
 
-          {/* Right Column (40%): Tournament Control Deck & Precision Clock */}
-          <div className="hero-editorial-right">
+          {/* Tournament Control Deck & Precision Clock (Brought Down & Scaled Up) */}
+          <div className="hero-countdown-wrapper">
             <CountdownTimer />
           </div>
 

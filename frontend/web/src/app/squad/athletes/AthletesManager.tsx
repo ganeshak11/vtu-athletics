@@ -874,22 +874,26 @@ export default function AthletesManager({
           ========================================================================= */}
       {mounted && showAddModal && createPortal(
         <div
+          className="athlete-modal-overlay"
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.75)',
+            background: 'rgba(15, 23, 42, 0.8)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 100000,
+            zIndex: 999999,
             padding: 'clamp(0.5rem, 3vw, 1.5rem)',
           }}
           id="modal-add-athlete-overlay"
         >
           <div
+            className="athlete-modal-dialog"
             style={{
+              position: 'relative',
+              zIndex: 1000000,
               width: '100%',
               maxWidth: '960px',
               maxHeight: '92vh',

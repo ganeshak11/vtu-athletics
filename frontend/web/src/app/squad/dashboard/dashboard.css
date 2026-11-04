@@ -925,7 +925,31 @@
   }
 }
 
-/* Athlete Nomination Modal Responsive Grid */
+/* Athlete Nomination Modal Responsive Grid & Bulletproof Overlay */
+#modal-add-athlete-overlay,
+.athlete-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: clamp(0.5rem, 3vw, 1.5rem) !important;
+}
+
+#modal-add-athlete,
+.athlete-modal-dialog {
+  position: relative !important;
+  z-index: 1000000 !important;
+  width: 100% !important;
+  max-width: 960px !important;
+  max-height: 92vh !important;
+  overflow-y: auto !important;
+}
+
 .athlete-modal-grid {
   display: grid;
   grid-template-columns: 1.8fr 1.2fr;
