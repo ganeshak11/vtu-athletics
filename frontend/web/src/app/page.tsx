@@ -38,7 +38,7 @@ export default function HomePage() {
 
             {/* Display Headline */}
             <h1 className="hero-editorial-title">
-              DR. ACS ATHLETICS AURA <span className="hero-title-year">2026</span>
+              DR. ACS AURA <span className="hero-title-year">2026</span>
             </h1>
 
             {/* Edition Subtitle */}

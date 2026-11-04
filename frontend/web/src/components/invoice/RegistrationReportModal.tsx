@@ -109,7 +109,7 @@ export default function RegistrationReportModal({
       {/* Printable Sheet */}
       <div className="report-sheet-container">
         <div className="report-paper" id="printable-reg-report">
-          
+
           {/* 1. OFFICIAL UNIVERSITY HEADER WITH BOTH LOGOS */}
           <div className="report-header">
             {/* Top Left: VTU Logo */}
@@ -145,7 +145,7 @@ export default function RegistrationReportModal({
 
           {/* 2. MEET BANNER & REPORT TITLE */}
           <div className="report-meet-banner">
-            <div className="report-meet-tag">DR. ACS ATHLETICS AURA – 2026</div>
+            <div className="report-meet-tag">DR. ACS AURA – 2026</div>
             <h1 className="report-meet-title">
               28th VTU Inter-Collegiate State Level Athletic Meet 2026
             </h1>
@@ -208,7 +208,7 @@ export default function RegistrationReportModal({
             <div className="sec-lbl" style={{ marginBottom: '0.4rem' }}>
               NOMINATED STUDENT-ATHLETE PARTICIPATION LIST
             </div>
-            
+
             <table className="report-table">
               <thead>
                 <tr>
