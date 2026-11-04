@@ -92,7 +92,7 @@
 }
 
 .univ-english-name {
-  font-size: clamp(1.45rem, 2.3vw, 2.15rem);
+  font-size: clamp(1rem, 2vw, 2.15rem);
   font-weight: 950;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -108,11 +108,11 @@
 }
 
 .univ-host-clg {
-  font-size: clamp(1.1rem, 1.6vw, 1.45rem);
-  font-weight: 900;
+  font-size: clamp(1.35rem, 2.1vw, 1.85rem);
+  font-weight: 950;
   color: #1e3a8a;
-  margin-top: 0.3rem;
-  letter-spacing: -0.01em;
+  margin-top: 0.35rem;
+  letter-spacing: -0.015em;
   line-height: 1.2;
 }
 
@@ -366,7 +366,8 @@
     font-size: 1.35rem;
   }
   .univ-host-clg {
-    font-size: 0.95rem;
+    font-size: 1.15rem;
+    font-weight: 950;
   }
   .univ-accreditation-pill {
     font-size: 0.7rem;
@@ -411,7 +412,8 @@
     line-height: 1.15;
   }
   .univ-host-clg {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 950;
   }
   .univ-sub-state {
     font-size: 0.65rem;
@@ -468,7 +470,8 @@
     display: none;
   }
   .univ-host-clg {
-    font-size: 0.7rem;
+    font-size: 0.825rem;
+    font-weight: 950;
   }
   .univ-accreditation-pill {
     font-size: 0.58rem;
