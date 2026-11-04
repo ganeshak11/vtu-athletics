@@ -60,7 +60,7 @@ export default function AthletesManager({
   gender,
   relayCount: initialRelayCount = 0,
   collegeName = 'Affiliated Institution',
-  paymentStatus = 'DRAFT',
+  paymentStatus = 'DrAFT',
 }: Props) {
   const [athletes, setAthletes] = useState<AthleteItem[]>(initialAthletes);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -392,7 +392,7 @@ export default function AthletesManager({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      
+
       {/* Title & Actions Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
@@ -512,20 +512,20 @@ export default function AthletesManager({
 
       {/* Metrics Row (Identical to Prototype) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-        <StatBox 
-          title="Total Registered" 
-          value={athletes.length.toString()} 
-          accent="blue" 
+        <StatBox
+          title="Total Registered"
+          value={athletes.length.toString()}
+          accent="blue"
         />
-        <StatBox 
-          title="Confirmed & Paid" 
-          value={confirmedCount.toString()} 
-          accent="emerald" 
+        <StatBox
+          title="Confirmed & Paid"
+          value={confirmedCount.toString()}
+          accent="emerald"
         />
-        <StatBox 
-          title="Payment Pending" 
-          value={pendingCount.toString()} 
-          accent="amber" 
+        <StatBox
+          title="Payment Pending"
+          value={pendingCount.toString()}
+          accent="amber"
         />
         <div style={{
           background: 'var(--bg-secondary)',
@@ -605,8 +605,8 @@ export default function AthletesManager({
                     const hmRegs = athlete.registrations.filter((r) => r.kind === 'half_marathon');
 
                     return (
-                      <tr 
-                        key={athlete.id} 
+                      <tr
+                        key={athlete.id}
                         id={`row-athlete-${athlete.id}`}
                         style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.15s ease' }}
                       >
@@ -615,7 +615,7 @@ export default function AthletesManager({
                             <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
                               #{athlete.bid_number || 'TBD'}
                             </span>
-                            <Badge 
+                            <Badge
                               variant={athlete.accreditation_status === 'ACCREDITED' ? 'success' : 'default'}
                               style={{ fontSize: '0.7rem' }}
                             >
@@ -668,12 +668,12 @@ export default function AthletesManager({
                         </td>
 
                         <td style={{ padding: '1rem' }}>
-                          <span style={{ 
-                            padding: '0.2rem 0.5rem', 
-                            borderRadius: '4px', 
-                            background: 'rgba(239, 68, 68, 0.08)', 
-                            color: '#e11d48', 
-                            fontWeight: 700, 
+                          <span style={{
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '4px',
+                            background: 'rgba(239, 68, 68, 0.08)',
+                            color: '#e11d48',
+                            fontWeight: 700,
                             fontSize: '0.85rem',
                             border: '1px solid rgba(239, 68, 68, 0.2)'
                           }}>
@@ -803,26 +803,26 @@ export default function AthletesManager({
                           )}
                         </td>
 
-                          <td style={{ padding: '1rem', textAlign: 'right' }}>
-                            <button
-                              type="button"
-                              onClick={() => handleDelete(athlete.id, athlete.sslc_name)}
-                              id={`btn-delete-${athlete.id}`}
-                              style={{
-                                background: 'none',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                                color: 'var(--danger)',
-                                padding: '0.35rem 0.75rem',
-                                borderRadius: 'var(--radius-sm)',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease'
-                              }}
-                            >
-                              ✕ Remove
-                            </button>
-                          </td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(athlete.id, athlete.sslc_name)}
+                            id={`btn-delete-${athlete.id}`}
+                            style={{
+                              background: 'none',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              color: 'var(--danger)',
+                              padding: '0.35rem 0.75rem',
+                              borderRadius: 'var(--radius-sm)',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            ✕ Remove
+                          </button>
+                        </td>
                       </tr>
                     );
                   })
@@ -938,16 +938,16 @@ export default function AthletesManager({
             </div>
 
             {error && (
-              <div 
-                style={{ 
-                  padding: '0.85rem 1.25rem', 
-                  borderRadius: 'var(--radius-sm)', 
-                  background: 'rgba(239, 68, 68, 0.1)', 
-                  color: 'var(--danger)', 
+              <div
+                style={{
+                  padding: '0.85rem 1.25rem',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  color: 'var(--danger)',
                   fontSize: '0.9rem',
                   border: '1px solid rgba(239, 68, 68, 0.25)',
                   marginBottom: '1.5rem'
-                }} 
+                }}
                 id="add-athlete-error"
               >
                 ⚠️ {error}
@@ -956,10 +956,10 @@ export default function AthletesManager({
 
             <form onSubmit={handleAddAthlete} id="form-add-athlete">
               <div className="athlete-modal-grid">
-                
+
                 {/* Left Column: Form Fields */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  
+
                   {/* Card 1: Student Identity (as per SSLC) */}
                   <Card>
                     <CardHeader>
@@ -968,7 +968,7 @@ export default function AthletesManager({
                       </CardTitle>
                     </CardHeader>
                     <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      
+
                       {/* Full Name */}
                       <div>
                         <label style={labelStyle}>Full Name (as per SSLC Marks Card) *</label>
@@ -1110,7 +1110,7 @@ export default function AthletesManager({
                       </CardTitle>
                     </CardHeader>
                     <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                      
+
                       {/* Event 1 (Compulsory unless any relay or marathon selected) */}
                       {(() => {
                         const isRelaySelected = Boolean(relayChoice === '4x100' || relayChoice === '4x400' || isMixedRelay);
@@ -1201,11 +1201,11 @@ export default function AthletesManager({
                                 }}
                               >
                                 <option value="">
-                                  {isReserveDisabled 
-                                    ? '-- Reserve Blocked When 2 Events Selected --' 
-                                    : isReserveNotApplicable 
-                                    ? '-- Select Event 1 First to Nominate Reserve (Rule 36) --'
-                                    : '-- None (No Reserve Discipline) --'}
+                                  {isReserveDisabled
+                                    ? '-- Reserve Blocked When 2 Events Selected --'
+                                    : isReserveNotApplicable
+                                      ? '-- Select Event 1 First to Nominate Reserve (Rule 36) --'
+                                      : '-- None (No Reserve Discipline) --'}
                                 </option>
                                 {!isReserveBlocked && individualEvents
                                   .filter((ev) => ev.id !== event1 && ev.id !== event2)
@@ -1219,8 +1219,8 @@ export default function AthletesManager({
                                 {isReserveDisabled
                                   ? 'Per VTU regulations, reserve events cannot be nominated when an athlete competes in two individual disciplines.'
                                   : isReserveNotApplicable
-                                  ? 'Per VTU Rule 36: A reserve participant must also be a participant in at least one individual regular event.'
-                                  : 'If the athlete is unable to compete in Event 1, they can be substituted into their reserve event during call room.'}
+                                    ? 'Per VTU Rule 36: A reserve participant must also be a participant in at least one individual regular event.'
+                                    : 'If the athlete is unable to compete in Event 1, they can be substituted into their reserve event during call room.'}
                               </span>
                             </div>
                           </>
@@ -1229,7 +1229,7 @@ export default function AthletesManager({
 
                       {/* Official Relays & Common Events (per VTU Rule 3) */}
                       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        
+
                         {/* Divisional Relay Radio Options */}
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
@@ -1403,7 +1403,7 @@ export default function AthletesManager({
                 {/* Right Column: Dynamic Fee Summary Sticky Sidebar */}
                 <div>
                   <div style={{ position: 'sticky', top: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                    
+
                     <Card style={{ border: '2px solid var(--accent-primary)', boxShadow: '0 4px 20px var(--accent-glow)' }}>
                       <CardHeader>
                         <CardTitle style={{ fontSize: '1.15rem', color: 'var(--accent-primary)' }}>
@@ -1411,7 +1411,7 @@ export default function AthletesManager({
                         </CardTitle>
                       </CardHeader>
                       <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                        
+
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                           <span>Event 1 (Regular):</span>
                           <span style={{ fontWeight: 700 }}>{event1 ? '₹100' : '₹0'}</span>

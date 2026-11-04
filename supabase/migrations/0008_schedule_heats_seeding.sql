@@ -132,7 +132,7 @@ BEGIN
     FROM registrations r
     JOIN profiles p ON r.profile_id = p.id
     WHERE r.event_id = p_event_id
-      AND p.accreditation_status <> 'WITHDRAWN';
+      AND p.accreditation_status <> 'WITHDrAWN';
   END IF;
 
   v_total_athletes := COALESCE(array_length(v_athletes, 1), 0);

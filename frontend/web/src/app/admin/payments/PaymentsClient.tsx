@@ -105,7 +105,7 @@ export default function PaymentsClient({ squads }: Props) {
             <option value="SUBMITTED">⏳ Pending Verification</option>
             <option value="VERIFIED">✓ Verified & Approved</option>
             <option value="REJECTED">✕ Rejected</option>
-            <option value="DRAFT">Draft (Unsubmitted)</option>
+            <option value="DrAFT">Draft (Unsubmitted)</option>
           </select>
         </div>
 
@@ -143,7 +143,7 @@ export default function PaymentsClient({ squads }: Props) {
               </tr>
             ) : (
               filteredSquads.map((sq) => {
-                const status = sq.payment_status || 'DRAFT';
+                const status = sq.payment_status || 'DrAFT';
                 const athleteCount = sq.profiles?.length || 0;
                 const payment = sq.latestPayment;
 
@@ -219,23 +219,22 @@ export default function PaymentsClient({ squads }: Props) {
                     {/* Status */}
                     <td>
                       <span
-                        className={`badge-status ${
-                          status === 'VERIFIED'
+                        className={`badge-status ${status === 'VERIFIED'
                             ? 'badge-verified'
                             : status === 'SUBMITTED'
-                            ? 'badge-pending'
-                            : status === 'REJECTED'
-                            ? 'badge-rejected'
-                            : 'badge-draft'
-                        }`}
+                              ? 'badge-pending'
+                              : status === 'REJECTED'
+                                ? 'badge-rejected'
+                                : 'badge-draft'
+                          }`}
                       >
                         {status === 'VERIFIED'
                           ? '✓ Verified'
                           : status === 'SUBMITTED'
-                          ? '⏳ Submitted'
-                          : status === 'REJECTED'
-                          ? '✕ Rejected'
-                          : 'Draft'}
+                            ? '⏳ Submitted'
+                            : status === 'REJECTED'
+                              ? '✕ Rejected'
+                              : 'Draft'}
                       </span>
                     </td>
 
@@ -324,15 +323,14 @@ export default function PaymentsClient({ squads }: Props) {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0' }}>
                     <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Verification Status:</span>
                     <span
-                      className={`badge-status ${
-                        selectedSquad.payment_status === 'VERIFIED'
+                      className={`badge-status ${selectedSquad.payment_status === 'VERIFIED'
                           ? 'badge-verified'
                           : selectedSquad.payment_status === 'SUBMITTED'
-                          ? 'badge-pending'
-                          : selectedSquad.payment_status === 'REJECTED'
-                          ? 'badge-rejected'
-                          : 'badge-draft'
-                      }`}
+                            ? 'badge-pending'
+                            : selectedSquad.payment_status === 'REJECTED'
+                              ? 'badge-rejected'
+                              : 'badge-draft'
+                        }`}
                     >
                       {selectedSquad.payment_status}
                     </span>

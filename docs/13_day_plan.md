@@ -324,7 +324,7 @@
 - [ ] Set up custom domain (if available) or use Vercel URL
 
 **Afternoon:**
-- [ ] **FULL DRY RUN** — walk through entire flow:
+- [ ] **FULL DrY RUN** — walk through entire flow:
   1. Admin creates 3 test colleges
   2. PED logs in as squad, registers 5 athletes each
   3. PED submits payment (UTR + screenshot)

@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS hostels (
 
 CREATE INDEX IF NOT EXISTS idx_hostels_gender ON hostels (gender);
 
-DROP TRIGGER IF EXISTS trg_hostels_updated_at ON hostels;
+DrOP TRIGGER IF EXISTS trg_hostels_updated_at ON hostels;
 CREATE TRIGGER trg_hostels_updated_at
   BEFORE UPDATE ON hostels
   FOR EACH ROW
@@ -134,7 +134,7 @@ BEGIN
     RAISE EXCEPTION 'Athlete profile not found.';
   END IF;
 
-  IF r_profile.accreditation_status = 'WITHDRAWN' THEN
+  IF r_profile.accreditation_status = 'WITHDrAWN' THEN
     RAISE EXCEPTION 'Cannot check-in withdrawn athlete.';
   END IF;
 

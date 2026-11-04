@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS colleges (
 
 CREATE INDEX IF NOT EXISTS idx_colleges_code ON colleges (code);
 
-DROP TRIGGER IF EXISTS trg_colleges_updated_at ON colleges;
+DrOP TRIGGER IF EXISTS trg_colleges_updated_at ON colleges;
 CREATE TRIGGER trg_colleges_updated_at
   BEFORE UPDATE ON colleges
   FOR EACH ROW
@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS squads (
   ped_phone TEXT NOT NULL DEFAULT '',
   ped_email TEXT,
   roster_locked BOOLEAN NOT NULL DEFAULT FALSE,
-  payment_status TEXT NOT NULL DEFAULT 'DRAFT'
-    CHECK (payment_status IN ('DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED')),
+  payment_status TEXT NOT NULL DEFAULT 'DrAFT'
+    CHECK (payment_status IN ('DrAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED')),
   bid_block_start INT,
   bid_block_end INT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
@@ -70,7 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_squads_college_id ON squads (college_id);
 CREATE INDEX IF NOT EXISTS idx_squads_squad_code ON squads (squad_code);
 CREATE INDEX IF NOT EXISTS idx_squads_payment_status ON squads (payment_status);
 
-DROP TRIGGER IF EXISTS trg_squads_updated_at ON squads;
+DrOP TRIGGER IF EXISTS trg_squads_updated_at ON squads;
 CREATE TRIGGER trg_squads_updated_at
   BEFORE UPDATE ON squads
   FOR EACH ROW
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS staff (
 CREATE INDEX IF NOT EXISTS idx_staff_username ON staff (username);
 CREATE INDEX IF NOT EXISTS idx_staff_role ON staff (role);
 
-DROP TRIGGER IF EXISTS trg_staff_updated_at ON staff;
+DrOP TRIGGER IF EXISTS trg_staff_updated_at ON staff;
 CREATE TRIGGER trg_staff_updated_at
   BEFORE UPDATE ON staff
   FOR EACH ROW
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS meet_settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
-DROP TRIGGER IF EXISTS trg_meet_settings_updated_at ON meet_settings;
+DrOP TRIGGER IF EXISTS trg_meet_settings_updated_at ON meet_settings;
 CREATE TRIGGER trg_meet_settings_updated_at
   BEFORE UPDATE ON meet_settings
   FOR EACH ROW

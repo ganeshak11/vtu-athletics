@@ -73,7 +73,7 @@ BEGIN
     RAISE EXCEPTION 'Athlete profile not found.';
   END IF;
 
-  IF r_profile.accreditation_status = 'WITHDRAWN' THEN
+  IF r_profile.accreditation_status = 'WITHDrAWN' THEN
     RAISE EXCEPTION 'Cannot accredit withdrawn athlete.';
   END IF;
 

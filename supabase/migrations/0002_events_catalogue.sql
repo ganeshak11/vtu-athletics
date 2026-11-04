@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE INDEX IF NOT EXISTS idx_events_gender ON events (gender);
 CREATE INDEX IF NOT EXISTS idx_events_category ON events (category);
 
-DROP TRIGGER IF EXISTS trg_events_updated_at ON events;
+DrOP TRIGGER IF EXISTS trg_events_updated_at ON events;
 CREATE TRIGGER trg_events_updated_at
   BEFORE UPDATE ON events
   FOR EACH ROW

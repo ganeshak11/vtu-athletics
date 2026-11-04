@@ -17,7 +17,7 @@ export interface FeeBreakdown {
   balanceDue: number;
   hostUpiId: string;
   hostAccountName: string;
-  squadPaymentStatus: 'DRAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
+  squadPaymentStatus: 'DrAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
   rosterLocked: boolean;
   collegeName?: string;
   collegeCode?: string;
@@ -170,7 +170,7 @@ export async function getSquadFeeBreakdownAction(): Promise<{
       balanceDue,
       hostUpiId: settings?.host_upi_id || 'vtuathletics@upi',
       hostAccountName: settings?.host_account_name || 'VTU Sports Board',
-      squadPaymentStatus: squad?.payment_status || 'DRAFT',
+      squadPaymentStatus: squad?.payment_status || 'DrAFT',
       rosterLocked: squad?.roster_locked || false,
       collegeName: college?.name || 'VTU Affiliated Institution',
       collegeCode: college?.code || '',
@@ -223,7 +223,7 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
     };
 
     try {
-      await supabaseAdmin.storage.createBucket('payment-proofs', { public: true }).catch(() => {});
+      await supabaseAdmin.storage.createBucket('payment-proofs', { public: true }).catch(() => { });
 
       if (screenshotFile && screenshotFile.size > 0 && typeof screenshotFile.arrayBuffer === 'function') {
         if (screenshotFile.size > MAX_FILE_SIZE) {

@@ -28,8 +28,8 @@ squads
   ped_phone       TEXT NOT NULL
   ped_email       TEXT
   roster_locked   BOOLEAN DEFAULT FALSE
-  payment_status  TEXT DEFAULT 'DRAFT'
-    CHECK (payment_status IN ('DRAFT','SUBMITTED','VERIFIED','REJECTED'))
+  payment_status  TEXT DEFAULT 'DrAFT'
+    CHECK (payment_status IN ('DrAFT','SUBMITTED','VERIFIED','REJECTED'))
   bid_block_start INT                   -- set on registration close
   bid_block_end   INT                   -- set on registration close
   created_at      TIMESTAMPTZ

@@ -98,7 +98,7 @@ export default function AthletesClient({ athletes }: Props) {
         'Semester': a.semester || '',
         'Blood Group': a.blood_group || '',
         'Registered Events': eventNames,
-        'Payment Status': a.squads?.payment_status || 'DRAFT',
+        'Payment Status': a.squads?.payment_status || 'DrAFT',
       };
     });
   }
@@ -208,7 +208,7 @@ export default function AthletesClient({ athletes }: Props) {
             <option value="VERIFIED">Verified (Approved)</option>
             <option value="SUBMITTED">Pending Verification</option>
             <option value="REJECTED">Rejected</option>
-            <option value="DRAFT">Draft</option>
+            <option value="DrAFT">Draft</option>
           </select>
 
           {/* Event Filter */}
@@ -286,7 +286,7 @@ export default function AthletesClient({ athletes }: Props) {
               </tr>
             ) : (
               filteredAthletes.map((athlete) => {
-                const status = athlete.squads?.payment_status || 'DRAFT';
+                const status = athlete.squads?.payment_status || 'DrAFT';
                 return (
                   <tr key={athlete.id}>
                     {/* Bib Number */}
@@ -411,23 +411,22 @@ export default function AthletesClient({ athletes }: Props) {
                     {/* Payment Status */}
                     <td>
                       <span
-                        className={`badge-status ${
-                          status === 'VERIFIED'
+                        className={`badge-status ${status === 'VERIFIED'
                             ? 'badge-verified'
                             : status === 'SUBMITTED'
-                            ? 'badge-pending'
-                            : status === 'REJECTED'
-                            ? 'badge-rejected'
-                            : 'badge-draft'
-                        }`}
+                              ? 'badge-pending'
+                              : status === 'REJECTED'
+                                ? 'badge-rejected'
+                                : 'badge-draft'
+                          }`}
                       >
                         {status === 'VERIFIED'
                           ? '✓ Verified'
                           : status === 'SUBMITTED'
-                          ? '⏳ Pending'
-                          : status === 'REJECTED'
-                          ? '✕ Rejected'
-                          : 'Draft'}
+                            ? '⏳ Pending'
+                            : status === 'REJECTED'
+                              ? '✕ Rejected'
+                              : 'Draft'}
                       </span>
                     </td>
                   </tr>

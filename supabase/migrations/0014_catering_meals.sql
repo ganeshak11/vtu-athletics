@@ -9,7 +9,7 @@
 -- ==============================================================================
 
 -- 1. Allow 'food_volunteer' role in staff table
-ALTER TABLE staff DROP CONSTRAINT IF EXISTS staff_role_check;
+ALTER TABLE staff DrOP CONSTRAINT IF EXISTS staff_role_check;
 ALTER TABLE staff ADD CONSTRAINT staff_role_check CHECK (
   role IN (
     'meet_admin',
@@ -65,10 +65,10 @@ BEGIN
     );
   END IF;
 
-  IF r_athlete.accreditation_status = 'WITHDRAWN' THEN
+  IF r_athlete.accreditation_status = 'WITHDrAWN' THEN
     RETURN jsonb_build_object(
       'success', false,
-      'status', 'WITHDRAWN',
+      'status', 'WITHDrAWN',
       'message', 'Athlete has been officially withdrawn from the meet.'
     );
   END IF;

@@ -65,7 +65,7 @@ export async function getAdminDashboardStatsAction(): Promise<AdminDashboardStat
   const verifiedSquadsCount = squads?.filter((s) => s.payment_status === 'VERIFIED').length || 0;
   const pendingSquadsCount = squads?.filter((s) => s.payment_status === 'SUBMITTED').length || 0;
   const rejectedSquadsCount = squads?.filter((s) => s.payment_status === 'REJECTED').length || 0;
-  const draftSquadsCount = squads?.filter((s) => s.payment_status === 'DRAFT').length || 0;
+  const draftSquadsCount = squads?.filter((s) => s.payment_status === 'DrAFT').length || 0;
 
   // Bibs Generated Count
   const { count: totalBibsGenerated } = await supabaseAdmin

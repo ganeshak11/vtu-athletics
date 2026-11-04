@@ -65,7 +65,7 @@ BEGIN
     -- Count athletes in squad
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_men_counter;
@@ -75,7 +75,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -107,7 +107,7 @@ BEGIN
   LOOP
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_women_counter;
@@ -116,7 +116,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -170,9 +170,9 @@ BEGIN
     RAISE EXCEPTION 'Athlete profile not found.';
   END IF;
 
-  -- Mark profile as WITHDRAWN
+  -- Mark profile as WITHDrAWN
   UPDATE profiles
-  SET accreditation_status = 'WITHDRAWN', updated_at = timezone('utc'::text, now())
+  SET accreditation_status = 'WITHDrAWN', updated_at = timezone('utc'::text, now())
   WHERE id = p_profile_id;
 
   -- Delete event registrations so they do not appear in heat seeding
@@ -201,7 +201,7 @@ BEGIN
     'success', true,
     'athlete_name', v_name,
     'bid_number', v_bid,
-    'status', 'WITHDRAWN'
+    'status', 'WITHDrAWN'
   );
 END;
 $$ LANGUAGE plpgsql;

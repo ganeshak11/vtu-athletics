@@ -38,7 +38,9 @@ export default function HomePage() {
 
             {/* Display Headline */}
             <h1 className="hero-editorial-title">
-              <span className="hero-title-brand">DR. ACS AURA</span>{' '}
+              <span className="hero-title-brand">
+                D<span className="hero-title-dr-r">r</span>. ACS AURA
+              </span>{' '}
               <span className="hero-title-year">2026</span>
             </h1>
 
@@ -67,6 +69,11 @@ export default function HomePage() {
               <div className="meta-strip-item">
                 <span className="meta-strip-label">DISCIPLINES</span>
                 <span className="meta-strip-val">25 Event Codes (45 Competitions)</span>
+              </div>
+              <div className="meta-strip-sep" aria-hidden="true" />
+              <div className="meta-strip-item">
+                <span className="meta-strip-label">REGISTRATION DEADLINE</span>
+                <span className="meta-strip-val">25-11-2026</span>
               </div>
             </div>
 
@@ -540,7 +547,7 @@ export default function HomePage() {
 
           <div className="editorial-section-header">
             <div className="editorial-header-left">
-              <div className="editorial-category-tag">HOST INSTITUTION // ABOUT DR. ACSCE</div>
+              <div className="editorial-category-tag">HOST INSTITUTION // ABOUT Dr. ACSCE</div>
               <h2 className="editorial-section-title">About the Institution</h2>
               <p className="editorial-section-desc">
                 Dr. ACS College of Engineering (Dr. ACSCE), Bengaluru &bull; Autonomous Institution under VTU, Belagavi
@@ -691,7 +698,7 @@ export default function HomePage() {
           <div style={{ marginTop: '2.5rem' }}>
             <div className="editorial-section-header" style={{ marginBottom: '1.25rem' }}>
               <div className="editorial-header-left">
-                <div className="editorial-category-tag">GUIDING PRINCIPLES // DR. ACSCE</div>
+                <div className="editorial-category-tag">GUIDING PRINCIPLES // Dr. ACSCE</div>
                 <h3 className="editorial-section-title" style={{ fontSize: '1.4rem' }}>Institutional Core Values</h3>
               </div>
             </div>
@@ -721,7 +728,7 @@ export default function HomePage() {
           <div style={{ marginTop: '2.5rem' }}>
             <div className="editorial-section-header" style={{ marginBottom: '1.25rem' }}>
               <div className="editorial-header-left">
-                <div className="editorial-category-tag">MILESTONES &amp; RECOGNITION // DR. ACSCE</div>
+                <div className="editorial-category-tag">MILESTONES &amp; RECOGNITION // Dr. ACSCE</div>
                 <h3 className="editorial-section-title" style={{ fontSize: '1.4rem' }}>Significant Achievements &amp; Milestones</h3>
               </div>
               <div className="editorial-header-right">

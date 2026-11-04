@@ -11,7 +11,7 @@ interface SquadItem {
   ped_phone: string;
   ped_email?: string;
   roster_locked: boolean;
-  payment_status: 'DRAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
+  payment_status: 'DrAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
   bid_block_start?: number;
   bid_block_end?: number;
 }
@@ -60,7 +60,7 @@ export default function CollegesManager({ initialColleges }: Props) {
               ped_name: (formData.get('pedName') as string) || '',
               ped_phone: (formData.get('pedPhone') as string) || '',
               roster_locked: false,
-              payment_status: 'DRAFT',
+              payment_status: 'DrAFT',
             },
             {
               id: res.womenSquad.id,
@@ -69,7 +69,7 @@ export default function CollegesManager({ initialColleges }: Props) {
               ped_name: (formData.get('pedName') as string) || '',
               ped_phone: (formData.get('pedPhone') as string) || '',
               roster_locked: false,
-              payment_status: 'DRAFT',
+              payment_status: 'DrAFT',
             },
           ],
         };

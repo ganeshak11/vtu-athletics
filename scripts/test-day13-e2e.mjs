@@ -349,7 +349,7 @@ async function runDay13MasterTest() {
   // =========================================================================
   // STEP 6: WORLD ATHLETICS RULE 166.4 SERPENTINE HEAT SEEDING
   // =========================================================================
-  logSection('STEP 6: SCHEDULE & SERPENTINE HEAT DRAW (WORLD ATHLETICS RULE 166.4)');
+  logSection('STEP 6: SCHEDULE & SERPENTINE HEAT DrAW (WORLD ATHLETICS RULE 166.4)');
 
   // Clean prior heats for clean run
   await supabase.from('heats').delete().eq('event_id', ev100m.id);

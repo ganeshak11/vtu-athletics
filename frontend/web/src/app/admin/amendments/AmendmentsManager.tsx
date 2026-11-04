@@ -40,8 +40,8 @@ export default function AmendmentsManager({ athletes, initialAmendments }: Props
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ text: string; error: boolean } | null>(null);
 
-  const activeAthletes = athletes.filter((a) => a.accreditation_status !== 'WITHDRAWN' && a.bid_number);
-  const withdrawnAthletes = athletes.filter((a) => a.accreditation_status === 'WITHDRAWN' && a.bid_number);
+  const activeAthletes = athletes.filter((a) => a.accreditation_status !== 'WITHDrAWN' && a.bid_number);
+  const withdrawnAthletes = athletes.filter((a) => a.accreditation_status === 'WITHDrAWN' && a.bid_number);
 
   async function handleWithdraw(e: React.FormEvent) {
     e.preventDefault();

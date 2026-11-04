@@ -67,7 +67,7 @@ BEGIN
   LOOP
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_men_counter;
@@ -76,7 +76,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -107,7 +107,7 @@ BEGIN
   LOOP
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_women_counter;
@@ -116,7 +116,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -211,7 +211,7 @@ BEGIN
     FROM registrations r
     JOIN profiles p ON r.profile_id = p.id
     WHERE r.event_id = p_event_id
-      AND p.accreditation_status <> 'WITHDRAWN';
+      AND p.accreditation_status <> 'WITHDrAWN';
   END IF;
 
   v_total_athletes := COALESCE(array_length(v_athletes, 1), 0);

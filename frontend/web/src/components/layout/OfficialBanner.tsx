@@ -15,7 +15,7 @@ export function OfficialBanner({ portalBadge }: Props) {
         <div className="univ-left-emblem">
           <Link href="/" title="Dr. ACS College of Engineering, Bengaluru (Host)">
             <img
-              src="/acsce-logo.png"
+              src="/logo.jpeg"
               alt="Dr. ACS College of Engineering Emblem"
               className="univ-logo-img"
             />

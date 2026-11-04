@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_payments_squad_id ON payments (squad_id);
 CREATE INDEX IF NOT EXISTS idx_payments_status ON payments (status);
 CREATE INDEX IF NOT EXISTS idx_payments_utr ON payments (utr_number);
 
-DROP TRIGGER IF EXISTS trg_payments_updated_at ON payments;
+DrOP TRIGGER IF EXISTS trg_payments_updated_at ON payments;
 CREATE TRIGGER trg_payments_updated_at
   BEFORE UPDATE ON payments
   FOR EACH ROW
@@ -87,7 +87,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_sync_squad_payment_status ON payments;
+DrOP TRIGGER IF EXISTS trg_sync_squad_payment_status ON payments;
 CREATE TRIGGER trg_sync_squad_payment_status
   AFTER INSERT OR UPDATE OF status, amount_submitted ON payments
   FOR EACH ROW

@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS colleges (
 
 CREATE INDEX IF NOT EXISTS idx_colleges_code ON colleges (code);
 
-DROP TRIGGER IF EXISTS trg_colleges_updated_at ON colleges;
+DrOP TRIGGER IF EXISTS trg_colleges_updated_at ON colleges;
 CREATE TRIGGER trg_colleges_updated_at
   BEFORE UPDATE ON colleges
   FOR EACH ROW
@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS squads (
   ped_phone TEXT NOT NULL DEFAULT '',
   ped_email TEXT,
   roster_locked BOOLEAN NOT NULL DEFAULT FALSE,
-  payment_status TEXT NOT NULL DEFAULT 'DRAFT'
-    CHECK (payment_status IN ('DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED')),
+  payment_status TEXT NOT NULL DEFAULT 'DrAFT'
+    CHECK (payment_status IN ('DrAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED')),
   bid_block_start INT,
   bid_block_end INT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
@@ -70,7 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_squads_college_id ON squads (college_id);
 CREATE INDEX IF NOT EXISTS idx_squads_squad_code ON squads (squad_code);
 CREATE INDEX IF NOT EXISTS idx_squads_payment_status ON squads (payment_status);
 
-DROP TRIGGER IF EXISTS trg_squads_updated_at ON squads;
+DrOP TRIGGER IF EXISTS trg_squads_updated_at ON squads;
 CREATE TRIGGER trg_squads_updated_at
   BEFORE UPDATE ON squads
   FOR EACH ROW
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS staff (
 CREATE INDEX IF NOT EXISTS idx_staff_username ON staff (username);
 CREATE INDEX IF NOT EXISTS idx_staff_role ON staff (role);
 
-DROP TRIGGER IF EXISTS trg_staff_updated_at ON staff;
+DrOP TRIGGER IF EXISTS trg_staff_updated_at ON staff;
 CREATE TRIGGER trg_staff_updated_at
   BEFORE UPDATE ON staff
   FOR EACH ROW
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS meet_settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
-DROP TRIGGER IF EXISTS trg_meet_settings_updated_at ON meet_settings;
+DrOP TRIGGER IF EXISTS trg_meet_settings_updated_at ON meet_settings;
 CREATE TRIGGER trg_meet_settings_updated_at
   BEFORE UPDATE ON meet_settings
   FOR EACH ROW
@@ -284,7 +284,7 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE INDEX IF NOT EXISTS idx_events_gender ON events (gender);
 CREATE INDEX IF NOT EXISTS idx_events_category ON events (category);
 
-DROP TRIGGER IF EXISTS trg_events_updated_at ON events;
+DrOP TRIGGER IF EXISTS trg_events_updated_at ON events;
 CREATE TRIGGER trg_events_updated_at
   BEFORE UPDATE ON events
   FOR EACH ROW
@@ -391,7 +391,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   photo_url TEXT, -- Athlete passport photo in athlete-photos bucket
   bid_number INT, -- Assigned automatically upon registration closure
   accreditation_status TEXT NOT NULL DEFAULT 'REGISTERED'
-    CHECK (accreditation_status IN ('REGISTERED', 'ACCREDITED', 'WITHDRAWN')),
+    CHECK (accreditation_status IN ('REGISTERED', 'ACCREDITED', 'WITHDrAWN')),
   accredited_at TIMESTAMPTZ,
   accommodation_checked_in BOOLEAN NOT NULL DEFAULT FALSE,
   accommodation_checked_in_at TIMESTAMPTZ,
@@ -404,7 +404,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_squad_id ON profiles (squad_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_bid_number ON profiles (bid_number);
 CREATE INDEX IF NOT EXISTS idx_profiles_usn ON profiles (usn);
 
-DROP TRIGGER IF EXISTS trg_profiles_updated_at ON profiles;
+DrOP TRIGGER IF EXISTS trg_profiles_updated_at ON profiles;
 CREATE TRIGGER trg_profiles_updated_at
   BEFORE UPDATE ON profiles
   FOR EACH ROW
@@ -466,7 +466,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_validate_registration_quotas ON registrations;
+DrOP TRIGGER IF EXISTS trg_validate_registration_quotas ON registrations;
 CREATE TRIGGER trg_validate_registration_quotas
   BEFORE INSERT OR UPDATE ON registrations
   FOR EACH ROW
@@ -533,7 +533,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_validate_relay_team_composition ON relay_members;
+DrOP TRIGGER IF EXISTS trg_validate_relay_team_composition ON relay_members;
 CREATE TRIGGER trg_validate_relay_team_composition
   BEFORE INSERT OR UPDATE ON relay_members
   FOR EACH ROW
@@ -567,7 +567,7 @@ CREATE INDEX IF NOT EXISTS idx_payments_squad_id ON payments (squad_id);
 CREATE INDEX IF NOT EXISTS idx_payments_status ON payments (status);
 CREATE INDEX IF NOT EXISTS idx_payments_utr ON payments (utr_number);
 
-DROP TRIGGER IF EXISTS trg_payments_updated_at ON payments;
+DrOP TRIGGER IF EXISTS trg_payments_updated_at ON payments;
 CREATE TRIGGER trg_payments_updated_at
   BEFORE UPDATE ON payments
   FOR EACH ROW
@@ -627,7 +627,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_sync_squad_payment_status ON payments;
+DrOP TRIGGER IF EXISTS trg_sync_squad_payment_status ON payments;
 CREATE TRIGGER trg_sync_squad_payment_status
   AFTER INSERT OR UPDATE OF status, amount_submitted ON payments
   FOR EACH ROW
@@ -760,7 +760,7 @@ BEGIN
     -- Count athletes in squad
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_men_counter;
@@ -770,7 +770,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -802,7 +802,7 @@ BEGIN
   LOOP
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_women_counter;
@@ -811,7 +811,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -865,9 +865,9 @@ BEGIN
     RAISE EXCEPTION 'Athlete profile not found.';
   END IF;
 
-  -- Mark profile as WITHDRAWN
+  -- Mark profile as WITHDrAWN
   UPDATE profiles
-  SET accreditation_status = 'WITHDRAWN', updated_at = timezone('utc'::text, now())
+  SET accreditation_status = 'WITHDrAWN', updated_at = timezone('utc'::text, now())
   WHERE id = p_profile_id;
 
   -- Delete event registrations so they do not appear in heat seeding
@@ -896,7 +896,7 @@ BEGIN
     'success', true,
     'athlete_name', v_name,
     'bid_number', v_bid,
-    'status', 'WITHDRAWN'
+    'status', 'WITHDrAWN'
   );
 END;
 $$ LANGUAGE plpgsql;
@@ -1058,7 +1058,7 @@ BEGIN
     RAISE EXCEPTION 'Athlete profile not found.';
   END IF;
 
-  IF r_profile.accreditation_status = 'WITHDRAWN' THEN
+  IF r_profile.accreditation_status = 'WITHDrAWN' THEN
     RAISE EXCEPTION 'Cannot accredit withdrawn athlete.';
   END IF;
 
@@ -1136,7 +1136,7 @@ CREATE TABLE IF NOT EXISTS hostels (
 
 CREATE INDEX IF NOT EXISTS idx_hostels_gender ON hostels (gender);
 
-DROP TRIGGER IF EXISTS trg_hostels_updated_at ON hostels;
+DrOP TRIGGER IF EXISTS trg_hostels_updated_at ON hostels;
 CREATE TRIGGER trg_hostels_updated_at
   BEFORE UPDATE ON hostels
   FOR EACH ROW
@@ -1246,7 +1246,7 @@ BEGIN
     RAISE EXCEPTION 'Athlete profile not found.';
   END IF;
 
-  IF r_profile.accreditation_status = 'WITHDRAWN' THEN
+  IF r_profile.accreditation_status = 'WITHDrAWN' THEN
     RAISE EXCEPTION 'Cannot check-in withdrawn athlete.';
   END IF;
 
@@ -1479,7 +1479,7 @@ BEGIN
     FROM registrations r
     JOIN profiles p ON r.profile_id = p.id
     WHERE r.event_id = p_event_id
-      AND p.accreditation_status <> 'WITHDRAWN';
+      AND p.accreditation_status <> 'WITHDrAWN';
   END IF;
 
   v_total_athletes := COALESCE(array_length(v_athletes, 1), 0);
@@ -2696,7 +2696,7 @@ BEGIN
   LOOP
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_men_counter;
@@ -2705,7 +2705,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -2736,7 +2736,7 @@ BEGIN
   LOOP
     SELECT COUNT(*) INTO v_athlete_count
     FROM profiles
-    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN';
+    WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN';
 
     IF v_athlete_count > 0 THEN
       v_squad_start := v_women_counter;
@@ -2745,7 +2745,7 @@ BEGIN
       FOR r_athlete IN
         SELECT id
         FROM profiles
-        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDRAWN'
+        WHERE squad_id = r_squad.id AND accreditation_status <> 'WITHDrAWN'
         ORDER BY sslc_name ASC, usn ASC
       LOOP
         UPDATE profiles
@@ -2840,7 +2840,7 @@ BEGIN
     FROM registrations r
     JOIN profiles p ON r.profile_id = p.id
     WHERE r.event_id = p_event_id
-      AND p.accreditation_status <> 'WITHDRAWN';
+      AND p.accreditation_status <> 'WITHDrAWN';
   END IF;
 
   v_total_athletes := COALESCE(array_length(v_athletes, 1), 0);
@@ -3078,7 +3078,7 @@ $$ LANGUAGE plpgsql;
 -- ==============================================================================
 
 -- 1. Allow 'food_volunteer' role in staff table
-ALTER TABLE staff DROP CONSTRAINT IF EXISTS staff_role_check;
+ALTER TABLE staff DrOP CONSTRAINT IF EXISTS staff_role_check;
 ALTER TABLE staff ADD CONSTRAINT staff_role_check CHECK (
   role IN (
     'meet_admin',
@@ -3134,10 +3134,10 @@ BEGIN
     );
   END IF;
 
-  IF r_athlete.accreditation_status = 'WITHDRAWN' THEN
+  IF r_athlete.accreditation_status = 'WITHDrAWN' THEN
     RETURN jsonb_build_object(
       'success', false,
-      'status', 'WITHDRAWN',
+      'status', 'WITHDrAWN',
       'message', 'Athlete has been officially withdrawn from the meet.'
     );
   END IF;
@@ -3271,17 +3271,17 @@ VALUES
   ('payment-proofs', 'payment-proofs', true)
 ON CONFLICT (id) DO NOTHING;
 
-DROP POLICY IF EXISTS "Public Access athlete-photos" ON storage.objects;
+DrOP POLICY IF EXISTS "Public Access athlete-photos" ON storage.objects;
 CREATE POLICY "Public Access athlete-photos" ON storage.objects FOR SELECT USING (bucket_id = 'athlete-photos');
-DROP POLICY IF EXISTS "Public Upload athlete-photos" ON storage.objects;
+DrOP POLICY IF EXISTS "Public Upload athlete-photos" ON storage.objects;
 CREATE POLICY "Public Upload athlete-photos" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'athlete-photos');
-DROP POLICY IF EXISTS "Public Update athlete-photos" ON storage.objects;
+DrOP POLICY IF EXISTS "Public Update athlete-photos" ON storage.objects;
 CREATE POLICY "Public Update athlete-photos" ON storage.objects FOR UPDATE USING (bucket_id = 'athlete-photos');
 
-DROP POLICY IF EXISTS "Public Access payment-proofs" ON storage.objects;
+DrOP POLICY IF EXISTS "Public Access payment-proofs" ON storage.objects;
 CREATE POLICY "Public Access payment-proofs" ON storage.objects FOR SELECT USING (bucket_id = 'payment-proofs');
-DROP POLICY IF EXISTS "Public Upload payment-proofs" ON storage.objects;
+DrOP POLICY IF EXISTS "Public Upload payment-proofs" ON storage.objects;
 CREATE POLICY "Public Upload payment-proofs" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'payment-proofs');
-DROP POLICY IF EXISTS "Public Update payment-proofs" ON storage.objects;
+DrOP POLICY IF EXISTS "Public Update payment-proofs" ON storage.objects;
 CREATE POLICY "Public Update payment-proofs" ON storage.objects FOR UPDATE USING (bucket_id = 'payment-proofs');
 

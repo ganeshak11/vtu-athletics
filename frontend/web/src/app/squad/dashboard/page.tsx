@@ -25,7 +25,7 @@ export default async function SquadDashboardPage() {
   const collegeCode = college?.code || session.collegeCode || squad?.squad_code || 'VTU';
   const district = college?.district || 'Karnataka';
   const squadCode = squad?.squad_code || session.squadCode || '';
-  const paymentStatus = squad?.payment_status || 'DRAFT';
+  const paymentStatus = squad?.payment_status || 'DrAFT';
   const isPaymentVerified = paymentStatus === 'VERIFIED';
 
   // Fetch championship registration status
@@ -90,7 +90,7 @@ export default async function SquadDashboardPage() {
 
   return (
     <div id="squad-dashboard-container" className="squad-dashboard-root">
-      
+
       {/* 1. EXECUTIVE INSTITUTION HERO BANNER */}
       <section className="squad-hero-card">
         <div className="squad-hero-accent-strip" />
@@ -132,9 +132,8 @@ export default async function SquadDashboardPage() {
           <div className="squad-hero-actions">
             <div className="squad-badges-row">
               <span
-                className={`squad-status-badge ${
-                  isPaymentVerified ? 'squad-badge-verified' : 'squad-badge-pending'
-                }`}
+                className={`squad-status-badge ${isPaymentVerified ? 'squad-badge-verified' : 'squad-badge-pending'
+                  }`}
               >
                 {isPaymentVerified ? '✓ Payment: Verified' : `⚠️ Payment: ${paymentStatus}`}
               </span>

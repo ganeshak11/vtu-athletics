@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   photo_url TEXT, -- Athlete passport photo in athlete-photos bucket
   bid_number INT, -- Assigned automatically upon registration closure
   accreditation_status TEXT NOT NULL DEFAULT 'REGISTERED'
-    CHECK (accreditation_status IN ('REGISTERED', 'ACCREDITED', 'WITHDRAWN')),
+    CHECK (accreditation_status IN ('REGISTERED', 'ACCREDITED', 'WITHDrAWN')),
   accredited_at TIMESTAMPTZ,
   accommodation_checked_in BOOLEAN NOT NULL DEFAULT FALSE,
   accommodation_checked_in_at TIMESTAMPTZ,
@@ -37,7 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_squad_id ON profiles (squad_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_bid_number ON profiles (bid_number);
 CREATE INDEX IF NOT EXISTS idx_profiles_usn ON profiles (usn);
 
-DROP TRIGGER IF EXISTS trg_profiles_updated_at ON profiles;
+DrOP TRIGGER IF EXISTS trg_profiles_updated_at ON profiles;
 CREATE TRIGGER trg_profiles_updated_at
   BEFORE UPDATE ON profiles
   FOR EACH ROW
@@ -99,7 +99,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_validate_registration_quotas ON registrations;
+DrOP TRIGGER IF EXISTS trg_validate_registration_quotas ON registrations;
 CREATE TRIGGER trg_validate_registration_quotas
   BEFORE INSERT OR UPDATE ON registrations
   FOR EACH ROW
@@ -166,7 +166,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_validate_relay_team_composition ON relay_members;
+DrOP TRIGGER IF EXISTS trg_validate_relay_team_composition ON relay_members;
 CREATE TRIGGER trg_validate_relay_team_composition
   BEFORE INSERT OR UPDATE ON relay_members
   FOR EACH ROW

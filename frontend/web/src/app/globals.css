@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Righteous&family=Syne:wght@600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Audiowide&family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;600;700&display=swap');
 
 :root {
   /* Dignified University & Directorate Palette */
@@ -57,10 +57,10 @@
   --radius-full: 9999px;
 
   --font-sans: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Outfit', 'Inter', sans-serif;
-  --font-curvy: 'Righteous', 'Syne', cursive, sans-serif;
-  --font-heading-curvy: 'Syne', 'Outfit', sans-serif;
-  --font-headline: 'Righteous', 'Syne', cursive, sans-serif;
+  --font-display: 'Audiowide', cursive, sans-serif;
+  --font-curvy: 'Cinzel Decorative', Georgia, serif;
+  --font-heading-curvy: 'Audiowide', cursive, sans-serif;
+  --font-headline: 'Cinzel Decorative', Georgia, serif;
 }
 
 *, *::before, *::after {

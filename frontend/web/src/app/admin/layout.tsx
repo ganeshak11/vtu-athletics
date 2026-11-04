@@ -19,7 +19,7 @@ export default async function AdminLayout({
 
   return (
     <div className="admin-shell">
-      {/* 1 & 2. OFFICIAL TOP BANNER WITH DR. ACSCE & VTU EMBLEMS */}
+      {/* 1 & 2. OFFICIAL TOP BANNER WITH Dr. ACSCE & VTU EMBLEMS */}
       <OfficialBanner portalBadge="DIRECTORATE ADMINISTRATIVE SUITE &bull; CENTRAL COMMAND" />
 
       {/* 3. SOLID DEEP NAVY ADMINISTRATIVE NAV BAR */}
