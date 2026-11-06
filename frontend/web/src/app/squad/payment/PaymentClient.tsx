@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import FeeInvoiceModal from '@/components/invoice/FeeInvoiceModal';
 import Link from 'next/link';
+import { OFFICIAL_UPI_QR_SRC } from '@/lib/payment-config';
 
 interface Props {
   breakdown: FeeBreakdown;
@@ -41,9 +42,31 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
 
   const isZeroSquad = breakdown.totalAmount <= 0;
   const isFullySettled = breakdown.balanceDue === 0 && breakdown.totalPaid > 0 && breakdown.squadPaymentStatus === 'VERIFIED';
+  // A receipt is awaiting Finance Desk verification: roster frozen, no further submissions
+  const isAwaitingVerification = breakdown.hasPendingPayment;
+  const isRejected = breakdown.squadPaymentStatus === 'REJECTED' && !breakdown.hasPendingPayment;
+  const latestRejection = payments.find((p) => p.status === 'REJECTED');
+  const relayIssues = breakdown.relayIssues || [];
+  const hasRelayBlockers = relayIssues.length > 0;
+  const isFormDisabled = isZeroSquad || isFullySettled || isAwaitingVerification || hasRelayBlockers;
+  const statusLabel =
+    breakdown.squadPaymentStatus === 'DrAFT' || breakdown.squadPaymentStatus === 'DRAFT'
+      ? 'DRAFT'
+      : breakdown.squadPaymentStatus;
 
   // UPI deep link URI
-  const upiUri = `upi://pay?pa=${breakdown.hostUpiId}&pn=${encodeURIComponent(
+  const [upiCopied, setUpiCopied] = useState(false);
+  async function copyUpiId() {
+    try {
+      await navigator.clipboard.writeText(breakdown.hostUpiId);
+      setUpiCopied(true);
+      setTimeout(() => setUpiCopied(false), 2000);
+    } catch {
+      window.prompt('Copy the UPI ID:', breakdown.hostUpiId);
+    }
+  }
+
+  const upiUri = `upi://pay?pa=${encodeURIComponent(breakdown.hostUpiId)}&pn=${encodeURIComponent(
     breakdown.hostAccountName
   )}&am=${payableTarget}&cu=INR&tn=${encodeURIComponent(`VTU Athletics ${squadCode}`)}`;
 
@@ -83,8 +106,15 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
       return;
     }
 
-    if (!utr.trim() || utr.trim().length < 8) {
-      setError('Please enter a valid 12-digit transaction UTR / Reference number.');
+    if (isAwaitingVerification) {
+      setError('A payment is already awaiting verification. You can re-submit only if it is rejected.');
+      setLoading(false);
+      return;
+    }
+
+    const utrClean = utr.trim().replace(/[\s-]/g, '');
+    if (!/^[A-Za-z0-9]{8,30}$/.test(utrClean)) {
+      setError('Please enter a valid 8 to 30 character alphanumeric UTR / Bank reference number.');
       setLoading(false);
       return;
     }
@@ -95,9 +125,29 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
       return;
     }
 
+    const amountNum = Number(amount);
+    if (!/^\d+$/.test(amount.trim()) || amountNum <= 0) {
+      setError('Amount must be a whole number of rupees greater than zero.');
+      setLoading(false);
+      return;
+    }
+
+    // Warn on amount mismatch (no refunds for over-payment; short payments leave a balance due)
+    if (breakdown.balanceDue > 0 && amountNum !== breakdown.balanceDue) {
+      const proceed = window.confirm(
+        amountNum < breakdown.balanceDue
+          ? `You entered ₹${amountNum}, but the balance due is ₹${breakdown.balanceDue}. The remaining ₹${breakdown.balanceDue - amountNum} will still be due after verification. Continue?`
+          : `You entered ₹${amountNum}, which is MORE than the balance due of ₹${breakdown.balanceDue}. Excess payments are not refunded. Continue?`
+      );
+      if (!proceed) {
+        setLoading(false);
+        return;
+      }
+    }
+
     // Confirmation prompt
     const confirmed = window.confirm(
-      `Confirm submission of ₹${amount} with UTR "${utr.trim()}" for entry fee settlement?\n\n(You can still register more athletes later; any remaining balance can be settled in an additional payment).`
+      `Confirm submission of ₹${amount} with UTR "${utrClean}" for entry fee settlement?\n\n⚠️ Submitting payment will LOCK your squad roster. You will no longer be able to add or remove athletes or edit relay teams.`
     );
 
     if (!confirmed) {
@@ -106,7 +156,7 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
     }
 
     const formData = new FormData();
-    formData.append('utrNumber', utr.trim());
+    formData.append('utrNumber', utrClean);
     formData.append('amountSubmitted', amount);
     formData.append('screenshotData', screenshotData);
 
@@ -169,14 +219,49 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
           </button>
 
           <Badge variant={breakdown.squadPaymentStatus === 'VERIFIED' ? 'success' : 'warning'} style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
-            Status: {breakdown.squadPaymentStatus}
+            Status: {statusLabel}
           </Badge>
+          {breakdown.rosterLocked && (
+            <Badge variant="danger" style={{ fontSize: '0.85rem', padding: '0.35rem 0.85rem' }}>
+              🔒 Roster Locked
+            </Badge>
+          )}
         </div>
       </div>
 
       {isZeroSquad && (
         <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-sm)', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#b45309', fontSize: '0.95rem' }}>
           ℹ️ <strong>Roster Empty:</strong> You currently have 0 registered athletes. Please <Link href="/squad/dashboard" style={{ fontWeight: 700, textDecoration: 'underline' }}>register athletes</Link> into individual and relay disciplines before settling entry fees.
+        </div>
+      )}
+
+      {hasRelayBlockers && !isAwaitingVerification && (
+        <div id="banner-relay-incomplete" style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-sm)', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.35)', color: '#92400e', fontSize: '0.92rem' }}>
+          ⚠️ <strong>Complete your relay teams before paying.</strong> Paying locks the roster, so relay lineups can&apos;t be changed afterwards:
+          <ul style={{ margin: '0.5rem 0 0.25rem', paddingLeft: '1.25rem', lineHeight: 1.6 }}>
+            {relayIssues.map((issue) => (
+              <li key={issue}>{issue}</li>
+            ))}
+          </ul>
+          <Link href="/squad/relay" style={{ fontWeight: 700, textDecoration: 'underline', color: '#92400e' }}>Go to Relay Teams &rarr;</Link>
+        </div>
+      )}
+
+      {isAwaitingVerification && (
+        <div id="banner-roster-locked-payment-submitted" style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-sm)', background: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.3)', color: '#1e40af', fontSize: '0.95rem' }}>
+          🔒 <strong>Roster Locked &amp; Payment Submitted:</strong> Your receipt is awaiting Finance Desk verification. Athlete and relay changes are frozen. Contact the VTU Directorate if an emergency unlock is required.
+        </div>
+      )}
+
+      {isRejected && (
+        <div id="banner-payment-rejected" style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-sm)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--danger)', fontSize: '0.95rem' }}>
+          ✕ <strong>Payment Rejected:</strong> {latestRejection?.rejection_reason || 'The Finance Desk rejected your last submission.'} Please re-upload a correct receipt / UTR below. Your roster remains locked.
+        </div>
+      )}
+
+      {breakdown.squadPaymentStatus === 'VERIFIED' && breakdown.rosterLocked && (
+        <div id="banner-roster-locked-verified" style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-sm)', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.3)', color: 'var(--success)', fontSize: '0.95rem' }}>
+          🔒 <strong>Payment Verified — Roster Locked:</strong> Your squad roster is permanently frozen for the championship.
         </div>
       )}
 
@@ -260,9 +345,25 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
                     <span style={{ fontSize: '1.2rem' }}>🏛️</span>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>Directorate Electronic Transfer Desk</div>
-                      <div style={{ fontSize: '0.8rem', color: '#64748b' }}>State Bank of India / NEFT / RTGS / UPI</div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>Pay by UPI</div>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Scan the QR code with any UPI app (GPay, PhonePe, Paytm, BHIM, bank app)</div>
                     </div>
+                  </div>
+
+                  {/* Official host college UPI QR */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={OFFICIAL_UPI_QR_SRC}
+                      alt={`UPI QR code for ${breakdown.hostUpiId}`}
+                      id="img-upi-qr"
+                      width={240}
+                      height={238}
+                      style={{ width: '240px', height: 'auto', background: '#ffffff', padding: '20px', boxSizing: 'content-box', borderRadius: '10px', border: '1px solid #cbd5e1' }}
+                    />
+                    <span style={{ fontSize: '0.8rem', color: '#0f172a', fontWeight: 700, textAlign: 'center' }}>
+                      Enter the amount <span style={{ color: 'var(--accent-primary)' }}>₹{payableTarget}</span> manually in your UPI app
+                    </span>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', fontSize: '0.85rem' }}>
@@ -272,9 +373,19 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.35rem 0', borderBottom: '1px dashed #e2e8f0', alignItems: 'center' }}>
                       <span style={{ color: '#64748b' }}>Host UPI VPA:</span>
-                      <code style={{ fontWeight: 700, color: 'var(--accent-primary)', background: '#e0f2fe', padding: '2px 6px', borderRadius: '4px' }}>
-                        {breakdown.hostUpiId}
-                      </code>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        <code style={{ fontWeight: 700, color: 'var(--accent-primary)', background: '#e0f2fe', padding: '2px 6px', borderRadius: '4px', wordBreak: 'break-all' }}>
+                          {breakdown.hostUpiId}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={copyUpiId}
+                          id="btn-copy-upi"
+                          style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#0f172a', cursor: 'pointer' }}
+                        >
+                          {upiCopied ? '✓ Copied' : 'Copy'}
+                        </button>
+                      </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.35rem 0', borderBottom: '1px dashed #e2e8f0' }}>
                       <span style={{ color: '#64748b' }}>Mandatory Remark:</span>
@@ -300,11 +411,11 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                       marginTop: '0.25rem'
                     }}
                   >
-                    ⚡ Open UPI App Directly
+                    ⚡ Pay ₹{payableTarget} in UPI App (on mobile)
                   </a>
 
                   <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0, textAlign: 'center', lineHeight: 1.4 }}>
-                    Enter <strong>{squadCode}</strong> in the payment remarks/narration. After transferring, copy the 12-digit UTR and upload the receipt on the right.
+                    Enter <strong>{squadCode}</strong> in the payment remarks/narration. After paying, copy the UPI reference / UTR number from the receipt and submit it with the screenshot on the right.
                   </p>
                 </div>
               </>
@@ -321,7 +432,7 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
           <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             
             {/* Payment & Registration Workflow Notice */}
-            {!isFullySettled && (
+            {!isFullySettled && !isAwaitingVerification && (
               <div style={{
                 padding: '1rem 1.15rem',
                 background: '#eff6ff',
@@ -337,12 +448,14 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                 <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>💡</span>
                 <div>
                   <strong style={{ display: 'block', marginBottom: '0.2rem', color: '#1e3a8a', fontSize: '0.925rem' }}>
-                    Registration &amp; Differential Payment Policy
+                    Roster Lock Policy
                   </strong>
-                  You may register athletes and submit fee payments in stages. If you nominate additional athletes or events after paying, the remaining balance will be automatically calculated and due before championship scrutiny. Relay baton squads can be edited until the final registration deadline.
-                  <div style={{ marginTop: '0.45rem', fontSize: '0.8rem', color: '#2563eb' }}>
-                    Need to nominate more athletes? <Link href="/squad/athletes" style={{ color: '#1d4ed8', fontWeight: 700, textDecoration: 'underline' }}>Go to Athlete Nominations &rarr;</Link>
-                  </div>
+                  Submitting a payment <strong>locks your squad roster</strong>. Finalise all athletes, events and relay teams before you pay — after submission, no athletes can be added or removed and relay teams cannot be edited. If a receipt is rejected you may re-upload it; the roster stays locked.
+                  {!breakdown.rosterLocked && (
+                    <div style={{ marginTop: '0.45rem', fontSize: '0.8rem', color: '#2563eb' }}>
+                      Still need to nominate athletes? <Link href="/squad/athletes" style={{ color: '#1d4ed8', fontWeight: 700, textDecoration: 'underline' }}>Go to Athlete Nominations &rarr;</Link>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -375,12 +488,12 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                   style={inputStyle}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  disabled={isZeroSquad || isFullySettled}
+                  disabled={isFormDisabled}
                 />
               </div>
 
               <div>
-                <label style={labelStyle} htmlFor="utr">12-Digit UTR / Transaction Reference *</label>
+                <label style={labelStyle} htmlFor="utr">UTR / Transaction Reference (8–30 characters) *</label>
                 <input
                   id="utr"
                   type="text"
@@ -388,8 +501,9 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                   placeholder="e.g. 428719283741"
                   style={{ ...inputStyle, fontFamily: 'monospace', fontWeight: 700 }}
                   value={utr}
+                  maxLength={34}
                   onChange={(e) => setUtr(e.target.value.trim())}
-                  disabled={isZeroSquad}
+                  disabled={isFormDisabled}
                 />
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginTop: '0.25rem' }}>
                   Found on your UPI receipt under &quot;UPI Ref No&quot; or &quot;UTR&quot;.
@@ -401,11 +515,11 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                 <input
                   id="screenshot"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
                   required={!screenshotData}
                   style={{ ...inputStyle, padding: '0.5rem', fontSize: '0.85rem' }}
                   onChange={handleFileChange}
-                  disabled={isZeroSquad}
+                  disabled={isFormDisabled}
                 />
               </div>
 
@@ -422,27 +536,33 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
 
               <button
                 type="submit"
-                disabled={loading || isZeroSquad || isFullySettled}
+                disabled={loading || isFormDisabled}
                 id="btn-submit-payment-proof"
                 style={{
                   width: '100%',
                   marginTop: '0.5rem',
-                  background: isZeroSquad || isFullySettled ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
-                  color: isZeroSquad || isFullySettled ? 'var(--text-muted)' : '#fff',
+                  background: isFormDisabled ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
+                  color: isFormDisabled ? 'var(--text-muted)' : '#fff',
                   border: 'none',
                   padding: '0.9rem',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '1rem',
                   fontWeight: 800,
-                  cursor: loading || isZeroSquad || isFullySettled ? 'not-allowed' : 'pointer',
-                  opacity: loading || isZeroSquad || isFullySettled ? 0.6 : 1,
-                  boxShadow: isZeroSquad || isFullySettled ? 'none' : '0 4px 14px var(--accent-glow)'
+                  cursor: loading || isFormDisabled ? 'not-allowed' : 'pointer',
+                  opacity: loading || isFormDisabled ? 0.6 : 1,
+                  boxShadow: isFormDisabled ? 'none' : '0 4px 14px var(--accent-glow)'
                 }}
               >
                 {loading 
                   ? 'Submitting Receipt...' 
                   : isFullySettled 
                     ? '✓ Entry Fees Fully Settled' 
+                    : isAwaitingVerification
+                    ? '🔒 Roster Locked & Payment Submitted'
+                    : hasRelayBlockers
+                    ? '⚠️ Complete Relay Teams First'
+                    : isRejected
+                    ? `Re-submit Payment Proof (₹${amount}) →`
                     : `Submit Payment for Verification (₹${amount}) →`}
               </button>
             </form>

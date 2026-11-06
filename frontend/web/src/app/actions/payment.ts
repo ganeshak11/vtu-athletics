@@ -3,6 +3,8 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireSquad, requireStaff } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
+import { calculateSquadFees, reviewPayment, getRelayReadinessIssues } from '@/lib/payments';
+import { resolveHostUpiId, resolveHostAccountName } from '@/lib/payment-config';
 
 export interface FeeBreakdown {
   regularEventsCount: number;
@@ -17,7 +19,11 @@ export interface FeeBreakdown {
   balanceDue: number;
   hostUpiId: string;
   hostAccountName: string;
-  squadPaymentStatus: 'DrAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
+  squadPaymentStatus: SquadPaymentStatus;
+  hasPendingPayment: boolean;
+  /** Relay lineups that must be completed before payment (roster freezes on payment) */
+  relayIssues: string[];
+  registrationOpen: boolean;
   rosterLocked: boolean;
   collegeName?: string;
   collegeCode?: string;
@@ -28,6 +34,12 @@ export interface FeeBreakdown {
   pedEmail?: string;
   athletesCount?: number;
 }
+
+/**
+ * Squad payment lifecycle. The DB constraint currently stores the draft state as 'DrAFT'
+ * (legacy spelling); 'DRAFT' is accepted too so either schema revision works.
+ */
+export type SquadPaymentStatus = 'DrAFT' | 'DRAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
 
 export interface PaymentRecord {
   id: string;
@@ -42,60 +54,6 @@ export interface PaymentRecord {
 }
 
 /**
- * Accurately calculates squad fees:
- * - Regular events = ₹100
- * - Reserve events = Free (₹0)
- * - 21km Half Marathon = ₹100
- * - Relay teams = Flat ₹400 per relay team (regardless of having 4 active + 2 reserves = 6 members)
- */
-export async function calculateSquadFees(squadId: string) {
-  const { data: squadProfiles } = await supabaseAdmin
-    .from('profiles')
-    .select('id')
-    .eq('squad_id', squadId);
-  const profileIds = (squadProfiles || []).map((p: any) => p.id);
-
-  let regularEventsCount = 0;
-  let reserveEventsCount = 0;
-  let hmCount = 0;
-  const relayEventIds = new Set<string>();
-
-  if (profileIds.length > 0) {
-    const { data: regs } = await supabaseAdmin
-      .from('registrations')
-      .select('id, kind, event_id')
-      .in('profile_id', profileIds);
-
-    (regs || []).forEach((r: any) => {
-      if (r.kind === 'regular') regularEventsCount++;
-      else if (r.kind === 'reserve') reserveEventsCount++;
-      else if (r.kind === 'half_marathon') hmCount++;
-      else if (r.kind === 'relay' && r.event_id) relayEventIds.add(r.event_id);
-    });
-  }
-
-  const relayTeamsCount = relayEventIds.size;
-  const regularFeeRate = 100;
-  const hmFeeRate = 100;
-  const relayFeeRate = 400; // Flat ₹400 per relay team
-  const totalAmount =
-    regularEventsCount * regularFeeRate +
-    hmCount * hmFeeRate +
-    relayTeamsCount * relayFeeRate;
-
-  return {
-    regularEventsCount,
-    regularFeeRate,
-    reserveEventsCount,
-    hmCount,
-    hmFeeRate,
-    relayTeamsCount,
-    relayFeeRate,
-    totalAmount,
-  };
-}
-
-/**
  * Calculates current squad fee breakdown and fetches meet host UPI details.
  */
 export async function getSquadFeeBreakdownAction(): Promise<{
@@ -104,13 +62,16 @@ export async function getSquadFeeBreakdownAction(): Promise<{
 }> {
   const session = await requireSquad();
 
-  // Fetch fees
-  const feeCalc = await calculateSquadFees(session.squadId);
+  // Fetch fees + relay readiness
+  const [feeCalc, relayIssues] = await Promise.all([
+    calculateSquadFees(session.squadId),
+    getRelayReadinessIssues(session.squadId),
+  ]);
 
   // Fetch meet settings
   const { data: settings } = await supabaseAdmin
     .from('meet_settings')
-    .select('host_upi_id, host_account_name')
+    .select('host_upi_id, host_account_name, registration_open')
     .limit(1)
     .maybeSingle();
 
@@ -168,10 +129,13 @@ export async function getSquadFeeBreakdownAction(): Promise<{
       totalAmount,
       totalPaid,
       balanceDue,
-      hostUpiId: settings?.host_upi_id || 'vtuathletics@upi',
-      hostAccountName: settings?.host_account_name || 'VTU Sports Board',
-      squadPaymentStatus: squad?.payment_status || 'DrAFT',
-      rosterLocked: squad?.roster_locked || false,
+      hostUpiId: resolveHostUpiId(settings?.host_upi_id),
+      hostAccountName: resolveHostAccountName(settings?.host_account_name),
+      squadPaymentStatus: (squad?.payment_status || 'DrAFT') as SquadPaymentStatus,
+      hasPendingPayment: (payments || []).some((p: any) => p.status === 'SUBMITTED'),
+      relayIssues: squad?.roster_locked === true ? [] : relayIssues,
+      registrationOpen: settings?.registration_open !== false,
+      rosterLocked: squad?.roster_locked === true,
       collegeName: college?.name || 'VTU Affiliated Institution',
       collegeCode: college?.code || '',
       district: college?.district || '',
@@ -197,16 +161,48 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
     const amountSubmitted = parseInt(formData.get('amountSubmitted') as string, 10);
     const screenshotData = formData.get('screenshotData') as string;
 
-    if (!utrClean || utrClean.length < 8 || utrClean.length > 30) {
+    // UTR must be 8–30 alphanumeric characters (spaces/dashes are stripped, other symbols rejected)
+    if (!/^[A-Za-z0-9\s-]+$/.test(rawUtr) || utrClean.length < 8 || utrClean.length > 30) {
       return { success: false, error: 'Please enter a valid 8 to 30 character alphanumeric UTR / Bank reference number.' };
     }
 
-    if (isNaN(amountSubmitted) || amountSubmitted <= 0) {
-      return { success: false, error: 'Amount submitted must be greater than zero.' };
+    if (!/^\d+$/.test(String(formData.get('amountSubmitted') || '').trim()) || isNaN(amountSubmitted) || amountSubmitted <= 0) {
+      return { success: false, error: 'Amount must be a whole number of rupees greater than zero.' };
     }
 
     if (!screenshotData && !formData.get('screenshot')) {
       return { success: false, error: 'Please upload the payment transaction screenshot or receipt.' };
+    }
+
+    // Relay readiness: payment freezes the roster, so every nominated relay must have a full lineup
+    // (Skipped when already locked — e.g. re-upload after rejection — since the PED cannot edit then.)
+    const { data: lockRow } = await supabaseAdmin
+      .from('squads')
+      .select('roster_locked')
+      .eq('id', session.squadId)
+      .maybeSingle();
+    const relayIssues = lockRow?.roster_locked === true ? [] : await getRelayReadinessIssues(session.squadId);
+    if (relayIssues.length > 0) {
+      return {
+        success: false,
+        error: `Complete your relay teams before paying (the roster locks on payment): ${relayIssues.join(' ')}`,
+      };
+    }
+
+    // Lifecycle guard: only one payment may be awaiting verification at a time.
+    // DRAFT and REJECTED squads may submit; a VERIFIED squad may submit only if an admin
+    // emergency-unlocked the roster and a differential balance is now due (checked below).
+    const { count: pendingCount } = await supabaseAdmin
+      .from('payments')
+      .select('id', { count: 'exact', head: true })
+      .eq('squad_id', session.squadId)
+      .eq('status', 'SUBMITTED');
+
+    if ((pendingCount || 0) > 0) {
+      return {
+        success: false,
+        error: 'Roster Locked & Payment Submitted: A payment is already awaiting Finance Desk verification. You can re-submit only if it is rejected.',
+      };
     }
 
     // Upload screenshot to Supabase Storage Bucket ('payment-proofs') with validation
@@ -331,17 +327,25 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
       return { success: false, error: error.message };
     }
 
-    // Update status to SUBMITTED without locking roster (colleges can add students & pay differential balance)
-    await supabaseAdmin
+    // Freeze the roster: once payment is submitted, athletes and relay teams can no longer change
+    const { error: lockErr } = await supabaseAdmin
       .from('squads')
       .update({
+        roster_locked: true,
         payment_status: 'SUBMITTED',
         updated_at: new Date().toISOString(),
       })
       .eq('id', session.squadId);
 
+    if (lockErr) {
+      console.error('submitPaymentAction roster lock error:', lockErr);
+      return { success: false, error: `Payment recorded, but the roster could not be locked: ${lockErr.message}` };
+    }
+
     revalidatePath('/squad/payment');
     revalidatePath('/squad/dashboard');
+    revalidatePath('/squad/athletes');
+    revalidatePath('/squad/relay');
     revalidatePath('/finance');
 
     return { success: true };
@@ -397,73 +401,8 @@ export async function verifyPaymentAction(
 ): Promise<{ success: boolean; error?: string }> {
   const staffSession = await requireStaff(['meet_admin', 'finance_desk']);
 
-  if (newStatus === 'REJECTED' && !reason?.trim()) {
-    return { success: false, error: 'A rejection reason is mandatory when rejecting payments.' };
-  }
-
-  // Update payment record and fetch squad details
-  const { data: updatedPayment, error } = await supabaseAdmin
-    .from('payments')
-    .update({
-      status: newStatus,
-      rejection_reason: newStatus === 'REJECTED' ? reason?.trim() : null,
-      verified_by: staffSession.entityId,
-      verified_at: new Date().toISOString(),
-    })
-    .eq('id', paymentId)
-    .select('squad_id, amount_expected')
-    .maybeSingle();
-
-  if (error) return { success: false, error: error.message };
-
-  // Explicitly synchronize squad payment_status and roster_locked
-  if (updatedPayment?.squad_id) {
-    if (newStatus === 'VERIFIED') {
-      const { data: verifiedList } = await supabaseAdmin
-        .from('payments')
-        .select('amount_submitted')
-        .eq('squad_id', updatedPayment.squad_id)
-        .eq('status', 'VERIFIED');
-
-      const verifiedSum = (verifiedList || []).reduce((sum: number, p: any) => sum + (p.amount_submitted || 0), 0);
-      const expectedAmount = updatedPayment.amount_expected || 0;
-
-      if (verifiedSum >= expectedAmount) {
-        await supabaseAdmin
-          .from('squads')
-          .update({
-            payment_status: 'VERIFIED',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', updatedPayment.squad_id);
-      } else {
-        await supabaseAdmin
-          .from('squads')
-          .update({
-            payment_status: 'SUBMITTED',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', updatedPayment.squad_id);
-      }
-    } else {
-      // Check if any other payment is still SUBMITTED
-      const { count: pendingCount } = await supabaseAdmin
-        .from('payments')
-        .select('id', { count: 'exact', head: true })
-        .eq('squad_id', updatedPayment.squad_id)
-        .eq('status', 'SUBMITTED');
-
-      if ((pendingCount || 0) === 0) {
-        await supabaseAdmin
-          .from('squads')
-          .update({
-            payment_status: 'REJECTED',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', updatedPayment.squad_id);
-      }
-    }
-  }
+  const result = await reviewPayment(paymentId, newStatus, reason, staffSession.entityId);
+  if (!result.success) return result;
 
   revalidatePath('/finance');
   revalidatePath('/squad/payment');

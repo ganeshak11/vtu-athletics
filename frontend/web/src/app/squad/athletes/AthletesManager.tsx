@@ -50,7 +50,11 @@ interface Props {
   relayCount?: number;
   collegeName?: string;
   paymentStatus?: string;
+  registrationClosed?: boolean;
 }
+
+/** Official VTU USN pattern, e.g. 1RV21CS001, 4MT22MBA05 (mirrors server validation) */
+const VTU_USN_REGEX = /^[1-4][A-Z]{2}\d{2}[A-Z]{2,3}\d{2,3}$/;
 
 export default function AthletesManager({
   initialAthletes,
@@ -61,6 +65,7 @@ export default function AthletesManager({
   relayCount: initialRelayCount = 0,
   collegeName = 'Affiliated Institution',
   paymentStatus = 'DrAFT',
+  registrationClosed = false,
 }: Props) {
   const [athletes, setAthletes] = useState<AthleteItem[]>(initialAthletes);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -107,8 +112,10 @@ export default function AthletesManager({
       .filter(
         (e) =>
           !e.category?.toLowerCase().includes('relay') &&
+          e.category?.toLowerCase() !== 'road' &&
           !e.code?.includes('4X100') &&
-          !e.code?.includes('4X400')
+          !e.code?.includes('4X400') &&
+          !e.code?.toUpperCase().startsWith('HM-')
       )
       .map((ev) => {
         const meta = DB_CODE_TO_OFFICIAL_MAP[ev.code];
@@ -121,6 +128,20 @@ export default function AthletesManager({
       })
       .sort((a, b) => a.codeNum - b.codeNum);
   }, [availableEvents]);
+
+  // College quota: max 2 athletes per individual event (regular entries only)
+  const regularCountByEvent = useMemo(() => {
+    const counts: Record<string, number> = {};
+    athletes.forEach((a) =>
+      a.registrations
+        .filter((r) => r.kind === 'regular')
+        .forEach((r) => {
+          counts[r.event_id] = (counts[r.event_id] || 0) + 1;
+        })
+    );
+    return counts;
+  }, [athletes]);
+  const isEventFull = (eventId: string) => (regularCountByEvent[eventId] || 0) >= 2;
 
   // Live relay squad counts strictly derived from current squad roster (6 members per relay team)
   const registered100mRelay = athletes.filter((a) =>
@@ -145,13 +166,15 @@ export default function AthletesManager({
     if (event1) fee += 100;
     if (event2) fee += 100;
     if (isHalfMarathon) fee += 100;
+    // Relay: flat ₹400 per TEAM, charged once when the first athlete is nominated
     if (relayChoice === '4x100') {
-      fee += registered100mRelay < 4 ? 100 : 0;
+      fee += registered100mRelay === 0 ? 400 : 0;
     } else if (relayChoice === '4x400') {
-      fee += registered400mRelay < 4 ? 100 : 0;
+      fee += registered400mRelay === 0 ? 400 : 0;
     }
     if (isMixedRelay) {
-      fee += registeredMixedRelay < 4 ? 100 : 0;
+      // Mixed team is shared by the college; may already be billed to the other squad
+      fee += registeredMixedRelay === 0 ? 400 : 0;
     }
     return fee;
   }, [event1, event2, relayChoice, isMixedRelay, isHalfMarathon, registered100mRelay, registered400mRelay, registeredMixedRelay]);
@@ -192,8 +215,16 @@ export default function AthletesManager({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const okTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!okTypes.includes(file.type.toLowerCase())) {
+      alert('Invalid photo format. Please upload a JPG, PNG or WebP image (iPhone HEIC photos must be converted first).');
+      e.target.value = '';
+      return;
+    }
+
     if (file.size > 4 * 1024 * 1024) {
       alert('Photo must be less than 4MB.');
+      e.target.value = '';
       return;
     }
 
@@ -237,6 +268,12 @@ export default function AthletesManager({
     const cleanUsn = usn.trim().toUpperCase();
     if (!cleanUsn) {
       setError('USN is required.');
+      setLoading(false);
+      return;
+    }
+
+    if (!VTU_USN_REGEX.test(cleanUsn)) {
+      setError(`Invalid USN '${cleanUsn}'. Enter a valid VTU USN (e.g. 1RV21CS001).`);
       setLoading(false);
       return;
     }
@@ -334,7 +371,7 @@ export default function AthletesManager({
       setLoading(false);
       return;
     }
-    // Mixed Relay and Half Marathon are unrestricted across events and squad entries.
+    // Mixed Relay nominations are capped at 6 per college on the server; Half Marathon is unrestricted.
 
     // 6. Photo is strongly required for official VTU call room & ID badge issuance
     if (!photoPreview) {
@@ -380,6 +417,10 @@ export default function AthletesManager({
   }
 
   async function handleDelete(athleteId: string, name: string) {
+    if (rosterLocked) {
+      alert('Roster Locked & Payment Submitted: athletes can no longer be removed.');
+      return;
+    }
     if (!confirm(`Are you sure you want to remove ${name} from the squad roster?`)) return;
 
     const res = await deleteAthleteAction(athleteId);
@@ -436,27 +477,31 @@ export default function AthletesManager({
           <button
             type="button"
             onClick={() => {
+              if (rosterLocked) return;
               resetModalForm();
               setShowAddModal(true);
             }}
+            disabled={rosterLocked}
+            title={rosterLocked ? 'Roster is locked — athletes cannot be added' : undefined}
             id="btn-register-new-student"
             style={{
-              background: 'var(--accent-primary)',
-              color: '#fff',
+              background: rosterLocked ? 'var(--bg-tertiary)' : 'var(--accent-primary)',
+              color: rosterLocked ? 'var(--text-muted)' : '#fff',
               border: 'none',
               padding: '0.75rem 1.5rem',
               borderRadius: 'var(--radius-sm)',
               fontSize: '1rem',
               fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px var(--accent-glow)',
+              cursor: rosterLocked ? 'not-allowed' : 'pointer',
+              opacity: rosterLocked ? 0.6 : 1,
+              boxShadow: rosterLocked ? 'none' : '0 4px 14px var(--accent-glow)',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
               transition: 'all 0.2s ease',
             }}
           >
-            + Register New Athlete
+            {rosterLocked ? '🔒 Roster Locked' : '+ Register New Athlete'}
           </button>
 
           <Link href="/squad/payment">
@@ -483,7 +528,28 @@ export default function AthletesManager({
         </div>
       </div>
 
-      {paymentStatus === 'VERIFIED' && (
+      {rosterLocked && (
+        <div id="banner-athletes-roster-locked" style={{
+          padding: '0.85rem 1.25rem',
+          background: 'rgba(239, 68, 68, 0.08)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '12px',
+          color: 'var(--danger)',
+          fontSize: '0.875rem',
+          lineHeight: 1.5,
+        }}>
+          🔒 <strong>
+            {registrationClosed
+              ? 'Registration Closed:'
+              : paymentStatus === 'VERIFIED'
+                ? 'Roster Locked — Payment Verified:'
+                : 'Roster Locked & Payment Submitted:'}
+          </strong>{' '}
+          Athletes can no longer be added or removed. Contact the VTU Directorate if an emergency unlock is required.
+        </div>
+      )}
+
+      {paymentStatus === 'VERIFIED' && !rosterLocked && (
         <div style={{
           padding: '0.85rem 1.25rem',
           background: 'rgba(16, 185, 129, 0.08)',
@@ -501,7 +567,7 @@ export default function AthletesManager({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span>✓</span>
             <span>
-              <strong>Registration Active:</strong> You can continue registering student-athletes until registration closes. If you add new athletes, any differential fee balance can be paid on the Fee Settlement page.
+              <strong>Emergency Unlock Active:</strong> The VTU Directorate has temporarily unlocked your roster. Any differential fee for newly added athletes must be paid on the Fee Settlement page, which will lock the roster again.
             </span>
           </div>
           <Link href="/squad/payment" style={{ fontWeight: 700, color: 'var(--accent-primary)', fontSize: '0.85rem' }}>
@@ -808,7 +874,10 @@ export default function AthletesManager({
                             type="button"
                             onClick={() => handleDelete(athlete.id, athlete.sslc_name)}
                             id={`btn-delete-${athlete.id}`}
+                            disabled={rosterLocked}
+                            title={rosterLocked ? 'Roster is locked' : undefined}
                             style={{
+                              opacity: rosterLocked ? 0.4 : 1,
                               background: 'none',
                               border: '1px solid rgba(239, 68, 68, 0.3)',
                               color: 'var(--danger)',
@@ -816,11 +885,11 @@ export default function AthletesManager({
                               borderRadius: 'var(--radius-sm)',
                               fontSize: '0.75rem',
                               fontWeight: 700,
-                              cursor: 'pointer',
+                              cursor: rosterLocked ? 'not-allowed' : 'pointer',
                               transition: 'all 0.15s ease'
                             }}
                           >
-                            ✕ Remove
+                            {rosterLocked ? '🔒 Locked' : '✕ Remove'}
                           </button>
                         </td>
                       </tr>
@@ -872,7 +941,7 @@ export default function AthletesManager({
       {/* =========================================================================
           REGISTER NEW STUDENT / ATHLETE MODAL (EXACT PROTOTYPE REGISTERCLIENT UI)
           ========================================================================= */}
-      {mounted && showAddModal && createPortal(
+      {mounted && showAddModal && !rosterLocked && createPortal(
         <div
           className="athlete-modal-overlay"
           style={{
@@ -1074,7 +1143,7 @@ export default function AthletesManager({
                           <label style={labelStyle}>Student Photo (Portrait) *</label>
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp"
                             onChange={handlePhotoSelect}
                             style={{ ...inputStyle, padding: '0.5rem', fontSize: '0.85rem' }}
                           />
@@ -1141,8 +1210,8 @@ export default function AthletesManager({
                               >
                                 <option value="">-- Choose Individual Event 1 --</option>
                                 {individualEvents.map((ev) => (
-                                  <option key={ev.id} value={ev.id}>
-                                    [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
+                                  <option key={ev.id} value={ev.id} disabled={isEventFull(ev.id)}>
+                                    [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup}){isEventFull(ev.id) ? ' — College quota full (2/2)' : ''}
                                   </option>
                                 ))}
                               </select>
@@ -1167,8 +1236,8 @@ export default function AthletesManager({
                                 {individualEvents
                                   .filter((ev) => ev.id !== event1)
                                   .map((ev) => (
-                                    <option key={ev.id} value={ev.id}>
-                                      [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup})
+                                    <option key={ev.id} value={ev.id} disabled={isEventFull(ev.id)}>
+                                      [Code {ev.codeNum}] {ev.officialName} ({ev.categoryGroup}){isEventFull(ev.id) ? ' — College quota full (2/2)' : ''}
                                     </option>
                                   ))}
                               </select>
@@ -1352,10 +1421,10 @@ export default function AthletesManager({
                             />
                             <div>
                               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                                Code 22: 4x400m Mixed Relay Pool (+₹100) — Standalone &amp; Unrestricted
+                                Code 22: 4x400m Mixed Relay Pool (₹400 per college team)
                               </div>
                               <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>
-                                Unrestricted entry: athlete can register regardless of other event entries. (Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M)
+                                Can be combined with other entries. Max 6 nominations per college (Men + Women). Order: Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M
                               </div>
                             </div>
                           </label>
@@ -1424,12 +1493,20 @@ export default function AthletesManager({
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                           <span>Divisional Relay:</span>
-                          <span style={{ fontWeight: 700 }}>{relayChoice !== 'none' ? '₹100' : '₹0'}</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {relayChoice === 'none'
+                              ? '₹0'
+                              : (relayChoice === '4x100' ? registered100mRelay : registered400mRelay) === 0
+                                ? '₹400 (team fee)'
+                                : '₹0 (team already billed)'}
+                          </span>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                           <span>Mixed Relay Pool:</span>
-                          <span style={{ fontWeight: 700 }}>{isMixedRelay ? '₹100' : '₹0'}</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {!isMixedRelay ? '₹0' : registeredMixedRelay === 0 ? '₹400 (college team fee)' : '₹0 (team already billed)'}
+                          </span>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>

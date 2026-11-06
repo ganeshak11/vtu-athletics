@@ -13,9 +13,16 @@ export default async function SquadAthletesPage() {
   // Fetch squad status
   const { data: squad } = await supabaseAdmin
     .from('squads')
-    .select('roster_locked, squad_code, gender')
+    .select('roster_locked, squad_code, gender, payment_status')
     .eq('id', session.squadId)
     .single();
+
+  const { data: meetSettings } = await supabaseAdmin
+    .from('meet_settings')
+    .select('registration_open')
+    .limit(1)
+    .maybeSingle();
+  const registrationClosed = meetSettings?.registration_open === false;
 
   const athletes = await listSquadAthletesAction();
   const events = await getAvailableEventsAction();
@@ -37,7 +44,9 @@ export default async function SquadAthletesPage() {
       <AthletesManager
         initialAthletes={formattedAthletes}
         availableEvents={events}
-        rosterLocked={squad?.roster_locked || false}
+        rosterLocked={squad?.roster_locked === true || registrationClosed}
+        registrationClosed={registrationClosed}
+        paymentStatus={squad?.payment_status || 'DrAFT'}
         squadCode={squad?.squad_code || session.squadCode || ''}
         gender={session.gender as 'men' | 'women'}
         relayCount={relayCount}

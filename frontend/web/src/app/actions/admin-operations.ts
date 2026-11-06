@@ -3,6 +3,8 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
+import { calculateSquadFees, reviewPayment } from '@/lib/payments';
+import { OFFICIAL_UPI_ID, OFFICIAL_ACCOUNT_NAME } from '@/lib/payment-config';
 
 export interface AdminDashboardStats {
   registrationOpen: boolean;
@@ -145,8 +147,8 @@ export async function toggleRegistrationStatusAction(): Promise<{
           ...updatePayload,
           meet_name: 'VTU Inter-Collegiate Athletics Meet 2026',
           venue: 'VTU Campus Stadium',
-          host_upi_id: 'vtuathletics@upi',
-          host_account_name: 'VTU Sports Board',
+          host_upi_id: OFFICIAL_UPI_ID,
+          host_account_name: OFFICIAL_ACCOUNT_NAME,
         });
       updateError = error;
     }
@@ -436,27 +438,30 @@ export async function listPaymentsForAdminAction() {
   // Compute expected fee for each squad
   const enrichedSquads = await Promise.all(
     (squads || []).map(async (sq: any) => {
-      let expectedFee = 0;
-      try {
-        const { data: feeData } = await supabaseAdmin.rpc('compute_squad_fee', {
-          p_squad_id: sq.id,
-        });
-        expectedFee = feeData?.total_amount || 0;
-      } catch {
-        // Fallback: ₹100 per billable event
-        const billable = sq.profiles?.reduce((acc: number, p: any) => {
-          return acc + (p.registrations?.filter((r: any) => r.kind !== 'reserve').length || 0);
-        }, 0);
-        expectedFee = (billable || 0) * 100;
-      }
+      // Same fee engine as the squad's Fee Settlement page (flat ₹400 per relay team,
+      // reserves free, mixed relay billed once per college) so Finance and PED see one number.
+      const fees = await calculateSquadFees(sq.id);
+      const expectedFee = fees.totalAmount;
 
-      // Latest payment submission
-      const latestPayment = sq.payments?.[0] || null;
+      // Latest payment submission (embedded rows are unordered, so sort explicitly)
+      const sortedPayments = [...(sq.payments || [])].sort(
+        (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      const latestPayment = sortedPayments[0] || null;
+      const pendingPayment = sortedPayments.find((p: any) => p.status === 'SUBMITTED') || null;
+      const totalVerified = sortedPayments
+        .filter((p: any) => p.status === 'VERIFIED')
+        .reduce((sum: number, p: any) => sum + (p.amount_submitted || 0), 0);
 
       return {
         ...sq,
+        payments: sortedPayments,
         expectedFee,
+        feeBreakdown: fees,
+        totalVerified,
+        balanceDue: Math.max(0, expectedFee - totalVerified),
         latestPayment,
+        pendingPayment,
       };
     })
   );
@@ -472,44 +477,31 @@ export async function verifySquadPaymentAction(
   status: 'VERIFIED' | 'REJECTED',
   rejectionReason?: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAdmin();
+  const adminSession = await requireAdmin();
 
-  // Update squad status (Roster remains unlocked so colleges can register additional students & pay differential balance)
-  const squadUpdate: any = {
-    payment_status: status,
-    updated_at: new Date().toISOString(),
-  };
-
-  const { error: sqError } = await supabaseAdmin
-    .from('squads')
-    .update(squadUpdate)
-    .eq('id', squadId);
-
-  if (sqError) return { success: false, error: sqError.message };
-
-  // Update latest payment record
-  const { data: latestPayment } = await supabaseAdmin
+  // Only a payment that is still awaiting verification can be decided. At most one can be
+  // pending per squad (enforced at submission), so pick it explicitly — never "the latest row",
+  // which could already be VERIFIED/REJECTED and would be re-processed.
+  const { data: pendingPayment, error: findErr } = await supabaseAdmin
     .from('payments')
     .select('id')
     .eq('squad_id', squadId)
-    .order('created_at', { ascending: false })
+    .eq('status', 'SUBMITTED')
+    .order('created_at', { ascending: true })
     .limit(1)
     .maybeSingle();
 
-  if (latestPayment) {
-    await supabaseAdmin
-      .from('payments')
-      .update({
-        status,
-        rejection_reason: rejectionReason || null,
-        verified_at: new Date().toISOString(),
-      })
-      .eq('id', latestPayment.id);
+  if (findErr) return { success: false, error: findErr.message };
+  if (!pendingPayment) {
+    return { success: false, error: 'This squad has no payment awaiting verification. It may already have been processed.' };
   }
+
+  const result = await reviewPayment(pendingPayment.id, status, rejectionReason, adminSession.entityId);
+  if (!result.success) return result;
 
   await logAudit(
     status === 'VERIFIED' ? 'PAYMENT_APPROVED' : 'PAYMENT_REJECTED',
-    { squadId, status, rejectionReason: rejectionReason || 'None' }
+    { squadId, paymentId: pendingPayment.id, status, rejectionReason: rejectionReason || 'None' }
   );
 
   revalidatePath('/admin/payments');

@@ -10,6 +10,33 @@ export interface AddAthleteResult {
   athleteId?: string;
 }
 
+/** Official VTU USN pattern, e.g. 1RV21CS001, 4MT22MBA05, 2KE20EC400 */
+const VTU_USN_REGEX = /^[1-4][A-Z]{2}\d{2}[A-Z]{2,3}\d{2,3}$/;
+
+/**
+ * Roster mutation guard. Returns an error string when the squad's roster is frozen
+ * (payment submitted / verified / admin lock) or championship registration is closed.
+ */
+async function getRosterMutationBlock(squadId: string): Promise<string | null> {
+  const [{ data: meetSettings }, { data: squad, error: squadErr }] = await Promise.all([
+    supabaseAdmin.from('meet_settings').select('registration_open').limit(1).maybeSingle(),
+    supabaseAdmin.from('squads').select('roster_locked, payment_status').eq('id', squadId).maybeSingle(),
+  ]);
+
+  if (meetSettings && meetSettings.registration_open === false) {
+    return 'Championship registrations are officially closed by the VTU Directorate.';
+  }
+  if (squadErr || !squad) {
+    return 'Unable to verify squad roster status. Please try again.';
+  }
+  if (squad.roster_locked === true) {
+    return squad.payment_status === 'VERIFIED'
+      ? 'Roster Locked: Your entry fee payment has been verified. The squad roster is permanently frozen. Contact the VTU Directorate for an emergency unlock.'
+      : 'Roster Locked & Payment Submitted: Athletes cannot be added or removed while the roster is frozen. Contact the VTU Directorate for an emergency unlock.';
+  }
+  return null;
+}
+
 /**
  * Registers a new student-athlete for the current squad.
  * Validates individual event quotas, Aadhaar format, photo upload to Supabase storage,
@@ -19,15 +46,10 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
   try {
     const session = await requireSquad();
 
-    // Check if registration is globally closed
-    const { data: meetSettings } = await supabaseAdmin
-      .from('meet_settings')
-      .select('registration_open')
-      .limit(1)
-      .maybeSingle();
-
-    if (meetSettings && meetSettings.registration_open === false) {
-      return { success: false, error: 'Championship registrations are officially closed by the VTU Directorate.' };
+    // Roster lock + global registration window enforcement
+    const lockError = await getRosterMutationBlock(session.squadId);
+    if (lockError) {
+      return { success: false, error: lockError };
     }
 
   const sslcName = (formData.get('sslcName') as string || '').trim();
@@ -61,6 +83,14 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 
   if (!/^\d{12}$/.test(aadhaarNumber)) {
     return { success: false, error: 'Aadhaar Number must be exactly 12 numeric digits.' };
+  }
+
+  if (!VTU_USN_REGEX.test(usn)) {
+    return { success: false, error: `Invalid USN '${usn}'. Enter a valid VTU USN (e.g. 1RV21CS001).` };
+  }
+
+  if (!Number.isInteger(semester) || semester < 1 || semester > 10) {
+    return { success: false, error: 'Semester must be between 1 and 10.' };
   }
 
   // Date Logic Validation: Semester start date cannot be before college joining date
@@ -141,6 +171,31 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 
   if (reserveEventId && (reserveEventId === event1Id || reserveEventId === event2Id)) {
     return { success: false, error: 'Reserve event must be distinct from regular events.' };
+  }
+
+  // Every individual event (regular or reserve) must be a real individual event of THIS
+  // squad's gender — never a relay, the Half Marathon (own checkbox) or the other division.
+  const individualIds = [event1Id, event2Id, reserveEventId].filter(Boolean);
+  if (individualIds.length > 0) {
+    const { data: chosenEvents } = await supabaseAdmin
+      .from('events')
+      .select('id, code, gender, category')
+      .in('id', individualIds);
+    const byId = new Map((chosenEvents || []).map((ev: any) => [ev.id, ev]));
+    for (const id of individualIds) {
+      const ev: any = byId.get(id);
+      const code = String(ev?.code || '').toUpperCase();
+      const invalid =
+        !ev ||
+        ev.gender !== session.gender ||
+        ev.category === 'relay' ||
+        ev.category === 'road' ||
+        code.startsWith('4X') ||
+        code.startsWith('HM-');
+      if (invalid) {
+        return { success: false, error: 'One of the selected events is not a valid individual event for your division. Please re-select the events.' };
+      }
+    }
   }
 
   // Fetch existing squad profiles for quota validations
@@ -233,7 +288,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     }
   }
 
-  // 4x400m Mixed Relay (Unrestricted registration for athletes across events)
+  // 4x400m Mixed Relay: max 6 nominations per college (shared Men + Women team)
   let mixedRelayEventId: string | null = null;
   if (isMixedRelay) {
     const { data: mixedEvent } = await supabaseAdmin
@@ -244,6 +299,34 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 
     if (mixedEvent) {
       mixedRelayEventId = mixedEvent.id;
+
+      // The mixed team is shared by the college (both squads): max 6 nominations in total
+      // (4 runners + 2 reserves) — the team is picked only from these nominees.
+      const { data: collegeSquads } = await supabaseAdmin
+        .from('squads')
+        .select('id')
+        .eq('college_id', session.collegeId);
+      const collegeSquadIds = (collegeSquads || []).map((s: any) => s.id);
+      const { data: collegeProfiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .in('squad_id', collegeSquadIds.length > 0 ? collegeSquadIds : [session.squadId]);
+      const collegeProfileIds = (collegeProfiles || []).map((p: any) => p.id);
+
+      if (collegeProfileIds.length > 0) {
+        const { count: mixedCount } = await supabaseAdmin
+          .from('registrations')
+          .select('id', { count: 'exact', head: true })
+          .in('profile_id', collegeProfileIds)
+          .eq('event_id', mixedEvent.id);
+
+        if ((mixedCount || 0) >= 6) {
+          return {
+            success: false,
+            error: 'Your college has already reached the maximum of 6 nominations for the 4x400m Mixed Relay (4 runners + 2 reserves, across Men and Women squads).',
+          };
+        }
+      }
     }
   }
 
@@ -439,21 +522,34 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 export async function deleteAthleteAction(profileId: string): Promise<{ success: boolean; error?: string }> {
   const session = await requireSquad();
 
-  // Check if registration is globally closed
-  const { data: meetSettings } = await supabaseAdmin
-    .from('meet_settings')
-    .select('registration_open')
-    .limit(1)
-    .maybeSingle();
-
-  if (meetSettings && meetSettings.registration_open === false) {
-    return { success: false, error: 'Registration is officially closed. Contact the Meet Director to request athlete removals.' };
+  // Roster lock + global registration window enforcement
+  const lockError = await getRosterMutationBlock(session.squadId);
+  if (lockError) {
+    return { success: false, error: lockError };
   }
 
-  // Safely clean up associated registrations, relay memberships, and heat slots first to prevent FK constraint errors
-  await supabaseAdmin.from('registrations').delete().eq('profile_id', profileId);
-  await supabaseAdmin.from('relay_members').delete().eq('profile_id', profileId);
-  await supabaseAdmin.from('heat_athletes').delete().eq('athlete_id', profileId);
+  // IDOR protection: verify the athlete belongs to this squad BEFORE touching any child rows
+  const { data: owned } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('id', profileId)
+    .eq('squad_id', session.squadId)
+    .maybeSingle();
+
+  if (!owned) {
+    return { success: false, error: 'Athlete not found in your squad roster.' };
+  }
+
+  // Clean up child rows first (registrations, relay memberships, heat slots) so the
+  // profile delete never trips a foreign key, even on schemas without ON DELETE CASCADE.
+  const { error: regDelErr } = await supabaseAdmin.from('registrations').delete().eq('profile_id', profileId);
+  if (regDelErr) return { success: false, error: regDelErr.message };
+
+  const { error: relayDelErr } = await supabaseAdmin.from('relay_members').delete().eq('profile_id', profileId);
+  if (relayDelErr) return { success: false, error: relayDelErr.message };
+
+  // heat_athletes may not exist before scheduling; ignore its errors (FK is ON DELETE CASCADE)
+  await supabaseAdmin.from('heat_athletes').delete().eq('profile_id', profileId);
 
   const { error } = await supabaseAdmin
     .from('profiles')
@@ -462,6 +558,8 @@ export async function deleteAthleteAction(profileId: string): Promise<{ success:
     .eq('squad_id', session.squadId);
 
   if (error) return { success: false, error: error.message };
+
+  revalidatePath('/squad/relay');
 
   revalidatePath('/squad/athletes');
   revalidatePath('/squad/dashboard');
@@ -602,7 +700,9 @@ export async function getAvailableEventsAction() {
     .select('id, name, code, category, start_type, has_rounds')
     .eq('gender', session.gender)
     .neq('category', 'relay')
+    .neq('category', 'road')
     .not('code', 'ilike', '4X%')
+    .not('code', 'ilike', 'HM-%')
     .order('name', { ascending: true });
 
   if (error) throw new Error(error.message);

@@ -19,8 +19,18 @@ export default async function SquadRelayPage() {
   // Fetch all squads for this college (Men and Women squads)
   const { data: collegeSquads } = await supabaseAdmin
     .from('squads')
-    .select('id, squad_code, gender')
+    .select('id, squad_code, gender, roster_locked')
     .eq('college_id', squad?.college_id);
+
+  const { data: meetSettings } = await supabaseAdmin
+    .from('meet_settings')
+    .select('registration_open')
+    .limit(1)
+    .maybeSingle();
+  const registrationClosed = meetSettings?.registration_open === false;
+  const ownLocked = squad?.roster_locked === true || registrationClosed;
+  // Mixed relay spans both college squads: frozen if either squad is locked
+  const mixedLocked = ownLocked || (collegeSquads || []).some((s: any) => s.roster_locked === true);
 
   const menSquad = (collegeSquads || []).find((s: any) => s.gender === 'men');
   const womenSquad = (collegeSquads || []).find((s: any) => s.gender === 'women');
@@ -56,7 +66,9 @@ export default async function SquadRelayPage() {
         menAthletes={menAthletes}
         womenAthletes={womenAthletes}
         squadGender={session.gender as 'men' | 'women'}
-        rosterLocked={squad?.roster_locked || false}
+        rosterLocked={ownLocked}
+        mixedLocked={mixedLocked}
+        registrationClosed={registrationClosed}
         squadCode={squad?.squad_code || session.squadCode || ''}
       />
     </div>

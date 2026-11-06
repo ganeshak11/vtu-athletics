@@ -52,12 +52,6 @@ export default function PaymentsClient({ squads }: Props) {
       );
 
       if (res.success) {
-        // Update local state
-        selectedSquad.payment_status = status;
-        if (selectedSquad.latestPayment) {
-          selectedSquad.latestPayment.status = status;
-          if (status === 'REJECTED') selectedSquad.latestPayment.rejection_reason = rejectionReason;
-        }
         setSelectedSquad(null);
         setShowRejectInput(false);
         setRejectionReason('');
@@ -309,6 +303,12 @@ export default function PaymentsClient({ squads }: Props) {
                     </strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0', borderBottom: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Already Verified / Balance Due:</span>
+                    <strong style={{ fontSize: '0.95rem', color: '#0f172a' }}>
+                      ₹{(selectedSquad.totalVerified || 0).toLocaleString()} / ₹{(selectedSquad.balanceDue || 0).toLocaleString()}
+                    </strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0', borderBottom: '1px solid #e2e8f0' }}>
                     <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Amount Submitted by College:</span>
                     <strong style={{ fontSize: '1.05rem', color: '#059669' }}>
                       ₹{(selectedSquad.latestPayment?.amount_submitted || 0).toLocaleString()}
@@ -461,7 +461,14 @@ export default function PaymentsClient({ squads }: Props) {
                 Close
               </button>
 
-              {!showRejectInput && (
+              {!selectedSquad.pendingPayment && (
+                <span style={{ alignSelf: 'center', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>
+                  No payment awaiting verification
+                  {selectedSquad.latestPayment ? ` — latest is ${String(selectedSquad.latestPayment.status).toLowerCase()}` : ''}
+                </span>
+              )}
+
+              {selectedSquad.pendingPayment && !showRejectInput && (
                 <button
                   type="button"
                   disabled={isVerifying}
@@ -473,15 +480,17 @@ export default function PaymentsClient({ squads }: Props) {
                 </button>
               )}
 
-              <button
-                type="button"
-                disabled={isVerifying}
-                onClick={() => handleVerification('VERIFIED')}
-                className="btn-admin btn-admin-success"
-                id="btn-approve-payment"
-              >
-                {isVerifying ? 'Approving...' : '✓ Approve & Verify Payment'}
-              </button>
+              {selectedSquad.pendingPayment && (
+                <button
+                  type="button"
+                  disabled={isVerifying}
+                  onClick={() => handleVerification('VERIFIED')}
+                  className="btn-admin btn-admin-success"
+                  id="btn-approve-payment"
+                >
+                  {isVerifying ? 'Approving...' : '✓ Approve & Verify Payment'}
+                </button>
+              )}
             </div>
           </div>
         </div>

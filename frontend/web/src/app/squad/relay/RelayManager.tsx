@@ -16,6 +16,8 @@ interface Props {
   womenAthletes: AthleteOption[];
   squadGender: 'men' | 'women';
   rosterLocked: boolean;
+  mixedLocked?: boolean;
+  registrationClosed?: boolean;
   squadCode: string;
 }
 
@@ -25,6 +27,8 @@ export default function RelayManager({
   womenAthletes,
   squadGender,
   rosterLocked,
+  mixedLocked = rosterLocked,
+  registrationClosed = false,
   squadCode,
 }: Props) {
   // Track active/reserve member IDs per team code to enforce Rule 24 mutual exclusivity across cards in real-time
@@ -58,14 +62,26 @@ export default function RelayManager({
             Relay Team Composition ({squadCode})
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-            Assign 4 active runners across relay legs + up to 2 reserve runners. Relay lineups can be adjusted until championship registration closes.
+            Pick exactly 4 runners + up to 2 reserves from the athletes nominated for each relay on the athlete registration form. Lineups can be edited until you submit your entry fee payment.
           </p>
         </div>
 
-        <div style={{ padding: '0.6rem 1.2rem', background: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', borderRadius: 'var(--radius-md)', color: 'var(--accent-primary)', fontSize: '0.875rem', fontWeight: 700 }}>
-          ⚡ Editable until Registration Closes
-        </div>
+        {rosterLocked ? (
+          <div id="badge-relay-roster-locked" style={{ padding: '0.6rem 1.2rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: 'var(--radius-md)', color: 'var(--danger)', fontSize: '0.875rem', fontWeight: 700 }}>
+            🔒 {registrationClosed ? 'Registration Closed' : 'Roster Locked & Payment Submitted'}
+          </div>
+        ) : (
+          <div style={{ padding: '0.6rem 1.2rem', background: 'rgba(37, 99, 235, 0.1)', border: '1px solid rgba(37, 99, 235, 0.25)', borderRadius: 'var(--radius-md)', color: 'var(--accent-primary)', fontSize: '0.875rem', fontWeight: 700 }}>
+            ⚡ Editable until Payment Submission
+          </div>
+        )}
       </div>
+
+      {rosterLocked && (
+        <div style={{ padding: '1rem 1.25rem', marginBottom: '1.5rem', borderRadius: 'var(--radius-md)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--danger)', fontSize: '0.9rem' }}>
+          🔒 <strong>{registrationClosed ? 'Registration Closed:' : 'Roster Locked & Payment Submitted:'}</strong> Relay teams are frozen and can no longer be edited. Contact the VTU Directorate if an emergency unlock is required.
+        </div>
+      )}
 
       {/* Official VTU Relay Regulations & Scoring Info Box */}
       <div
@@ -116,6 +132,7 @@ export default function RelayManager({
             womenAthletes={womenAthletes}
             squadGender={squadGender}
             teamSelections={teamSelections}
+            locked={team.is_mixed || team.event_code === '4X400M-MIX' ? mixedLocked : rosterLocked}
             onUpdateSelection={(selectedIds) => updateTeamSelection(team.event_code, selectedIds)}
           />
         ))}
@@ -131,6 +148,7 @@ function RelayTeamCard({
   womenAthletes,
   squadGender,
   teamSelections,
+  locked,
   onUpdateSelection,
 }: {
   team: RelayTeamDTO;
@@ -139,6 +157,7 @@ function RelayTeamCard({
   womenAthletes: AthleteOption[];
   squadGender: 'men' | 'women';
   teamSelections: Record<string, string[]>;
+  locked: boolean;
   onUpdateSelection: (selectedIds: string[]) => void;
 }) {
   const [leg1, setLeg1] = useState(team.members.find((m) => m.leg_order === 1)?.profile_id || '');
@@ -162,6 +181,13 @@ function RelayTeamCard({
     ? (squadGender === 'men' ? '4X400M-M' : '4X400M-W')
     : (squadGender === 'men' ? '4X100M-M' : '4X100M-W');
   const otherDivisionalSelected = !isMixed ? (teamSelections[otherDivisionalCode] || []) : [];
+
+  // Only athletes nominated for this relay on the athlete registration form are selectable.
+  // Existing members who are not nominated (legacy data) stay visible, flagged, so they can be replaced.
+  const eligibleIds = new Set(team.eligible_profile_ids || []);
+  const savedMemberIds = new Set(team.members.map((m) => m.profile_id));
+  const pool = (list: AthleteOption[]) => list.filter((a) => eligibleIds.has(a.id) || savedMemberIds.has(a.id));
+  const nomineeCount = eligibleIds.size;
 
   // Currently selected athletes within THIS relay card
   const thisRelaySelected = [leg1, leg2, leg3, leg4, reserve1, reserve2].filter(Boolean);
@@ -187,6 +213,16 @@ function RelayTeamCard({
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    if (locked) {
+      setMsg({ text: 'Roster Locked & Payment Submitted: relay teams can no longer be edited.', error: true });
+      return;
+    }
+    const legsFilled = [leg1, leg2, leg3, leg4].filter(Boolean).length;
+    const anySelected = [leg1, leg2, leg3, leg4, reserve1, reserve2].some(Boolean);
+    if (anySelected && legsFilled !== 4) {
+      setMsg({ text: 'A relay team must have exactly 4 runners. Please assign all four legs before saving.', error: true });
+      return;
+    }
     setSaving(true);
     setMsg(null);
 
@@ -266,6 +302,24 @@ function RelayTeamCard({
         </div>
       )}
 
+      <div
+        style={{
+          padding: '0.55rem 0.75rem',
+          borderRadius: '8px',
+          fontSize: '0.78rem',
+          marginBottom: '1rem',
+          background: nomineeCount === 0 ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.08)',
+          border: `1px solid ${nomineeCount === 0 ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.25)'}`,
+          color: nomineeCount === 0 ? '#b45309' : '#047857',
+        }}
+      >
+        {nomineeCount === 0 ? (
+          <>⚠️ No athletes nominated for {team.event_name} yet. Choose this relay on the <Link href="/squad/athletes" style={{ fontWeight: 700, textDecoration: 'underline' }}>athlete registration form</Link> first.</>
+        ) : (
+          <>✓ {nomineeCount} athlete{nomineeCount === 1 ? '' : 's'} nominated for this relay. Pick 4 runners{nomineeCount > 4 ? ` and up to ${Math.min(2, nomineeCount - 4)} reserve${Math.min(2, nomineeCount - 4) === 1 ? '' : 's'}` : ''} from them.</>
+        )}
+      </div>
+
       {msg && (
         <div
           style={{
@@ -283,6 +337,7 @@ function RelayTeamCard({
       )}
 
       <form onSubmit={handleSave}>
+        <fieldset disabled={locked} style={{ border: 'none', padding: 0, margin: 0, minWidth: 0 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
           {/* Leg 1 */}
           <div className="form-group" style={{ marginBottom: 0 }}>
@@ -297,7 +352,7 @@ function RelayTeamCard({
               onChange={(e) => handleLegChange(1, e.target.value)}
             >
               <option value="">Select Athlete</option>
-              {(isMixed ? womenAthletes : divisionalAthletes).map((a) => {
+              {pool(isMixed ? womenAthletes : divisionalAthletes).map((a) => {
                 const inThisRelay = thisRelaySelected.includes(a.id) && leg1 !== a.id;
                 const inOtherRelay = !isMixed && otherDivisionalSelected.includes(a.id);
                 const disabled = inThisRelay || inOtherRelay;
@@ -305,6 +360,7 @@ function RelayTeamCard({
                   <option key={a.id} value={a.id} disabled={disabled}>
                     {isMixed ? '🚺 ' : ''}{a.sslc_name} ({a.usn})
                     {inOtherRelay ? ` — (Already in ${is100 ? '4x400m' : '4x100m'} Relay)` : ''}
+                    {!eligibleIds.has(a.id) ? ' — ⚠ Not nominated (replace)' : ''}
                   </option>
                 );
               })}
@@ -324,7 +380,7 @@ function RelayTeamCard({
               onChange={(e) => handleLegChange(2, e.target.value)}
             >
               <option value="">Select Athlete</option>
-              {(isMixed ? menAthletes : divisionalAthletes).map((a) => {
+              {pool(isMixed ? menAthletes : divisionalAthletes).map((a) => {
                 const inThisRelay = thisRelaySelected.includes(a.id) && leg2 !== a.id;
                 const inOtherRelay = !isMixed && otherDivisionalSelected.includes(a.id);
                 const disabled = inThisRelay || inOtherRelay;
@@ -332,6 +388,7 @@ function RelayTeamCard({
                   <option key={a.id} value={a.id} disabled={disabled}>
                     {isMixed ? '🚹 ' : ''}{a.sslc_name} ({a.usn})
                     {inOtherRelay ? ` — (Already in ${is100 ? '4x400m' : '4x100m'} Relay)` : ''}
+                    {!eligibleIds.has(a.id) ? ' — ⚠ Not nominated (replace)' : ''}
                   </option>
                 );
               })}
@@ -351,7 +408,7 @@ function RelayTeamCard({
               onChange={(e) => handleLegChange(3, e.target.value)}
             >
               <option value="">Select Athlete</option>
-              {(isMixed ? womenAthletes : divisionalAthletes).map((a) => {
+              {pool(isMixed ? womenAthletes : divisionalAthletes).map((a) => {
                 const inThisRelay = thisRelaySelected.includes(a.id) && leg3 !== a.id;
                 const inOtherRelay = !isMixed && otherDivisionalSelected.includes(a.id);
                 const disabled = inThisRelay || inOtherRelay;
@@ -359,6 +416,7 @@ function RelayTeamCard({
                   <option key={a.id} value={a.id} disabled={disabled}>
                     {isMixed ? '🚺 ' : ''}{a.sslc_name} ({a.usn})
                     {inOtherRelay ? ` — (Already in ${is100 ? '4x400m' : '4x100m'} Relay)` : ''}
+                    {!eligibleIds.has(a.id) ? ' — ⚠ Not nominated (replace)' : ''}
                   </option>
                 );
               })}
@@ -378,7 +436,7 @@ function RelayTeamCard({
               onChange={(e) => handleLegChange(4, e.target.value)}
             >
               <option value="">Select Athlete</option>
-              {(isMixed ? menAthletes : divisionalAthletes).map((a) => {
+              {pool(isMixed ? menAthletes : divisionalAthletes).map((a) => {
                 const inThisRelay = thisRelaySelected.includes(a.id) && leg4 !== a.id;
                 const inOtherRelay = !isMixed && otherDivisionalSelected.includes(a.id);
                 const disabled = inThisRelay || inOtherRelay;
@@ -386,6 +444,7 @@ function RelayTeamCard({
                   <option key={a.id} value={a.id} disabled={disabled}>
                     {isMixed ? '🚹 ' : ''}{a.sslc_name} ({a.usn})
                     {inOtherRelay ? ` — (Already in ${is100 ? '4x400m' : '4x100m'} Relay)` : ''}
+                    {!eligibleIds.has(a.id) ? ' — ⚠ Not nominated (replace)' : ''}
                   </option>
                 );
               })}
@@ -411,7 +470,7 @@ function RelayTeamCard({
                   onChange={(e) => handleLegChange(5, e.target.value)}
                 >
                   <option value="">None</option>
-                  {(isMixed ? womenAthletes : divisionalAthletes).map((a) => {
+                  {pool(isMixed ? womenAthletes : divisionalAthletes).map((a) => {
                     const inThisRelay = thisRelaySelected.includes(a.id) && reserve1 !== a.id;
                     const inOtherRelay = !isMixed && otherDivisionalSelected.includes(a.id);
                     const disabled = inThisRelay || inOtherRelay;
@@ -419,6 +478,7 @@ function RelayTeamCard({
                       <option key={a.id} value={a.id} disabled={disabled}>
                         {isMixed ? '🚺 ' : ''}{a.sslc_name} ({a.usn})
                         {inOtherRelay ? ` — (Already in ${is100 ? '4x400m' : '4x100m'} Relay)` : ''}
+                        {!eligibleIds.has(a.id) ? ' — ⚠ Not nominated (replace)' : ''}
                       </option>
                     );
                   })}
@@ -437,7 +497,7 @@ function RelayTeamCard({
                   onChange={(e) => handleLegChange(6, e.target.value)}
                 >
                   <option value="">None</option>
-                  {(isMixed ? menAthletes : divisionalAthletes).map((a) => {
+                  {pool(isMixed ? menAthletes : divisionalAthletes).map((a) => {
                     const inThisRelay = thisRelaySelected.includes(a.id) && reserve2 !== a.id;
                     const inOtherRelay = !isMixed && otherDivisionalSelected.includes(a.id);
                     const disabled = inThisRelay || inOtherRelay;
@@ -445,6 +505,7 @@ function RelayTeamCard({
                       <option key={a.id} value={a.id} disabled={disabled}>
                         {isMixed ? '🚹 ' : ''}{a.sslc_name} ({a.usn})
                         {inOtherRelay ? ` — (Already in ${is100 ? '4x400m' : '4x100m'} Relay)` : ''}
+                        {!eligibleIds.has(a.id) ? ' — ⚠ Not nominated (replace)' : ''}
                       </option>
                     );
                   })}
@@ -455,10 +516,11 @@ function RelayTeamCard({
         </div>
 
         <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-          <button type="submit" disabled={saving} className="btn btn-primary" id={`btn-save-relay-${team.event_code}`}>
-            {saving ? 'Saving...' : 'Save Relay Roster →'}
+          <button type="submit" disabled={saving || locked} className="btn btn-primary" id={`btn-save-relay-${team.event_code}`}>
+            {locked ? '🔒 Roster Locked' : saving ? 'Saving...' : 'Save Relay Roster →'}
           </button>
         </div>
+        </fieldset>
       </form>
     </div>
   );

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import RulesRegulationsModal from '@/components/modals/RulesRegulationsModal';
 import ListOfEventsModal from '@/components/modals/ListOfEventsModal';
+import HelpManualModal from '@/components/modals/HelpManualModal';
 import '../login.css';
 
 export default function SquadLoginPage() {
@@ -18,6 +19,7 @@ export default function SquadLoginPage() {
   const [passphrase, setPassphrase] = useState('');
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [showEventsModal, setShowEventsModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -103,6 +105,30 @@ export default function SquadLoginPage() {
                 }}
               >
                 <span>🏅</span> List of Events
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(true)}
+                id="btn-login-help-manual"
+                style={{
+                  gridColumn: '1 / -1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.45rem',
+                  padding: '0.7rem 0.6rem',
+                  borderRadius: '8px',
+                  background: '#eff6ff',
+                  border: '1.5px solid #93c5fd',
+                  color: '#1e3a8a',
+                  fontSize: '0.85rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                }}
+              >
+                <span>📘</span> Help Manual: How to Register (Step by Step)
               </button>
             </div>
 
@@ -210,7 +236,7 @@ export default function SquadLoginPage() {
                   type="password"
                   value={passphrase}
                   onChange={(e) => setPassphrase(e.target.value)}
-                  placeholder="Enter 4-word squad passphrase"
+                  placeholder="e.g. swift-falcon-84"
                   required
                   className="login-input"
                   style={{ textTransform: 'none', letterSpacing: 'normal', fontSize: '0.95rem' }}
@@ -244,6 +270,12 @@ export default function SquadLoginPage() {
         <RulesRegulationsModal
           isOpen={showRulesModal}
           onClose={() => setShowRulesModal(false)}
+        />
+
+        {/* Modal: PED Help Manual */}
+        <HelpManualModal
+          isOpen={showHelpModal}
+          onClose={() => setShowHelpModal(false)}
         />
 
         {/* Modal: List of Events */}
