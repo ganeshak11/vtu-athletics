@@ -637,7 +637,7 @@ export default function HomePage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
               <img
-                src="/acsce-logo.png"
+                src="/logo.jpeg"
                 alt="Dr. ACS College of Engineering Official Red Emblem"
                 style={{ maxWidth: '100%', maxHeight: '220px', objectFit: 'contain' }}
               />
