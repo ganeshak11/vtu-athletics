@@ -20,6 +20,33 @@ export interface RelayTeamDTO {
   event_code: string;
   is_mixed: boolean;
   members: RelayMemberDTO[];
+  /** Athletes nominated for THIS relay event at registration — the only ones selectable */
+  eligible_profile_ids: string[];
+}
+
+/**
+ * Roster mutation guard for relay compositions. Blocks when championship registration is
+ * closed or when ANY of the given squads has a frozen roster (payment submitted / verified /
+ * admin lock). Mixed relays span both squads of a college, so both are checked.
+ */
+async function getRelayMutationBlock(squadIds: string[]): Promise<string | null> {
+  const ids = Array.from(new Set(squadIds.filter(Boolean)));
+  const [{ data: meetSettings }, { data: squads, error: squadErr }] = await Promise.all([
+    supabaseAdmin.from('meet_settings').select('registration_open').limit(1).maybeSingle(),
+    supabaseAdmin.from('squads').select('id, gender, roster_locked').in('id', ids),
+  ]);
+
+  if (meetSettings && meetSettings.registration_open === false) {
+    return 'Registration is officially closed. Relay teams cannot be modified.';
+  }
+  if (squadErr || !squads || squads.length !== ids.length) {
+    return 'Unable to verify squad roster status. Please try again.';
+  }
+  const locked = squads.find((s: any) => s.roster_locked === true);
+  if (locked) {
+    return `Roster Locked & Payment Submitted: The ${locked.gender === 'men' ? "Men's" : "Women's"} squad roster is frozen, so relay teams cannot be modified. Contact the VTU Directorate for an emergency unlock.`;
+  }
+  return null;
 }
 
 /**
@@ -110,6 +137,25 @@ export async function getSquadRelayTeamsAction(): Promise<RelayTeamDTO[]> {
 
     if (!team) continue;
 
+    // Nomination pool: athletes who chose this relay event on the athlete registration form.
+    // Divisional relay → own squad only; mixed relay → both squads of the college.
+    const poolSquadIds = isMixed ? collegeSquadIds : [session.squadId];
+    const { data: poolProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .in('squad_id', poolSquadIds);
+    const poolProfileIds = (poolProfiles || []).map((p: any) => p.id);
+    let eligibleIds: string[] = [];
+    if (poolProfileIds.length > 0) {
+      const { data: nominations } = await supabaseAdmin
+        .from('registrations')
+        .select('profile_id')
+        .eq('event_id', ev.id)
+        .eq('kind', 'relay')
+        .in('profile_id', poolProfileIds);
+      eligibleIds = (nominations || []).map((n: any) => n.profile_id);
+    }
+
     // Fetch members with profiles and their squad's gender
     const { data: members } = await supabaseAdmin
       .from('relay_members')
@@ -148,6 +194,7 @@ export async function getSquadRelayTeamsAction(): Promise<RelayTeamDTO[]> {
       event_code: ev.code,
       is_mixed: isMixed,
       members: formattedMembers,
+      eligible_profile_ids: eligibleIds,
     });
   }
 
@@ -171,15 +218,10 @@ export async function saveRelayTeamAction(
 ): Promise<{ success: boolean; error?: string }> {
   const session = await requireSquad();
 
-  // Check if registration is globally closed
-  const { data: meetSettings } = await supabaseAdmin
-    .from('meet_settings')
-    .select('registration_open')
-    .limit(1)
-    .maybeSingle();
-
-  if (meetSettings && meetSettings.registration_open === false) {
-    return { success: false, error: 'Registration is officially closed. Relay teams cannot be modified.' };
+  // Fast-fail on the session squad's own lock / closed registration
+  const ownLockError = await getRelayMutationBlock([session.squadId]);
+  if (ownLockError) {
+    return { success: false, error: ownLockError };
   }
 
   // Fetch current squad details
@@ -230,9 +272,41 @@ export async function saveRelayTeamAction(
     return { success: false, error: 'Unauthorized: This mixed relay team does not belong to your institution.' };
   }
 
-  const allSelected: string[] = [leg1, leg2, leg3, leg4, reserve1, reserve2].filter(
-    (id): id is string => typeof id === 'string' && id.trim().length > 0
-  );
+  // Normalise empty strings / undefined
+  const norm = (v?: string) => (typeof v === 'string' && v.trim().length > 0 ? v.trim() : '');
+  leg1 = norm(leg1);
+  leg2 = norm(leg2);
+  leg3 = norm(leg3);
+  leg4 = norm(leg4);
+  reserve1 = norm(reserve1);
+  reserve2 = norm(reserve2);
+
+  const allSelected: string[] = [leg1, leg2, leg3, leg4, reserve1, reserve2].filter(Boolean);
+
+  // Mixed relays involve both college squads; divisional relays only the owning squad.
+  // The team-owning squad must also be unlocked.
+  let involvedSquadIds = [session.squadId, verifiedTeam.squad_id];
+  if (isMixed) {
+    const { data: collegeSquads } = await supabaseAdmin
+      .from('squads')
+      .select('id')
+      .eq('college_id', currentSquad.college_id);
+    involvedSquadIds = involvedSquadIds.concat((collegeSquads || []).map((s: any) => s.id));
+  }
+  const lockError = await getRelayMutationBlock(involvedSquadIds);
+  if (lockError) {
+    return { success: false, error: lockError };
+  }
+
+  // Team size: exactly 4 runners (all legs filled) + at most 2 reserves = max 6 members
+  if (allSelected.length > 0) {
+    if (!leg1 || !leg2 || !leg3 || !leg4) {
+      return { success: false, error: 'A relay team must have exactly 4 runners: please assign all four legs (Leg 1–4) before saving.' };
+    }
+    if (allSelected.length > 6) {
+      return { success: false, error: 'A relay team may have at most 6 members (4 runners + 2 reserves).' };
+    }
+  }
 
   // Check internal duplicates within this team
   const uniqueSelected = new Set(allSelected);
@@ -280,6 +354,28 @@ export async function saveRelayTeamAction(
       college_id: s?.college_id,
       squad_id: a.squad_id,
     });
+  }
+
+  // -------------------------------------------------------------
+  // NOMINATION ENFORCEMENT: only athletes who chose this relay on the athlete
+  // registration form may be placed in the team (e.g. 6 nominated for 4x100m →
+  // 4 run + up to 2 reserves; no one else can be added).
+  // -------------------------------------------------------------
+  const { data: nominations } = await supabaseAdmin
+    .from('registrations')
+    .select('profile_id')
+    .eq('event_id', verifiedTeam.event_id)
+    .eq('kind', 'relay')
+    .in('profile_id', allSelected);
+
+  const nominatedIds = new Set((nominations || []).map((n: any) => n.profile_id));
+  const notNominated = allSelected.filter((id) => !nominatedIds.has(id));
+  if (notNominated.length > 0) {
+    const names = notNominated.map((id) => athleteMap.get(id)?.sslc_name || 'Athlete').join(', ');
+    return {
+      success: false,
+      error: `Not nominated for ${teamEvent?.name || 'this relay'}: ${names}. Only athletes who selected this relay when they were registered can be placed in the team.`,
+    };
   }
 
   if (isMixed) {
@@ -367,6 +463,29 @@ export async function saveRelayTeamAction(
       .eq('events.code', otherCode)
       .maybeSingle();
 
+    // 2a. Exclusivity against relay nominations recorded at athlete registration time
+    const { data: otherEvent } = await supabaseAdmin
+      .from('events')
+      .select('id')
+      .eq('code', otherCode)
+      .maybeSingle();
+
+    if (otherEvent) {
+      const { data: otherRegs } = await supabaseAdmin
+        .from('registrations')
+        .select('profile_id')
+        .eq('event_id', otherEvent.id)
+        .in('profile_id', allSelected);
+
+      if (otherRegs && otherRegs.length > 0) {
+        const name = athleteMap.get(otherRegs[0].profile_id)?.sslc_name || 'Athlete';
+        return {
+          success: false,
+          error: `Rule 24 Violation: Athlete "${name}" is nominated for the ${otherRelayTitle}. An athlete can participate in at most one divisional relay (either 4x100m or 4x400m).`,
+        };
+      }
+    }
+
     if (otherTeam) {
       const { data: otherMembers } = await supabaseAdmin
         .from('relay_members')
@@ -418,5 +537,6 @@ export async function saveRelayTeamAction(
 
   revalidatePath('/squad/relay');
   revalidatePath('/squad/dashboard');
+  revalidatePath('/squad/payment');
   return { success: true };
 }

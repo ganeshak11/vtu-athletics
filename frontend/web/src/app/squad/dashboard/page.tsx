@@ -27,6 +27,10 @@ export default async function SquadDashboardPage() {
   const squadCode = squad?.squad_code || session.squadCode || '';
   const paymentStatus = squad?.payment_status || 'DrAFT';
   const isPaymentVerified = paymentStatus === 'VERIFIED';
+  const rosterLocked = squad?.roster_locked === true;
+  // Legacy DB spelling 'DrAFT' is shown as DRAFT
+  const paymentStatusLabel =
+    (paymentStatus === 'DrAFT' ? 'DRAFT' : paymentStatus) + (rosterLocked ? ' · 🔒 Roster Locked' : '');
 
   // Fetch championship registration status
   const { data: meetSettings } = await supabaseAdmin
@@ -135,7 +139,7 @@ export default async function SquadDashboardPage() {
                 className={`squad-status-badge ${isPaymentVerified ? 'squad-badge-verified' : 'squad-badge-pending'
                   }`}
               >
-                {isPaymentVerified ? '✓ Payment: Verified' : `⚠️ Payment: ${paymentStatus}`}
+                {isPaymentVerified ? '✓ Payment: Verified' : `⚠️ Payment: ${paymentStatusLabel}`}
               </span>
               <span className={`squad-status-badge ${isRegistrationOpen ? 'squad-badge-open' : 'squad-badge-pending'}`}>
                 {isRegistrationOpen ? '🔓 Registration: Open' : '🔒 Registration: Closed'}
@@ -260,7 +264,7 @@ export default async function SquadDashboardPage() {
             <div style={{ height: '6px', margin: '0.65rem 0' }} />
             <div className="squad-kpi-footer">
               <span style={{ color: isPaymentVerified ? '#059669' : '#b45309', fontWeight: 700 }}>
-                {isPaymentVerified ? '✅ Fully Verified (Paid)' : `⚠️ Status: ${paymentStatus}`}
+                {isPaymentVerified ? '✅ Fully Verified (Paid)' : `⚠️ Status: ${paymentStatusLabel}`}
               </span>
               <Link href="/squad/payment" style={{ color: '#059669', fontWeight: 700 }}>
                 Details &rarr;

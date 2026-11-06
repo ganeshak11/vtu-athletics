@@ -36,6 +36,10 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
     }
   }
 
+  // College codes are letters/digits/hyphens; strip anything else so user input can never
+  // act as a wildcard (ilike %/_) or alter the PostgREST .or() filter syntax.
+  collegeCode = collegeCode.replace(/[^A-Z0-9-]/g, '');
+
   if (!collegeCode || !passphrase) {
     return { success: false, error: 'Please enter College Code and Passphrase.' };
   }
@@ -78,7 +82,12 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
     return { success: false, error: 'Invalid college code, division, or passphrase.' };
   }
 
-  const isValid = await verifyPassphrase(passphrase, squad.passphrase_hash);
+  // Issued passphrases are lowercase (e.g. swift-falcon-84); tolerate Caps Lock / auto-capitalised
+  // first letters on mobile keyboards by also trying the lowercase form.
+  let isValid = await verifyPassphrase(passphrase, squad.passphrase_hash);
+  if (!isValid && passphrase.toLowerCase() !== passphrase) {
+    isValid = await verifyPassphrase(passphrase.toLowerCase(), squad.passphrase_hash);
+  }
   if (!isValid) {
     return { success: false, error: 'Invalid college code, division, or passphrase.' };
   }
