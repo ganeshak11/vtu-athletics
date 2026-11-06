@@ -28,7 +28,7 @@ export const Sidebar: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img src="/vtu.png" alt="VTU Logo" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
           <div style={{ width: '1px', height: '24px', background: 'var(--border-color)' }}></div>
-          <img src="/acsce-logo.png" alt="Dr. ACSCE Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+          <img src="/logo.jpeg" alt="Dr. ACSCE Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
         </div>
         <div>
           <h2 className="sidebar-title" style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>Meet Admin Desk</h2>
@@ -39,8 +39,8 @@ export const Sidebar: React.FC = () => {
         {menuItems.map((item) => {
           const isActive = pathname === item.path || (pathname.startsWith(item.path) && item.path !== '/admin');
           return (
-            <Link 
-              key={item.name} 
+            <Link
+              key={item.name}
               href={item.path}
               className={`sidebar-link ${isActive ? 'active' : ''} hover-lift`}
               style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}

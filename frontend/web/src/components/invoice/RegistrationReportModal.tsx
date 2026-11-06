@@ -134,7 +134,7 @@ export default function RegistrationReportModal({
                 <div className="report-inst-loc">Kambipura, Mysore Road, Bengaluru – 560074</div>
               </div>
               <img
-                src="/acsce-logo.png"
+                src="/logo.jpeg"
                 alt="Dr. ACSCE Logo"
                 className="report-logo-img"
               />

@@ -109,7 +109,7 @@ export default function FeeInvoiceModal({
                 <div className="invoice-inst-loc">Kambipura, Mysore Road, Bengaluru – 560074</div>
               </div>
               <img
-                src="/acsce-logo.png"
+                src="/logo.jpeg"
                 alt="Dr. ACSCE Logo"
                 className="invoice-logo-img"
               />

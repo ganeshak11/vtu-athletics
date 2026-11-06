@@ -31,7 +31,7 @@ export function SquadNav({ collegeName, collegeCode, gender }: SquadNavProps) {
         {/* Brand / Championship Context */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0 }}>
           <Link href="/squad/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', textDecoration: 'none', flexShrink: 0 }}>
-            <img src="/acsce-logo.png" alt="ACSCE" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+            <img src="/logo.jpeg" alt="ACSCE" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.15, letterSpacing: '-0.01em' }}>
                 ACS AURA
