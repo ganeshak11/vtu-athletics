@@ -917,7 +917,7 @@ export default function HomePage() {
             <ul>
               <li>
                 <Link href="/login/squad" style={{ color: '#1d4ed8', fontWeight: 700 }}>
-                  College Student Registration Login
+                  College Student Registration Portal
                 </Link>
               </li>
               <li>

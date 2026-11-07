@@ -22,8 +22,8 @@ export const Navbar: React.FC = () => {
         <div className="univ-nav-inner">
           {/* Menu Links */}
           <div className="univ-nav-menu">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className={`univ-nav-link ${pathname === '/' ? 'active' : ''}`}
             >
               <span>Home</span>
@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
           {/* Direct Portal Access Logins */}
           <div className="univ-nav-auth">
             <Link href="/login/squad" className="univ-btn-portal univ-btn-squad" id="nav-btn-squad">
-              <span>College Student Registration Login</span>
+              <span>College Student Registration Portal</span>
             </Link>
 
             <Link href="/login/admin" className="univ-btn-portal univ-btn-admin" id="nav-btn-admin">
@@ -56,8 +56,8 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Mobile Toggle */}
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="univ-mobile-hamburger"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle Navigation"
@@ -77,7 +77,7 @@ export const Navbar: React.FC = () => {
             <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Championship Gallery</a>
             <div style={{ borderTop: '1px solid #1e3a8a', margin: '0.5rem 0' }} />
             <Link href="/login/squad" className="univ-mobile-link" style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: 700 }} onClick={() => setIsMobileMenuOpen(false)}>
-              College Student Registration Login
+              College Student Registration Portal
             </Link>
             <Link href="/login/admin" className="univ-mobile-link" style={{ background: '#0f172a', color: '#ffffff', fontWeight: 700 }} onClick={() => setIsMobileMenuOpen(false)}>
               Directorate Admin Login
