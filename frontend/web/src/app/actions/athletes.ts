@@ -5,7 +5,7 @@ import { requireSquad } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 import { rosterEditBlockReason } from '@/lib/roster-window';
 import { validateDateOfBirth } from '@/lib/eligibility';
-import { makeAthleteQrToken } from '@/lib/athlete-qr';
+import { tryMakeAthleteQrToken } from '@/lib/athlete-qr';
 
 export interface AddAthleteResult {
   success: boolean;
@@ -913,7 +913,7 @@ export async function listSquadAthletesAction() {
 
   if (error) throw new Error(error.message);
   // Signed QR for ID cards / AURA apps (secret stays on the server)
-  return (athletes || []).map((a: any) => ({ ...a, qr_token: makeAthleteQrToken(a.id) }));
+  return (athletes || []).map((a: any) => ({ ...a, qr_token: tryMakeAthleteQrToken(a.id) }));
 }
 
 /**

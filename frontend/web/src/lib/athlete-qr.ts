@@ -35,6 +35,25 @@ export function makeAthleteQrToken(profileId: string): string {
   return `${PREFIX}.${profileId}.${sign(profileId)}`;
 }
 
+let warnedMissingSecret = false;
+
+/**
+ * Same as makeAthleteQrToken, but never throws: returns null when ATHLETE_QR_SECRET is
+ * missing or invalid. Use this when listing athletes so a missing QR secret can never take
+ * down the roster / registration pages — only the QR on ID cards is affected.
+ */
+export function tryMakeAthleteQrToken(profileId: string): string | null {
+  try {
+    return makeAthleteQrToken(profileId);
+  } catch (err) {
+    if (!warnedMissingSecret) {
+      warnedMissingSecret = true;
+      console.error('[athlete-qr] QR tokens disabled:', (err as Error).message);
+    }
+    return null;
+  }
+}
+
 /** Returns the profile id when the token is genuine, otherwise null. */
 export function verifyAthleteQrToken(token: string): string | null {
   const m = /^AURA26\.([0-9a-f-]{36})\.([A-Za-z0-9_-]{22})$/.exec(String(token || '').trim());

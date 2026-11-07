@@ -59,6 +59,17 @@ interface Props {
   lateEntryOpen?: boolean;
 }
 
+/** Relay team fee shown per member: ₹100 for members 1–4 (runners), ₹0 for members 5–6 (reserves). */
+const RELAY_MEMBER_FEE = 100;
+function relayMemberShare(alreadyNominated: number): number {
+  return alreadyNominated < 4 ? RELAY_MEMBER_FEE : 0;
+}
+function relayMemberLabel(alreadyNominated: number): string {
+  return alreadyNominated < 4
+    ? `₹100 (member ${alreadyNominated + 1} of 4)`
+    : `₹0 (reserve ${alreadyNominated - 3} — free)`;
+}
+
 /** Official VTU USN pattern, e.g. 1RV21CS001, 4MT22MBA05 (mirrors server validation) */
 const VTU_USN_REGEX = /^[1-4][A-Z]{2}\d{2}[A-Z]{2,3}\d{2,3}$/;
 
@@ -170,22 +181,17 @@ export default function AthletesManager({
 
   // Real-time fee calculation for current athlete modal:
   // ₹100 per regular event / HM. Reserve is FREE (₹0).
-  // For relays, a team is ₹400 for 4 active legs (reserves 5 & 6 are FREE).
+  // For relays, the ₹400 team fee is shown as ₹100 for each of the first 4 members
+  // (the runners) and ₹0 for members 5 & 6 (the free reserves) — so a full team totals ₹400.
   const modalFee = useMemo(() => {
     let fee = 0;
     if (event1) fee += 100;
     if (event2) fee += 100;
     if (isHalfMarathon) fee += 100;
-    // Relay: flat ₹400 per TEAM, charged once when the first athlete is nominated
-    if (relayChoice === '4x100') {
-      fee += registered100mRelay === 0 ? 400 : 0;
-    } else if (relayChoice === '4x400') {
-      fee += registered400mRelay === 0 ? 400 : 0;
-    }
-    if (isMixedRelay) {
-      // Mixed team is shared by the college; may already be billed to the other squad
-      fee += registeredMixedRelay === 0 ? 400 : 0;
-    }
+    if (relayChoice === '4x100') fee += relayMemberShare(registered100mRelay);
+    else if (relayChoice === '4x400') fee += relayMemberShare(registered400mRelay);
+    // Mixed team is shared by the college; this squad's members are counted here
+    if (isMixedRelay) fee += relayMemberShare(registeredMixedRelay);
     return fee;
   }, [event1, event2, relayChoice, isMixedRelay, isHalfMarathon, registered100mRelay, registered400mRelay, registeredMixedRelay]);
 
@@ -664,7 +670,7 @@ export default function AthletesManager({
             </div>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            Up to 6 members/relay (4 active + 2 reserves free) &bull; Flat ₹400/team
+            Up to 6 members/relay &bull; ₹100 each for the first 4 runners, 2 reserves free (₹400/team)
           </span>
         </div>
       </div>
@@ -1415,7 +1421,9 @@ export default function AthletesManager({
                               3. Divisional Relay Nomination (VTU Rule 3: Max 1 Relay)
                             </label>
                             <span style={{ fontSize: '0.8rem', color: relayChoice !== 'none' ? 'var(--accent-primary)' : 'var(--text-muted)', fontWeight: 750 }}>
-                              {relayChoice !== 'none' ? '+₹100' : 'None Selected'}
+                              {relayChoice === 'none'
+                                ? 'None Selected'
+                                : `+₹${relayMemberShare(relayChoice === '4x100' ? registered100mRelay : registered400mRelay)}`}
                             </span>
                           </div>
                           <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0 0 0.65rem' }}>
@@ -1530,7 +1538,7 @@ export default function AthletesManager({
                             />
                             <div>
                               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                                Code 22: 4x400m Mixed Relay Pool (₹400 per college team)
+                                Code 22: 4x400m Mixed Relay Pool (₹100 each for first 4 members, reserves free)
                               </div>
                               <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>
                                 Can be combined with other entries. Max 6 nominations per college (Men + Women). Order: Leg 1: W • Leg 2: M • Leg 3: W • Leg 4: M
@@ -1605,16 +1613,14 @@ export default function AthletesManager({
                           <span style={{ fontWeight: 700 }}>
                             {relayChoice === 'none'
                               ? '₹0'
-                              : (relayChoice === '4x100' ? registered100mRelay : registered400mRelay) === 0
-                                ? '₹400 (team fee)'
-                                : '₹0 (team already billed)'}
+                              : relayMemberLabel(relayChoice === '4x100' ? registered100mRelay : registered400mRelay)}
                           </span>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
                           <span>Mixed Relay Pool:</span>
                           <span style={{ fontWeight: 700 }}>
-                            {!isMixedRelay ? '₹0' : registeredMixedRelay === 0 ? '₹400 (college team fee)' : '₹0 (team already billed)'}
+                            {!isMixedRelay ? '₹0' : relayMemberLabel(registeredMixedRelay)}
                           </span>
                         </div>
 
