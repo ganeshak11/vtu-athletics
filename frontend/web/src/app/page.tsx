@@ -103,10 +103,6 @@ export default function HomePage() {
                     alt="28th VTU State Athletics Torchbearer Sprinting with the Championship Flame"
                     className="hero-torchbearer-img"
                   />
-                  <div className="hero-torchbearer-badge">
-                    <span className="torchbearer-badge-dot" aria-hidden="true" />
-                    <span>CHAMPIONSHIP FLAME OF EXCELLENCE</span>
-                  </div>
                 </div>
               </div>
             </div>
