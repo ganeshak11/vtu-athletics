@@ -236,7 +236,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Points matrix (Individual 5-3-1, Relay 10-6-2) &amp; Team Championships</span>
+                    <span>Points matrix (Individual 5-3-1), Relay &amp; Team Championships(10-6-2)</span>
                   </li>
                 </ul>
               </div>
