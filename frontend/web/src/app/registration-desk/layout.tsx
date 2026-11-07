@@ -6,6 +6,8 @@ import '@/components/layout/Navbar.css';
 import '@/app/admin/admin.css';
 
 export const metadata = {
+  // Private portal: keep out of search results
+  robots: { index: false, follow: false },
   title: 'Registration Desk — VTU SportsOS',
   description: 'Contingent reporting and attendance marking at the venue Registration Desk',
 };

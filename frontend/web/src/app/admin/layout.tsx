@@ -6,6 +6,8 @@ import '@/components/layout/Navbar.css';
 import './admin.css';
 
 export const metadata = {
+  // Private portal: keep out of search results
+  robots: { index: false, follow: false },
   title: 'VTU Athletics — Administrative Suite',
   description: 'Directorate Meet Administration, Roster Management, Payments & Accreditations',
 };

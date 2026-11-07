@@ -5,6 +5,8 @@ import '@/components/layout/Navbar.css';
 import './dashboard/dashboard.css';
 
 export const metadata = {
+  // Private portal: keep out of search results
+  robots: { index: false, follow: false },
   title: 'VTU Athletics — Institution Delegation Portal',
   description: 'Affiliated Institution Squad Registration, Athletes Roster, Relay Teams & Fee Settlement',
 };

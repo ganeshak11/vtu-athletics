@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import ScheduleView from './ScheduleView';
 import GallerySection from './GallerySection';
@@ -7,10 +8,55 @@ import LeadershipAndRanks from './LeadershipAndRanks';
 import WelcomeBanner from './WelcomeBanner';
 import { Navbar } from '@/components/layout/Navbar';
 import './home.css';
+import { SITE_URL, SITE_DESCRIPTION } from '@/lib/site';
+
+
+// Home page only: canonical URL (not inherited by other pages). openGraph is NOT set here,
+// because a page-level openGraph would replace the layout's (title, description, image).
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
+
+// Structured data (schema.org SportsEvent) so search engines can show the meet as an event
+const EVENT_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'SportsEvent',
+  name: 'Dr. ACS-AURA 2026 — VTU’s 28th Inter-Collegiate State Level Athletic Meet 2026',
+  description: SITE_DESCRIPTION,
+  sport: 'Athletics',
+  startDate: '2026-12-07T08:00:00+05:30',
+  endDate: '2026-12-10T18:00:00+05:30',
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  image: [`${SITE_URL}/banner.jpeg`],
+  url: `${SITE_URL}/`,
+  location: {
+    '@type': 'Place',
+    name: 'Dr. ACS College of Engineering',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '#207, Kambipura, Mysore Road, Kengeri Hobli',
+      addressLocality: 'Bengaluru',
+      addressRegion: 'Karnataka',
+      postalCode: '560074',
+      addressCountry: 'IN',
+    },
+    geo: { '@type': 'GeoCoordinates', latitude: 12.8910233, longitude: 77.4655618 },
+  },
+  organizer: [
+    { '@type': 'CollegeOrUniversity', name: 'Dr. ACS College of Engineering', url: `${SITE_URL}/` },
+    { '@type': 'CollegeOrUniversity', name: 'Visvesvaraya Technological University (VTU), Belagavi', url: 'https://vtu.ac.in' },
+  ],
+};
 
 export default function HomePage() {
   return (
     <div className="landing-container" id="landing-page-root">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(EVENT_JSON_LD).replace(/</g, '\\u003c') }}
+      />
       {/* 0. SUBTLE ARCHITECTURAL WATERMARK BACKGROUND */}
       <div className="fixed-viewport-svg-bg" aria-hidden="true">
         <img
