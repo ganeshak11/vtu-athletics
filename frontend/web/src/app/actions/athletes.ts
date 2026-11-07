@@ -16,6 +16,18 @@ export interface AddAthleteResult {
 /** Official VTU USN pattern, e.g. 1RV21CS001, 4MT22MBA05, 2KE20EC400 */
 const VTU_USN_REGEX = /^[1-4][A-Z]{2}\d{2}[A-Z]{2,3}\d{2,3}$/;
 
+/** Indian 10-digit mobile number (starts 6–9). */
+const PHONE_REGEX = /^[6-9]\d{9}$/;
+
+/** Strips spaces, dashes and a leading +91 / 91 / 0 so '+91 98765-43210' → '9876543210'. */
+function normalizePhone(raw: FormDataEntryValue | null): string {
+  let v = String(raw || '').replace(/[\s-]/g, '');
+  if (v.startsWith('+91')) v = v.slice(3);
+  else if (v.length === 12 && v.startsWith('91')) v = v.slice(2);
+  else if (v.length === 11 && v.startsWith('0')) v = v.slice(1);
+  return v;
+}
+
 /**
  * Roster mutation guard. Returns an error string when the squad's roster is frozen
  * (payment submitted / verified / admin lock) or championship registration is closed.
@@ -57,6 +69,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
   const semStartDate = formData.get('semStartDate') as string;
   const aadhaarNumber = (formData.get('aadhaarNumber') as string || '').trim().replace(/[\s-]/g, '');
   const dateOfBirth = (formData.get('dateOfBirth') as string || '').trim();
+  const phone = normalizePhone(formData.get('phone'));
 
   const event1Id = formData.get('event1Id') as string;
   const event2Id = formData.get('event2Id') as string;
@@ -87,8 +100,12 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     return { success: false, error: `Invalid USN '${usn}'. Enter a valid VTU USN (e.g. 1RV21CS001).` };
   }
 
-  if (!Number.isInteger(semester) || semester < 1 || semester > 8) {
-    return { success: false, error: 'Semester must be between 1 and 8.' };
+  if (!Number.isInteger(semester) || semester < 1 || semester > 10) {
+    return { success: false, error: 'Semester must be between 1 and 10.' };
+  }
+
+  if (!PHONE_REGEX.test(phone)) {
+    return { success: false, error: "Enter the student's 10-digit mobile number (e.g. 9876543210)." };
   }
 
   const dobError = validateDateOfBirth(dateOfBirth);
@@ -105,7 +122,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     return { success: false, error: 'College joining date cannot be in the future.' };
   }
   if (semStartDateObj < joiningDateObj) {
-    return { success: false, error: 'Current semester start date cannot be earlier than college joining date.' };
+    return { success: false, error: 'Present year start date cannot be earlier than the college joining date.' };
   }
 
   // Check for duplicate Aadhaar across the entire championship
@@ -440,6 +457,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     sem_start_date: semStartDate,
     aadhaar_number: aadhaarNumber || null,
     date_of_birth: dateOfBirth,
+    phone,
     photo_url: photoUrl,
     accreditation_status: 'REGISTERED',
   };
@@ -614,6 +632,7 @@ export interface UpdateAthleteResult {
     sem_start_date: string;
     aadhaar_number: string;
     date_of_birth: string;
+    phone?: string;
     photo_url?: string;
   };
 }
@@ -642,6 +661,7 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
     const semStartDate = (formData.get('semStartDate') as string || '').trim();
     const aadhaarNumber = (formData.get('aadhaarNumber') as string || '').trim().replace(/[\s-]/g, '');
     const dateOfBirth = (formData.get('dateOfBirth') as string || '').trim();
+    const phone = normalizePhone(formData.get('phone'));
     const photoData = (formData.get('photoData') as string | null) || '';
 
     if (!profileId) return { success: false, error: 'Athlete not specified.' };
@@ -664,8 +684,11 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
     if (!VTU_USN_REGEX.test(usn)) {
       return { success: false, error: `Invalid USN '${usn}'. Enter a valid VTU USN (e.g. 1RV21CS001).` };
     }
-    if (!Number.isInteger(semester) || semester < 1 || semester > 8) {
-      return { success: false, error: 'Semester must be between 1 and 8.' };
+    if (!Number.isInteger(semester) || semester < 1 || semester > 10) {
+      return { success: false, error: 'Semester must be between 1 and 10.' };
+    }
+    if (!PHONE_REGEX.test(phone)) {
+      return { success: false, error: "Enter the student's 10-digit mobile number (e.g. 9876543210)." };
     }
     if (!BLOOD_GROUPS.has(bloodGroup)) {
       return { success: false, error: 'Please select a valid blood group.' };
@@ -683,7 +706,7 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
       return { success: false, error: 'College joining date cannot be in the future.' };
     }
     if (semStartDateObj < joiningDateObj) {
-      return { success: false, error: 'Current semester start date cannot be earlier than college joining date.' };
+      return { success: false, error: 'Present year start date cannot be earlier than the college joining date.' };
     }
 
     // Championship-wide uniqueness, excluding this athlete
@@ -732,6 +755,7 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
       sem_start_date: semStartDate,
       aadhaar_number: aadhaarNumber,
       date_of_birth: dateOfBirth,
+      phone,
       updated_at: new Date().toISOString(),
     };
     if (photoUrl) updatePayload.photo_url = photoUrl;
@@ -766,6 +790,7 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
         sem_start_date: semStartDate,
         aadhaar_number: aadhaarNumber,
         date_of_birth: dateOfBirth,
+        phone,
         photo_url: photoUrl || owned.photo_url || undefined,
       },
     };
@@ -823,19 +848,7 @@ export async function listSquadAthletesAction() {
   let { data: athletes, error } = await supabaseAdmin
     .from('profiles')
     .select(`
-      id,
-      sslc_name,
-      usn,
-      semester,
-      blood_group,
-      college_joining_date,
-      sem_start_date,
-      aadhaar_number,
-      date_of_birth,
-      photo_url,
-      bid_number,
-      accreditation_status,
-      created_at,
+      *,
       squads (
         id,
         gender,

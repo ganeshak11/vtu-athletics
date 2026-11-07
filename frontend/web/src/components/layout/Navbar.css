@@ -101,7 +101,7 @@
 
 .univ-organized-by {
   font-size: clamp(0.7rem, 0.95vw, 0.85rem);
-  font-weight: 600;
+  font-weight: 800;
   font-style: italic;
   color: #475569;
   letter-spacing: 0.04em;
@@ -143,7 +143,7 @@
 .univ-accreditation-pill {
   font-size: clamp(0.75rem, 0.95vw, 0.875rem);
   color: #334155;
-  font-weight: 700;
+  font-weight: 800;
   margin-top: 0.35rem;
   background: #f1f5f9;
   padding: 0.2rem 0.9rem;
@@ -333,7 +333,7 @@
   white-space: nowrap;
   animation: ticker-slide 32s linear infinite;
   font-size: 0.785rem;
-  font-weight: 600;
+  font-weight: 800;
   color: #1e3a8a;
   line-height: 32px;
 }

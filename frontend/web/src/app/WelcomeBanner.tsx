@@ -64,7 +64,7 @@ export default function WelcomeBanner() {
         </button>
         <img
           src="/banner.jpeg"
-          alt="28th VTU Inter-Collegiate State Level Athletic Meet 2026 — Dr. ACS-AURA 2026"
+          alt="VTU’s 28th Inter-Collegiate State Level Athletic Meet 2026 — Dr. ACS-AURA 2026"
           className="welcome-banner-img"
           width={1200}
           height={628}

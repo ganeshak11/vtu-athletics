@@ -300,7 +300,7 @@
 
 .hero-editorial-title {
   font-family: var(--font-curvy, 'Cinzel Decorative', Georgia, serif);
-  font-weight: 700;
+  font-weight: 900;
   /* "Dr. ACS-AURA 2026" always on ONE line, one font, one size — shrinks with the screen */
   font-size: clamp(1.35rem, 4.6vw, 4.25rem);
   line-height: 1.1;
@@ -313,11 +313,11 @@
 
 .hero-title-brand {
   font-family: inherit;
-  font-weight: 700;
+  font-weight: 900;
   font-size: 1em;
-  /* Same gold as .hero-title-year so the whole "Dr. ACS-AURA 2026" reads as one colour */
-  color: #b45309;
-  background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+  /* Same maroon as .hero-title-year so the whole "Dr. ACS-AURA 2026" reads as one colour */
+  color: #800000; /* maroon */
+  background: linear-gradient(135deg, #5c0000 0%, #800000 55%, #9b1b1b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 0.02em;
@@ -336,10 +336,10 @@
 
 .hero-title-year {
   font-family: inherit;
-  font-weight: 700;
+  font-weight: 900;
   font-size: 1em; /* EXACT SAME MATCHING SIZE */
-  color: #b45309;
-  background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+  color: #800000; /* maroon */
+  background: linear-gradient(135deg, #5c0000 0%, #800000 55%, #9b1b1b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   padding: 0;
@@ -732,7 +732,7 @@
   align-items: center;
   font-family: var(--font-heading-curvy, 'Audiowide', cursive, sans-serif);
   font-size: clamp(1.2rem, 2.1vw, 1.75rem);
-  font-weight: 400;
+  font-weight: 700;
   color: #ffffff;
   background: linear-gradient(135deg, #090d16 0%, #172554 45%, #1e3a8a 100%);
   border: 1.5px solid rgba(59, 130, 246, 0.45);
@@ -828,7 +828,7 @@
 .card-title {
   font-family: var(--font-heading-curvy, 'Audiowide', cursive, sans-serif);
   font-size: 1.35rem;
-  font-weight: 400;
+  font-weight: 700;
   color: #090d16;
   margin: 0 0 0.65rem 0;
   line-height: 1.25;

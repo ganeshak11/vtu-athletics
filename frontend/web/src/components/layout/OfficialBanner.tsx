@@ -31,7 +31,7 @@ export function OfficialBanner({ portalBadge }: Props) {
             VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI
           </div>
           <div className="univ-meet-line">
-            28th VTU Inter-Collegiate State Level Athletic Meet
+            VTU&rsquo;s 28th Inter-Collegiate State Level Athletic Meet 2026
           </div>
           <div className="univ-organized-by">Organized by</div>
           <div className="univ-host-clg">

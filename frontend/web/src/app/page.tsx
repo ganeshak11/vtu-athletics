@@ -45,7 +45,7 @@ export default function HomePage() {
 
               {/* Edition Subtitle */}
               <div className="hero-edition-line">
-                28th VTU Inter-Collegiate State Level Athletic Meet – 2026
+                VTU&rsquo;s 28th Inter-Collegiate State Level Athletic Meet 2026
               </div>
 
               {/* Institutional Summary */}
