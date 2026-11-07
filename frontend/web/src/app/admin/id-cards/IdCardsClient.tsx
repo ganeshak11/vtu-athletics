@@ -158,8 +158,9 @@ export default function IdCardsClient({ athletes }: Props) {
         <div className="id-cards-grid">
           {filteredAthletes.map((athlete) => {
             const collegeCode = athlete.squads?.colleges?.code || athlete.squads?.squad_code || '';
-            const qrPayload = `VTU-ATH-2026|USN:${athlete.usn}|BIB:${athlete.bid_number || 'PENDING'}|COL:${collegeCode}|NAME:${athlete.sslc_name}`;
-            const contactPhone = athlete.squads?.ped_phone || athlete.phone || '9845012345';
+            // Signed token generated on the server (AURA26.<id>.<sig>) — scanned by AURA Officials
+            const qrPayload: string = athlete.qr_token || '';
+            const contactPhone = athlete.squads?.ped_phone || athlete.phone || '';
             const eventsList = (athlete.registrations || []).map((r: any) => r.events?.name || 'Event');
 
             if (orientation === 'landscape') {
@@ -198,9 +199,11 @@ export default function IdCardsClient({ athletes }: Props) {
                         <div className="id-blood-tag">
                           🩸 Blood: <strong>{athlete.blood_group || 'N/A'}</strong>
                         </div>
-                        <div className="id-contact-tag">
-                          📞 Contact: <strong>{contactPhone}</strong>
-                        </div>
+                        {contactPhone && (
+                          <div className="id-contact-tag">
+                            📞 Contact: <strong>{contactPhone}</strong>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -286,9 +289,11 @@ export default function IdCardsClient({ athletes }: Props) {
                     <div className="id-blood-tag">
                       🩸 Blood: <strong>{athlete.blood_group || 'N/A'}</strong>
                     </div>
-                    <div className="id-contact-tag">
-                      📞 Contact: <strong>{contactPhone}</strong>
-                    </div>
+                    {contactPhone && (
+                      <div className="id-contact-tag">
+                        📞 Contact: <strong>{contactPhone}</strong>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

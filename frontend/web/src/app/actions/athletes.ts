@@ -4,6 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { requireSquad } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 import { rosterEditBlockReason } from '@/lib/roster-window';
+import { validateDateOfBirth } from '@/lib/eligibility';
+import { makeAthleteQrToken } from '@/lib/athlete-qr';
 
 export interface AddAthleteResult {
   success: boolean;
@@ -54,6 +56,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
   const collegeJoiningDate = formData.get('collegeJoiningDate') as string;
   const semStartDate = formData.get('semStartDate') as string;
   const aadhaarNumber = (formData.get('aadhaarNumber') as string || '').trim().replace(/[\s-]/g, '');
+  const dateOfBirth = (formData.get('dateOfBirth') as string || '').trim();
 
   const event1Id = formData.get('event1Id') as string;
   const event2Id = formData.get('event2Id') as string;
@@ -86,6 +89,11 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
 
   if (!Number.isInteger(semester) || semester < 1 || semester > 8) {
     return { success: false, error: 'Semester must be between 1 and 8.' };
+  }
+
+  const dobError = validateDateOfBirth(dateOfBirth);
+  if (dobError) {
+    return { success: false, error: dobError };
   }
 
   // Date Logic Validation: Semester start date cannot be before college joining date
@@ -437,6 +445,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     college_joining_date: collegeJoiningDate,
     sem_start_date: semStartDate,
     aadhaar_number: aadhaarNumber || null,
+    date_of_birth: dateOfBirth,
     photo_url: photoUrl,
     accreditation_status: 'REGISTERED',
   };
@@ -610,6 +619,7 @@ export interface UpdateAthleteResult {
     college_joining_date: string;
     sem_start_date: string;
     aadhaar_number: string;
+    date_of_birth: string;
     photo_url?: string;
   };
 }
@@ -637,6 +647,7 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
     const collegeJoiningDate = (formData.get('collegeJoiningDate') as string || '').trim();
     const semStartDate = (formData.get('semStartDate') as string || '').trim();
     const aadhaarNumber = (formData.get('aadhaarNumber') as string || '').trim().replace(/[\s-]/g, '');
+    const dateOfBirth = (formData.get('dateOfBirth') as string || '').trim();
     const photoData = (formData.get('photoData') as string | null) || '';
 
     if (!profileId) return { success: false, error: 'Athlete not specified.' };
@@ -664,6 +675,10 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
     }
     if (!BLOOD_GROUPS.has(bloodGroup)) {
       return { success: false, error: 'Please select a valid blood group.' };
+    }
+    const dobError = validateDateOfBirth(dateOfBirth);
+    if (dobError) {
+      return { success: false, error: dobError };
     }
     const joiningDateObj = new Date(collegeJoiningDate);
     const semStartDateObj = new Date(semStartDate);
@@ -722,6 +737,7 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
       college_joining_date: collegeJoiningDate,
       sem_start_date: semStartDate,
       aadhaar_number: aadhaarNumber,
+      date_of_birth: dateOfBirth,
       updated_at: new Date().toISOString(),
     };
     if (photoUrl) updatePayload.photo_url = photoUrl;
@@ -755,6 +771,7 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
         college_joining_date: collegeJoiningDate,
         sem_start_date: semStartDate,
         aadhaar_number: aadhaarNumber,
+        date_of_birth: dateOfBirth,
         photo_url: photoUrl || owned.photo_url || undefined,
       },
     };
@@ -762,6 +779,45 @@ export async function updateAthleteAction(formData: FormData): Promise<UpdateAth
     console.error('updateAthleteAction error:', err);
     return { success: false, error: err?.message || 'Failed to update athlete.' };
   }
+}
+
+/**
+ * One-time date-of-birth fill for athletes registered before DOB was collected.
+ * DOB affects neither events nor fees, so it is allowed even on a locked / paid roster —
+ * but only while it is still empty. Changing an existing DOB needs the roster unlocked
+ * (Edit), or the VTU Directorate.
+ */
+export async function setAthleteDateOfBirthAction(
+  profileId: string,
+  dateOfBirth: string
+): Promise<{ success: boolean; error?: string }> {
+  const session = await requireSquad();
+
+  const dobError = validateDateOfBirth(dateOfBirth);
+  if (dobError) return { success: false, error: dobError };
+
+  const { data: owned } = await supabaseAdmin
+    .from('profiles')
+    .select('id, date_of_birth')
+    .eq('id', profileId)
+    .eq('squad_id', session.squadId)
+    .maybeSingle();
+  if (!owned) return { success: false, error: 'Athlete not found in your squad roster.' };
+  if (owned.date_of_birth) {
+    return { success: false, error: 'Date of birth is already recorded. To correct it, use Edit (roster unlocked) or contact the VTU Directorate.' };
+  }
+
+  const { error } = await supabaseAdmin
+    .from('profiles')
+    .update({ date_of_birth: dateOfBirth, updated_at: new Date().toISOString() })
+    .eq('id', profileId)
+    .eq('squad_id', session.squadId)
+    .is('date_of_birth', null);
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath('/squad/athletes');
+  revalidatePath('/squad/dashboard');
+  return { success: true };
 }
 
 /**
@@ -781,6 +837,7 @@ export async function listSquadAthletesAction() {
       college_joining_date,
       sem_start_date,
       aadhaar_number,
+      date_of_birth,
       photo_url,
       bid_number,
       accreditation_status,
@@ -848,7 +905,8 @@ export async function listSquadAthletesAction() {
   }
 
   if (error) throw new Error(error.message);
-  return athletes || [];
+  // Signed QR for ID cards / AURA apps (secret stays on the server)
+  return (athletes || []).map((a: any) => ({ ...a, qr_token: makeAthleteQrToken(a.id) }));
 }
 
 /**

@@ -4,6 +4,7 @@ import GallerySection from './GallerySection';
 import CountdownTimer from './CountdownTimer';
 import TransitRoutes from './TransitRoutes';
 import LeadershipAndRanks from './LeadershipAndRanks';
+import WelcomeBanner from './WelcomeBanner';
 import { Navbar } from '@/components/layout/Navbar';
 import './home.css';
 
@@ -21,6 +22,9 @@ export default function HomePage() {
 
       {/* 1. OFFICIAL UNIVERSITY IDENTITY & NAVIGATION */}
       <Navbar />
+
+      {/* First-visit announcement banner (dismissed state kept in localStorage) */}
+      <WelcomeBanner />
 
       {/* 2. GRAND EDITORIAL CHAMPIONSHIP HERO SECTION */}
       <section className="hero-editorial-section">

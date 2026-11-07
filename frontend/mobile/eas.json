@@ -1,0 +1,39 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "base": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://REPLACE-WITH-YOUR-API-DOMAIN/api"
+      }
+    },
+    "athletes-preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "APP_VARIANT": "athletes", "EAS_PROJECT_ID": "REPLACE-WITH-ATHLETES-EAS-PROJECT-ID" }
+    },
+    "athletes-production": {
+      "extends": "base",
+      "autoIncrement": true,
+      "env": { "APP_VARIANT": "athletes", "EAS_PROJECT_ID": "REPLACE-WITH-ATHLETES-EAS-PROJECT-ID" }
+    },
+    "officials-preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "APP_VARIANT": "officials", "EAS_PROJECT_ID": "REPLACE-WITH-OFFICIALS-EAS-PROJECT-ID" }
+    },
+    "officials-production": {
+      "extends": "base",
+      "autoIncrement": true,
+      "env": { "APP_VARIANT": "officials", "EAS_PROJECT_ID": "REPLACE-WITH-OFFICIALS-EAS-PROJECT-ID" }
+    }
+  },
+  "submit": {
+    "athletes-production": {},
+    "officials-production": {}
+  }
+}

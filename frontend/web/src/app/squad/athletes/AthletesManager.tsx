@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/Button';
 import { DB_CODE_TO_OFFICIAL_MAP } from '@/lib/championship-events';
 import RegistrationReportModal from '@/components/invoice/RegistrationReportModal';
 import EditAthleteModal from './EditAthleteModal';
+import DobQuickFill from './DobQuickFill';
+import { validateDateOfBirth, EARLIEST_ELIGIBLE_DOB } from '@/lib/eligibility';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -36,6 +38,7 @@ interface AthleteItem {
   college_joining_date: string;
   sem_start_date: string;
   aadhaar_number?: string;
+  date_of_birth?: string | null;
   photo_url?: string;
   bid_number?: number;
   accreditation_status: string;
@@ -101,6 +104,7 @@ export default function AthletesManager({
   const [joiningDate, setJoiningDate] = useState('');
   const [semStartDate, setSemStartDate] = useState('');
   const [aadhaarNumber, setAadhaarNumber] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const [event1, setEvent1] = useState('');
@@ -247,6 +251,7 @@ export default function AthletesManager({
     setJoiningDate('');
     setSemStartDate('');
     setAadhaarNumber('');
+    setDateOfBirth('');
     setPhotoPreview(null);
     setEvent1('');
     setEvent2('');
@@ -285,6 +290,14 @@ export default function AthletesManager({
     // Check duplicate USN in local roster
     if (athletes.some((a) => a.usn.toUpperCase() === cleanUsn)) {
       setError(`An athlete with USN '${cleanUsn}' is already registered in this squad roster.`);
+      setLoading(false);
+      return;
+    }
+
+    // 1b. Validate date of birth (VTU Rule 11 age limit; also the AURA Athletes app login)
+    const dobError = validateDateOfBirth(dateOfBirth);
+    if (dobError) {
+      setError(dobError);
       setLoading(false);
       return;
     }
@@ -392,6 +405,7 @@ export default function AthletesManager({
     formData.set('collegeJoiningDate', joiningDate);
     formData.set('semStartDate', semStartDate);
     formData.set('aadhaarNumber', cleanAadhaar);
+    formData.set('dateOfBirth', dateOfBirth);
     formData.set('event1Id', event1);
     if (event2) formData.set('event2Id', event2);
     if (reserveEvent) formData.set('reserveEventId', reserveEvent);
@@ -737,6 +751,16 @@ export default function AthletesManager({
                               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }} suppressHydrationWarning>
                                 Joined: {new Date(athlete.college_joining_date).toLocaleDateString()}
                               </div>
+                              {athlete.date_of_birth ? (
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                  DOB: {athlete.date_of_birth.split('-').reverse().join('/')}
+                                </div>
+                              ) : (
+                                <DobQuickFill
+                                  profileId={athlete.id}
+                                  onSaved={(dob) => setAthletes((prev) => prev.map((a) => (a.id === athlete.id ? { ...a, date_of_birth: dob } : a)))}
+                                />
+                              )}
                             </div>
                           </div>
                         </td>
@@ -1190,6 +1214,21 @@ export default function AthletesManager({
                           />
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginTop: '0.25rem' }}>
                             12 digits. Unique per championship athlete.
+                          </span>
+
+                          <label style={{ ...labelStyle, marginTop: '0.9rem' }} htmlFor="add-dob">Date of Birth (as per SSLC) *</label>
+                          <input
+                            id="add-dob"
+                            type="date"
+                            required
+                            min={EARLIEST_ELIGIBLE_DOB}
+                            max={new Date().toISOString().slice(0, 10)}
+                            value={dateOfBirth}
+                            onChange={(e) => setDateOfBirth(e.target.value)}
+                            style={inputStyle}
+                          />
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginTop: '0.25rem' }}>
+                            Must be below 25 years on 1 July 2026. The athlete logs in to the AURA Athletes app with bib number + this date.
                           </span>
                         </div>
 

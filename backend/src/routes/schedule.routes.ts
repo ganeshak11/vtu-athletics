@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import { notifyHeatStatusChange } from '../utils/push';
 import { supabase } from '../config/supabase';
 import { authenticate, requireRole, AuthenticatedRequest } from '../middleware/auth';
 import { cacheResponse, invalidateCache } from '../middleware/cache';
@@ -137,6 +138,8 @@ scheduleRouter.patch('/heats/:heatId/status', requireRole(['meet_admin', 'call_r
       .single();
 
     if (error) return res.status(400).json({ error: error.message });
+    // AURA Athletes: push "call room open" to everyone in the heat (best effort, non-blocking)
+    if (status) notifyHeatStatusChange(heatId, status);
     return res.json({ success: true, heat: data });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });

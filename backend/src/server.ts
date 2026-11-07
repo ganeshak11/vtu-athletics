@@ -22,6 +22,12 @@ import { cateringRouter } from './routes/catering.routes';
 dotenv.config();
 
 const app = express();
+
+// Behind nginx, req.ip must come from X-Forwarded-For — otherwise every user shares the proxy's
+// IP and one rate-limit bucket. TRUST_PROXY = number of proxy hops (docker-compose sets 1).
+// Leave unset when the API is exposed directly, so clients cannot spoof their IP.
+const trustProxyHops = parseInt(process.env.TRUST_PROXY || '0', 10);
+if (trustProxyHops > 0) app.set('trust proxy', trustProxyHops);
 const PORT = process.env.PORT || 5000;
 
 // 1. HTTP Security Headers

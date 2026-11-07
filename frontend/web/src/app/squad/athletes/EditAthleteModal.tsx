@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { updateAthleteAction, UpdateAthleteResult } from '@/app/actions/athletes';
+import { validateDateOfBirth, EARLIEST_ELIGIBLE_DOB } from '@/lib/eligibility';
 
 export interface EditableAthlete {
   id: string;
@@ -13,6 +14,7 @@ export interface EditableAthlete {
   college_joining_date: string;
   sem_start_date: string;
   aadhaar_number?: string;
+  date_of_birth?: string | null;
   photo_url?: string;
 }
 
@@ -36,6 +38,7 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
   const [joiningDate, setJoiningDate] = useState(toDateInput(athlete.college_joining_date));
   const [semStartDate, setSemStartDate] = useState(toDateInput(athlete.sem_start_date));
   const [aadhaarNumber, setAadhaarNumber] = useState(athlete.aadhaar_number || '');
+  const [dateOfBirth, setDateOfBirth] = useState(toDateInput(athlete.date_of_birth || ''));
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +81,8 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
     if (!sslcName.trim()) return setError('Full name is required.');
     if (!VTU_USN_REGEX.test(cleanUsn)) return setError(`Invalid USN '${cleanUsn}'. Enter a valid VTU USN (e.g. 1RV21CS001).`);
     if (!/^\d{12}$/.test(cleanAadhaar)) return setError('Aadhaar Number must be exactly 12 numeric digits.');
+    const dobError = validateDateOfBirth(dateOfBirth);
+    if (dobError) return setError(dobError);
     if (!joiningDate || !semStartDate) return setError('Both dates are required.');
     if (new Date(semStartDate) < new Date(joiningDate)) {
       return setError('Current semester start date cannot be earlier than college joining date.');
@@ -92,6 +97,7 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
     formData.set('collegeJoiningDate', joiningDate);
     formData.set('semStartDate', semStartDate);
     formData.set('aadhaarNumber', cleanAadhaar);
+    formData.set('dateOfBirth', dateOfBirth);
     if (photoPreview) formData.set('photoData', photoPreview);
 
     setSaving(true);
@@ -261,6 +267,20 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label style={labelStyle} htmlFor="edit-dob">Date of Birth (as per SSLC) *</label>
+            <input
+              id="edit-dob"
+              type="date"
+              min={EARLIEST_ELIGIBLE_DOB}
+              max={today}
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              style={inputStyle}
+              required
+            />
           </div>
 
           <div style={gridStyle}>

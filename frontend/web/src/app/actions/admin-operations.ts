@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 import { calculateSquadFees, reviewPayment } from '@/lib/payments';
 import { normalizePaymentStatus, totalCredited } from '@/lib/payment-status';
+import { makeAthleteQrToken } from '@/lib/athlete-qr';
 import { OFFICIAL_UPI_ID, OFFICIAL_ACCOUNT_NAME } from '@/lib/payment-config';
 
 export interface AdminDashboardStats {
@@ -302,7 +303,7 @@ export async function listAllAthletesAction() {
     .order('created_at', { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data || [];
+  return (data || []).map((a: any) => ({ ...a, qr_token: makeAthleteQrToken(a.id) }));
 }
 
 /**
