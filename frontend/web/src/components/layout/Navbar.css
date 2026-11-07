@@ -99,6 +99,21 @@
   line-height: 1.15;
 }
 
+.univ-organized-by {
+  font-size: clamp(0.7rem, 0.95vw, 0.85rem);
+  font-weight: 600;
+  font-style: italic;
+  color: #475569;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  margin-top: 0.3rem;
+}
+
+/* Sits right under "Organized by", so less gap than usual */
+.univ-organized-by + .univ-host-clg {
+  margin-top: 0.05rem;
+}
+
 .univ-meet-line {
   font-size: clamp(0.85rem, 1.25vw, 1.2rem);
   font-weight: 800;

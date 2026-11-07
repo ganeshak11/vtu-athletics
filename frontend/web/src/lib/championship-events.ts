@@ -127,7 +127,7 @@ export const OFFICIAL_CHAMPIONSHIP_RULES = [
   {
     num: 7,
     title: 'Official Championship Points Scoring Matrix',
-    text: 'Individual Events: 1st Place = 5 pts, 2nd Place = 3 pts, 3rd Place = 1 pt. Relay Events (4x100m & 4x400m): 1st Place = 10 pts, 2nd Place = 6 pts, 3rd Place = 2 pts — counted only for the Overall College Championship, not for the individual championship. 4x400m Mixed Relay points count for neither.',
+    text: 'Individual Events: 1st Place = 5 pts, 2nd Place = 3 pts, 3rd Place = 1 pt. Relay Events (4x100m & 4x400m): 1st Place = 10 pts, 2nd Place = 6 pts, 3rd Place = 2 pts.',
   },
   {
     num: 8,

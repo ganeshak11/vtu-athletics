@@ -79,7 +79,7 @@ export default function HomePage() {
               {/* Primary Action Buttons (Left-Aligned, High-Contrast) */}
               <div className="hero-action-buttons">
                 <Link href="/login/squad" className="btn-hero-solid" id="hero-btn-squad-login">
-                  <span>Institution Squad Portal</span>
+                  <span>Institution Student Registration Portal</span>
                   <span className="btn-arrow" aria-hidden="true">&rarr;</span>
                 </Link>
 
@@ -271,7 +271,7 @@ export default function HomePage() {
               </div>
               <h3 className="reg-card-title">Individual Discipline Quota &amp; Reserve Rule</h3>
               <p className="reg-card-desc">
-                Each athlete may compete in a maximum of 2 individual track or field events and may nominate <strong>1 reserve event (free), even when registered for both Event 1 and Event 2</strong>. The reserve must be a different event from Event 1 and Event 2. Athletes can still register for 4&times;400m Mixed Relay and 21km Half Marathon unrestricted.
+                Each athlete may compete in a maximum of 2 individual track or field events and may nominate <strong>1 reserve event, even when registered for both Event 1 and Event 2</strong>. The reserve must be a different event from Event 1 and Event 2. Athletes can still register for 4&times;400m Mixed Relay and 21km Half Marathon unrestricted.
               </p>
             </div>
 
@@ -319,7 +319,7 @@ export default function HomePage() {
               </div>
               <h3 className="reg-card-title">Championship Points &amp; Scoring Matrix</h3>
               <p className="reg-card-desc">
-                <strong>Individual Events:</strong> 1st = 5 pts, 2nd = 3 pts, 3rd = 1 pt. <strong>Relay Events (4&times;100m &amp; 4&times;400m):</strong> 1st = 10 pts, 2nd = 6 pts, 3rd = 2 pts &mdash; <strong>counted only for the Overall College Championship</strong>, not for the individual championship. <strong>4&times;400m Mixed Relay points count for neither.</strong>
+                <strong>Individual Events:</strong> 1st = 5 pts, 2nd = 3 pts, 3rd = 1 pt. <strong>Relay Events (4&times;100m &amp; 4&times;400m):</strong> 1st = 10 pts, 2nd = 6 pts, 3rd = 2 pts.
               </p>
             </div>
 
@@ -917,7 +917,7 @@ export default function HomePage() {
             <ul>
               <li>
                 <Link href="/login/squad" style={{ color: '#1d4ed8', fontWeight: 700 }}>
-                  College Student Registration Portal
+                  Institution Student Registration Portal
                 </Link>
               </li>
               <li>

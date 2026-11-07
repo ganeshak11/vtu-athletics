@@ -315,8 +315,9 @@
   font-family: inherit;
   font-weight: 700;
   font-size: 1em;
-  color: #090d16;
-  background: linear-gradient(135deg, #090d16 0%, #1e3a8a 65%, #2563eb 100%);
+  /* Same gold as .hero-title-year so the whole "Dr. ACS-AURA 2026" reads as one colour */
+  color: #b45309;
+  background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 0.02em;
