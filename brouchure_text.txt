@@ -4,7 +4,7 @@ Brochure content (12-page brochure, A4 Portrait)
 Recommended page allocation
 
 
-1.Dr. ACS Aura – 2026-Attractive front cover
+1.Dr. ACS-AURA – 2026-Attractive front cover
 2.Welcome Message-Principal / Organising Chairman
 3.About VTU-University profile
 4.About Dr. ACSCE-Host institution profile
@@ -23,7 +23,7 @@ Recommended page allocation
 
 
 
-Dr. ACS AURA – 2026
+Dr. ACS-AURA – 2026
 VTU 28th State Level Inter-Collegiate Athletic Meet – 2026
 7–10 December 2026
 Hosted by: Dr. ACS College of Engineering, Bengaluru
@@ -39,7 +39,7 @@ Visual elements: Running track, athletes, medals, stadium, university and colleg
 PAGE 1 – Front Cover
 Content to include:
 VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI
-Dr. ACS Aura – 2026
+Dr. ACS-AURA – 2026
 VTU 28th State Level Inter-Collegiate Athletic Meet – 2026
 Organised by
 Dr. ACS College of Engineering
@@ -55,12 +55,12 @@ Dr. ACS College of Engineering Logo
 Website: www.acsce.edu.in
 PAGE 2 – Welcome Message from the Organising Chairman
 
-Title: Welcome to Dr. ACS Aura – 2026
+Title: Welcome to Dr. ACS-AURA – 2026
 This page should carry a welcome message from the Principal and Organising Chairman.
 Suggested content:
 It gives me immense pleasure to welcome all the participating institutions, distinguished dignitaries, university officials, faculty members, sports coordinators, coaches and talented athletes to the VTU 28th State Level Inter-Collegiate Athletic Meet – 2026, proudly hosted by Dr. ACS College of Engineering, Bengaluru.
 Sports play a vital role in shaping individuals by promoting discipline, teamwork, leadership, perseverance and a spirit of healthy competition. Athletic competitions provide an excellent platform for young talents to demonstrate their physical abilities, determination and commitment to excellence.
-Through Dr. ACS Aura – 2026, we look forward to bringing together talented athletes from engineering institutions across Karnataka, fostering friendship, unity and sportsmanship beyond institutional boundaries.
+Through Dr. ACS-AURA – 2026, we look forward to bringing together talented athletes from engineering institutions across Karnataka, fostering friendship, unity and sportsmanship beyond institutional boundaries.
 Our institution is honoured to host this prestigious university-level sporting event and is committed to providing a welcoming environment, quality facilities and excellent arrangements for all participants.
 I extend my best wishes to every athlete and participating institution. May these four days of competition inspire new achievements, lasting friendships and unforgettable sporting memories.
 Dr. B.S. ShylajaPrincipal & Organising ChairmanDr. ACS College of Engineering, Bengaluru.
@@ -105,10 +105,10 @@ Sports facilities and student development initiatives.
 Campus photographs.
 Website: www.acsce.edu.in.
 
-PAGE 5 – About Dr. ACS Aura – 2026
+PAGE 5 – About Dr. ACS-AURA – 2026
 Title: About the Athletic Meet
 Suggested content:
-Dr. ACS Aura – 2026, the VTU 28th State Level Inter-Collegiate Athletic Meet, is a prestigious sporting event bringing together student athletes from engineering institutions affiliated with Visvesvaraya Technological University, Belagavi.
+Dr. ACS-AURA – 2026, the VTU 28th State Level Inter-Collegiate Athletic Meet, is a prestigious sporting event bringing together student athletes from engineering institutions affiliated with Visvesvaraya Technological University, Belagavi.
 Scheduled from 7th to 10th December 2026 at Dr. ACS College of Engineering, Bengaluru, the event aims to provide a competitive platform for young athletes to showcase their talent, endurance, speed, strength and sporting excellence.
 The four-day athletic meet will celebrate the true spirit of sportsmanship while encouraging healthy competition, mutual respect, teamwork and the pursuit of excellence.
 Objectives of the Meet
@@ -339,7 +339,7 @@ College management representatives.
 
 PAGE 12 – Back Cover / Contact Information
 
-Dr. ACS AURA – 2026
+Dr. ACS-AURA – 2026
 Let the Games Begin!
 Sport | Spirit | Excellence
 We look forward to welcoming athletes, sports officials, team managers and participating institutions to Bengaluru for four days of sporting excellence.

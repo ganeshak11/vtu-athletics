@@ -22,7 +22,7 @@ export const API_BASE_URL: string = (
 export const REMINDER_OFFSETS_MIN = [30, 10, 5] as const;
 
 export const MEET = {
-  name: 'Dr. ACS AURA 2026',
+  name: 'Dr. ACS-AURA 2026',
   subtitle: '28th VTU State Level Inter-Collegiate Athletic Meet',
   dates: '7–10 December 2026',
   venue: 'Dr. ACS College of Engineering, Bengaluru',

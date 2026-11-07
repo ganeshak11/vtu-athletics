@@ -1,4 +1,4 @@
-Android app plan: VTU SportsOS (Dr. ACS AURA 2026)
+Android app plan: VTU SportsOS (Dr. ACS-AURA 2026)
 
 The meet runs 7–10 December 2026, so we have about 4 weeks. Officials’ phones need the app installed and tested by around 1 December, and students need it before they arrive.
 

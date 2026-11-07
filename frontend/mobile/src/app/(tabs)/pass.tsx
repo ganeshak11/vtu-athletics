@@ -27,7 +27,7 @@ export default function PassScreen() {
 
       <View style={s.badge}>
         <View style={s.badgeTop}>
-          <Text style={s.badgeBrand}>DR. ACS AURA 2026</Text>
+          <Text style={s.badgeBrand}>DR. ACS-AURA 2026</Text>
           <Text style={s.badgeSub}>28th VTU State Athletic Meet</Text>
         </View>
         <View style={s.identity}>

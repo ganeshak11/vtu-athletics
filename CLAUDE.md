@@ -1,7 +1,7 @@
 # VTU SportsOS — Web Registration System (CLAUDE.md)
 
 ## System Overview
-VTU SportsOS is the official athletic meet management system for the **28th VTU Inter-Collegiate State Level Athletic Meet 2026 (Dr. ACS AURA 2026)** hosted by Dr. ACS College of Engineering, Bengaluru under Visvesvaraya Technological University (VTU), Belagavi.
+VTU SportsOS is the official athletic meet management system for the **28th VTU Inter-Collegiate State Level Athletic Meet 2026 (Dr. ACS-AURA 2026)** hosted by Dr. ACS College of Engineering, Bengaluru under Visvesvaraya Technological University (VTU), Belagavi.
 
 **Scope of Task**: Focus **EXCLUSIVELY** on the **Web Registration Part** under `frontend/web/`. Do not touch `backend/`, `frontend/mobile/`, or unrelated admin subpages unless directly required by the squad registration flow.
 
