@@ -351,7 +351,7 @@ export default function CollegesManager({ initialColleges }: Props) {
                 </div>
                 <div className="form-group">
                   <label className="form-label" htmlFor="district">District</label>
-                  <input id="district" name="district" type="text" placeholder="e.g. Mysuru" defaultValue="Mysuru" className="input-field" />
+                  <input id="district" name="district" type="text" placeholder="e.g. Mysuru" className="input-field" />
                 </div>
               </div>
 

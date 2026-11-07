@@ -350,7 +350,7 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
 
     if (error) {
       if (error.code === '23505') {
-        return { success: false, error: `UTR Reference '${utrClean}' has already been submitted by another squad.` };
+        return { success: false, error: `UTR Reference '${utrClean}' has already been used for an earlier payment submission. Each payment must have its own UTR.` };
       }
       return { success: false, error: error.message };
     }
@@ -369,6 +369,9 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
       console.error('submitPaymentAction roster lock error:', lockErr);
       return { success: false, error: `Payment recorded, but the roster could not be locked: ${lockErr.message}` };
     }
+
+    // Paying closes any late-entry window the admin opened (best effort: column from migration 0017)
+    await supabaseAdmin.from('squads').update({ late_entry_open: false }).eq('id', session.squadId).eq('late_entry_open', true);
 
     revalidatePath('/squad/payment');
     revalidatePath('/squad/dashboard');

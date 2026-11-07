@@ -187,11 +187,12 @@ export async function toggleSquadRosterLockAction(
   if (error) return { success: false, error: error.message };
 
   try {
-    await supabaseAdmin.from('admin_audit_logs').insert({
+    const { error: auditErr } = await supabaseAdmin.from('admin_audit_logs').insert({
       action: locked ? 'ROSTER_LOCKED' : update.late_entry_open ? 'LATE_ENTRY_WINDOW_OPENED' : 'ROSTER_EMERGENCY_UNLOCK',
       details: { squadId, previousStatus: squad.payment_status, newStatus: update.payment_status || squad.payment_status },
       performed_by: 'Administrator',
     });
+    if (auditErr) console.warn('Audit log not written:', auditErr.message);
   } catch (err) {
     console.warn('Audit logging notice (non-fatal):', err);
   }

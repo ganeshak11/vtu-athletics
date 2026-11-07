@@ -235,7 +235,10 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
       .eq('code', relayCode)
       .maybeSingle();
 
-    if (relayEvent) {
+    if (!relayEvent) {
+      return { success: false, error: 'The 4x100m relay event is not configured in the championship catalogue. Please contact the VTU Directorate.' };
+    }
+    {
       relayEventId = relayEvent.id;
       if (squadProfileIds.length > 0) {
         const { count: relayCount } = await supabaseAdmin
@@ -264,7 +267,10 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
       .eq('code', relay400Code)
       .maybeSingle();
 
-    if (relay400Event) {
+    if (!relay400Event) {
+      return { success: false, error: 'The 4x400m relay event is not configured in the championship catalogue. Please contact the VTU Directorate.' };
+    }
+    {
       relay400EventId = relay400Event.id;
       if (squadProfileIds.length > 0) {
         const { count: relay400Count } = await supabaseAdmin
@@ -292,7 +298,10 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
       .eq('code', '4X400M-MIX')
       .maybeSingle();
 
-    if (mixedEvent) {
+    if (!mixedEvent) {
+      return { success: false, error: 'The 4x400m Mixed Relay event is not configured in the championship catalogue. Please contact the VTU Directorate.' };
+    }
+    {
       mixedRelayEventId = mixedEvent.id;
 
       // The mixed team is shared by the college (both squads): max 6 nominations in total
@@ -494,7 +503,11 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
       .eq('code', session.gender === 'men' ? 'HM-M' : 'HM-W')
       .maybeSingle();
 
-    if (hmEvent && !registrationInserts.some(r => r.event_id === hmEvent.id)) {
+    if (!hmEvent) {
+      await supabaseAdmin.from('profiles').delete().eq('id', profile.id);
+      return { success: false, error: 'The Half Marathon event is not configured in the championship catalogue. Please contact the VTU Directorate.' };
+    }
+    if (!registrationInserts.some(r => r.event_id === hmEvent.id)) {
       registrationInserts.push({ profile_id: profile.id, event_id: hmEvent.id, kind: 'half_marathon' });
     }
   }

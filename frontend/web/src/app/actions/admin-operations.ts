@@ -26,11 +26,13 @@ export interface AdminDashboardStats {
 async function logAudit(action: string, details: Record<string, any> = {}, performedBy = 'Administrator') {
   try {
     // Ensure audit table exists
-    await supabaseAdmin.from('admin_audit_logs').insert({
+    const { error } = await supabaseAdmin.from('admin_audit_logs').insert({
       action,
       details,
       performed_by: performedBy,
     });
+    // supabase-js reports failures via `error` (it does not throw) — surface them in logs
+    if (error) console.warn('Audit log not written:', action, error.message);
   } catch (err) {
     console.warn('Audit logging notice (non-fatal):', err);
   }

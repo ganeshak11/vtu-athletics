@@ -45,3 +45,4 @@ docs/College Login Credentials*.xlsx
 docs/Staff Login Credentials*.md
 docs/staff_credentials_*.sql
 supabase/migrations/college_credentials_*.sql
+docs/*Credentials*.xlsx
