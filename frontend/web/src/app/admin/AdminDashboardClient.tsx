@@ -265,7 +265,7 @@ export default function AdminDashboardClient({ initialStats }: Props) {
           <div className="metric-value" style={{ color: '#2563eb' }}>
             {stats.totalBibsGenerated}
           </div>
-          <div className="metric-subtext">Boys: #100+ • Girls: #2001+</div>
+          <div className="metric-subtext">Men: #100+ • Women: #2001+</div>
         </div>
       </div>
 

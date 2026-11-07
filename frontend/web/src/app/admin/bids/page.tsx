@@ -3,7 +3,7 @@ import { getBidOverviewAction } from '@/app/actions/bids';
 import BidOverviewManager from './BidOverviewManager';
 
 export const metadata = {
-  title: 'Contiguous Bid Numbers Overview — VTU SportsOS Admin',
+  title: 'Contiguous Bib Numbers Overview — VTU SportsOS Admin',
 };
 
 export default async function AdminBidsPage() {

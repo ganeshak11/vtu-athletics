@@ -28,6 +28,12 @@ export const Navbar: React.FC = () => {
             >
               <span>Home</span>
             </Link>
+            <a href="#host-college" className="univ-nav-link">
+              <span>About Us</span>
+            </a>
+            <a href="#about-vtu" className="univ-nav-link">
+              <span>About VTU</span>
+            </a>
             <a href="#rules" className="univ-nav-link">
               <span>Regulations</span>
             </a>
@@ -37,9 +43,6 @@ export const Navbar: React.FC = () => {
             <a href="#venue" className="univ-nav-link">
               <span>Stadium &amp; Transit</span>
             </a>
-            <a href="#host-college" className="univ-nav-link">
-              <span>Host Institution</span>
-            </a>
             <a href="#gallery" className="univ-nav-link">
               <span>Championship Gallery</span>
             </a>
@@ -48,7 +51,7 @@ export const Navbar: React.FC = () => {
           {/* Direct Portal Access Logins */}
           <div className="univ-nav-auth">
             <Link href="/login/squad" className="univ-btn-portal univ-btn-squad" id="nav-btn-squad">
-              <span>Institution Student Registration Portal</span>
+              <span>Institutional Student Registration Portal</span>
             </Link>
 
             <Link href="/login/admin" className="univ-btn-portal univ-btn-admin" id="nav-btn-admin">
@@ -70,14 +73,15 @@ export const Navbar: React.FC = () => {
         {isMobileMenuOpen && (
           <div className="univ-mobile-dropdown">
             <Link href="/" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            <a href="#host-college" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>About Us</a>
+            <a href="#about-vtu" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>About VTU</a>
             <a href="#rules" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Regulations &amp; Quotas</a>
             <a href="#schedule" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Discipline Schedule</a>
             <a href="#venue" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Stadium &amp; Transit</a>
-            <a href="#host-college" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Host Institution</a>
             <a href="#gallery" className="univ-mobile-link" onClick={() => setIsMobileMenuOpen(false)}>Championship Gallery</a>
             <div style={{ borderTop: '1px solid #1e3a8a', margin: '0.5rem 0' }} />
             <Link href="/login/squad" className="univ-mobile-link" style={{ background: '#1e3a8a', color: '#ffffff', fontWeight: 700 }} onClick={() => setIsMobileMenuOpen(false)}>
-              Institution Student Registration Portal
+              Institutional Student Registration Portal
             </Link>
             <Link href="/login/admin" className="univ-mobile-link" style={{ background: '#0f172a', color: '#ffffff', fontWeight: 700 }} onClick={() => setIsMobileMenuOpen(false)}>
               Directorate Admin Login
@@ -94,10 +98,10 @@ export const Navbar: React.FC = () => {
         </div>
         <div className="univ-ticker-content">
           <div className="univ-ticker-track">
-            <span>&bull; Online squad registration portal is now active for all VTU affiliated institutions across Karnataka.</span>
+            <span>&bull; Online student registration portal is now active for all VTU affiliated institutions across Karnataka.</span>
             <span>&bull; Physical Education Directors must complete roster entry, event nominations, and fee verification before the deadline.</span>
-            <span>&bull; Serialized bid numbers and official accreditation QR badges will be generated once registrations are locked and college payments verified.</span>
-            <span>&bull; 4x100m Relay &amp; 21km Half Marathon quotas are strictly enforced per Directorate competition regulations.</span>
+            <span>&bull; Serialized bib numbers and official accreditation QR badges will be generated once registrations are locked and college payments verified.</span>
+            <span>&bull; Relay &amp; 21km Half Marathon quotas are strictly enforced per Directorate competition regulations.</span>
           </div>
         </div>
       </div>

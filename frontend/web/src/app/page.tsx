@@ -50,7 +50,7 @@ export default function HomePage() {
 
               {/* Institutional Summary */}
               <p className="hero-editorial-desc">
-                Organized under the aegis of <strong>Visvesvaraya Technological University (VTU), Belagavi</strong> and hosted by <strong>Dr. ACS College of Engineering, Bengaluru</strong>. Bringing together 200+ affiliated engineering institutions, 3,000+ student-athletes, and All India Inter-University selection trials.
+                Organized under the aegis of <strong>Visvesvaraya Technological University (VTU), Belagavi</strong> and hosted by <strong>Dr. ACS College of Engineering, Bengaluru</strong>. Bringing together 200+ affiliated engineering institutions and 3,000+ student-athletes.
               </p>
 
               {/* Structured Event Metadata Strip */}
@@ -79,7 +79,7 @@ export default function HomePage() {
               {/* Primary Action Buttons (Left-Aligned, High-Contrast) */}
               <div className="hero-action-buttons">
                 <Link href="/login/squad" className="btn-hero-solid" id="hero-btn-squad-login">
-                  <span>Institution Student Registration Portal</span>
+                  <span>Institutional Student Registration Portal</span>
                   <span className="btn-arrow" aria-hidden="true">&rarr;</span>
                 </Link>
 
@@ -88,7 +88,7 @@ export default function HomePage() {
                 </Link>
 
                 <a href="#schedule" className="btn-hero-text">
-                  <span>Discipline Timetable &darr;</span>
+                  <span>Discipline Time Table &darr;</span>
                 </a>
               </div>
 
@@ -112,440 +112,17 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Tournament Control Deck & Precision Clock (Brought Down & Scaled Up) */}
-          <div className="hero-countdown-wrapper">
-            <CountdownTimer />
-          </div>
-
         </div>
       </section>
 
-      {/* 3. THREE OFFICIAL PORTAL ACCESS DESKS */}
-      <section className="portal-cards-section" id="access-desks">
-        <div className="section-wrapper">
-
-          <div className="editorial-section-header">
-            <div className="editorial-header-left">
-              <div className="editorial-category-tag">CHAMPIONSHIP OPERATIONS // SECURE DESKS</div>
-              <h2 className="editorial-section-title">Official Portal Access Desks</h2>
-              <p className="editorial-section-desc">
-                Dedicated operational interfaces for college sports directors, physical education staff, and Directorate technical officials.
-              </p>
-            </div>
-            <div className="editorial-header-right">
-              <span className="editorial-header-badge">VTU &bull; DPE &bull; 2026-27</span>
-            </div>
-          </div>
-
-          <div className="cards-triple-grid">
-
-            {/* Card 1: Institution Squad Portal */}
-            <div className="portal-official-card card-accent-blue">
-              <div>
-                <div className="card-top-tag">DESK 01 // INSTITUTION SQUADS</div>
-                <h3 className="card-title">Delegation Roster Portal</h3>
-                <p className="card-desc">
-                  Decentralized athlete onboarding and entry fee settlement desk for all affiliated engineering colleges.
-                </p>
-                <ul className="card-feature-list">
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Register Men and Women squads using institutional passphrases</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Student athlete nomination with USN, 12-digit Aadhaar &amp; photo uploads</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Enforce event quotas (Compulsory 1, Optional 2, 1 Reserve)</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Configure 4&times;100m, 4&times;400m &amp; 4&times;400m Mixed relay squads &amp; 21km Road Half Marathon runners</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Fee computation (₹100/event, reserves free) &amp; direct UPI submission</span>
-                  </li>
-                </ul>
-              </div>
-              <Link href="/login/squad" className="btn-card-action btn-card-blue" id="portal-card-squad">
-                <span>Enter Squad Portal &rarr;</span>
-              </Link>
-            </div>
-
-            {/* Card 2: Directorate Admin Suite */}
-            <div className="portal-official-card card-accent-dark">
-              <div>
-                <div className="card-top-tag">DESK 02 // DIRECTORATE COMMAND</div>
-                <h3 className="card-title">Directorate Administrative Suite</h3>
-                <p className="card-desc">
-                  Central meet command desk for the VTU Physical Education Directorate and technical officials.
-                </p>
-                <ul className="card-feature-list">
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Central Meet Control: One-click registration window lockdown</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Contiguous serialized bib numbers (Boys #100+, Girls #2001+)</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Finance clearance desk for verifying college UTR payments</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Batch printable PDF ID badges with encrypted security QR tags</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Event-wise heat sheets &amp; lane draw exports for technical judges</span>
-                  </li>
-                </ul>
-              </div>
-              <Link href="/login/admin" className="btn-card-action btn-card-dark" id="portal-card-admin">
-                <span>Enter Admin Console &rarr;</span>
-              </Link>
-            </div>
-
-            {/* Card 3: Regulations & Meet Guidelines */}
-            <div className="portal-official-card card-accent-gold">
-              <div>
-                <div className="card-top-tag">DESK 03 // TOURNAMENT PROTOCOL</div>
-                <h3 className="card-title">Technical Norms &amp; Rulebook</h3>
-                <p className="card-desc">
-                  Directorate guidelines governing competition conduct, eligibility scrutiny, and points allocation.
-                </p>
-                <ul className="card-feature-list">
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Day-by-day 4-day athletics time table with call-room reporting</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Campus arrival protocol, athlete village hostels &amp; transit GPS</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Points matrix (Individual 5-3-1), Relay &amp; Team Championships(10-6-</span>
-                  </li>
-                </ul>
-              </div>
-              <a href="#rules" className="btn-card-action btn-card-gold">
-                <span>View Guidelines &amp; Rules &darr;</span>
-              </a>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* 4. CHAMPIONSHIP REGULATIONS & PARTICIPATION QUOTAS */}
-      <section className="regulations-section" id="rules">
-        <div className="section-wrapper">
-
-          <div className="editorial-section-header">
-            <div className="editorial-header-left">
-              <div className="editorial-category-tag">REGULATORY FRAMEWORK // VTU SPORTS CODE</div>
-              <h2 className="editorial-section-title">Eligibility Norms &amp; Competition Quotas</h2>
-              <p className="editorial-section-desc">
-                All participating institutions must adhere strictly to Directorate of Physical Education &amp; Sports regulations.
-              </p>
-            </div>
-            <div className="editorial-header-right">
-              <span className="editorial-header-badge">VTU REGULATIONS</span>
-            </div>
-          </div>
-
-          <div className="regulations-grid-modern">
-
-            {/* Rule 1: Individual Event Quota & Reserve Rule */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 01</span>
-                <span className="reg-badge-quota">MAX 2 EVENTS + 1 RESERVE</span>
-              </div>
-              <h3 className="reg-card-title">Individual Discipline Quota &amp; Reserve Rule</h3>
-              <p className="reg-card-desc">
-                Each athlete may compete in a maximum of 2 individual track or field events and may nominate <strong>1 reserve event, even when registered for both Event 1 and Event 2</strong>. The reserve must be a different event from Event 1 and Event 2. Athletes can still register for 4&times;400m Mixed Relay and 21km Half Marathon unrestricted.
-              </p>
-            </div>
-
-            {/* Rule 2: Standalone Disciplines & Relay Squads */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 02</span>
-                <span className="reg-badge-quota">STANDALONE &bull; 6 PER TEAM</span>
-              </div>
-              <h3 className="reg-card-title">Standalone Relays &amp; Relay Team Quota</h3>
-              <p className="reg-card-desc">
-                All relays (4&times;100m, 4&times;400m, Mixed Relay) and 21km Half Marathon can be registered <strong>standalone</strong> (no Event 1 required). A college can enter up to 3 relay teams with <strong>6 members per relay team</strong> (4 active runners + 2 reserves). Only 1 divisional relay team per member. Call Room Officials can approve and update substitutes <strong>up to 24 hours before the race start</strong>.
-              </p>
-            </div>
-
-            {/* Rule 3: Hurdle Specifications */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 03</span>
-                <span className="reg-badge-quota">HURDLE HEIGHT NORMS</span>
-              </div>
-              <h3 className="reg-card-title">Official Hurdle Height Specifications</h3>
-              <p className="reg-card-desc">
-                Standard hurdle heights: <strong>110m Hurdles (Men) &ndash; 1.067 m</strong> (3.5 ft / 42 in); <strong>100m Hurdles (Women) &ndash; 0.838 m</strong> (2.75 ft / 33 in); <strong>400m Hurdles (Men) &ndash; 0.914 m</strong> (3.0 ft / 36 in); <strong>400m Hurdles (Women) &ndash; 0.762 m</strong> (2.5 ft / 30 in).
-              </p>
-            </div>
-
-            {/* Rule 4: Field Events Pass Rules */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 04</span>
-                <span className="reg-badge-quota">VERTICAL &amp; HORIZONTAL PASS</span>
-              </div>
-              <h3 className="reg-card-title">Field Jumps &amp; Throws Pass Protocols</h3>
-              <p className="reg-card-desc">
-                <strong>Vertical Jumps</strong> (High Jump, Pole Vault): Athletes may pass at any given height. <strong>Horizontal Jumps</strong> (Long Jump, Triple Jump) &amp; <strong>Throws</strong> (Shot Put, Discus, Javelin, Hammer): Athletes may pass on any individual attempt / trial.
-              </p>
-            </div>
-
-            {/* Rule 5: Championship Scoring Matrix */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 05</span>
-                <span className="reg-badge-quota">POINTS: 10-6-2 &amp; 5-3-1</span>
-              </div>
-              <h3 className="reg-card-title">Championship Points &amp; Scoring Matrix</h3>
-              <p className="reg-card-desc">
-                <strong>Individual Events:</strong> 1st = 5 pts, 2nd = 3 pts, 3rd = 1 pt. <strong>Relay Events (4&times;100m &amp; 4&times;400m):</strong> 1st = 10 pts, 2nd = 6 pts, 3rd = 2 pts.
-              </p>
-            </div>
-
-            {/* Rule 7: 5 Major Championship Awards */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 06</span>
-                <span className="reg-badge-quota">5 CHAMPIONSHIP TROPHIES</span>
-              </div>
-              <h3 className="reg-card-title">Championship Trophies &amp; Best Athletes</h3>
-              <p className="reg-card-desc">
-                Five major championship trophies will be awarded: (1) <strong>Best Male Athlete</strong> (Individual Champion), (2) <strong>Best Female Athlete</strong> (Individual Champion), (3) <strong>Best Men&rsquo;s College Team</strong> (Champions &amp; Runners-up), (4) <strong>Best Women&rsquo;s College Team</strong> (Champions &amp; Runners-up), and (5) <strong>Overall Championship Trophy</strong>.
-              </p>
-            </div>
-
-            {/* Rule 8: Results & Attendance to College PEDs */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 07</span>
-                <span className="reg-badge-quota">PED DESK DISTRIBUTION</span>
-              </div>
-              <h3 className="reg-card-title">Results Bulletins &amp; Contingent Attendance</h3>
-              <p className="reg-card-desc">
-                Official verified competition result bulletins and contingent daily attendance certificates will be issued directly to college Physical Education Directors (PEDs) at the Directorate Control Desk and downloadable online.
-              </p>
-            </div>
-
-            {/* Rule 9: Entry Fee Structure & Differential Settlement */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 08</span>
-                <span className="reg-badge-quota">FLAT ₹400 RELAY &bull; ₹100 INDIVIDUAL</span>
-              </div>
-              <h3 className="reg-card-title">Transparent Fee Structure &amp; Differential Pay</h3>
-              <p className="reg-card-desc">
-                Individual &amp; 21km Half Marathon: <strong>₹100/entry</strong>. Reserves: <strong>FREE (₹0)</strong>. Relays: <strong>Flat ₹400 per relay team</strong> (even with 6 members: 4 runners + 2 reserves free). If colleges register more athletes later, they pay only the differential balance due. Printable official invoice with ACSCE logo provided.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* 5. INTERACTIVE 4-DAY EVENT TIMETABLE */}
-      <section className="schedule-section" id="schedule">
-        <div className="section-wrapper">
-
-          <div className="editorial-section-header">
-            <div className="editorial-header-left">
-              <div className="editorial-category-tag">EVENT TIMETABLE // 4-DAY CHAMPIONSHIP</div>
-              <h2 className="editorial-section-title">Interactive Discipline Schedule</h2>
-              <p className="editorial-section-desc">
-                Track heats, field qualification rounds, and valedictory finals scheduled across the 4-day athletic meet.
-              </p>
-            </div>
-            <div className="editorial-header-right">
-              <span className="editorial-header-badge">DEC 07 – 10, 2026</span>
-            </div>
-          </div>
-
-          <ScheduleView />
-
-        </div>
-      </section>
-
-      {/* 6. STADIUM FACILITIES & TRANSIT LOGISTICS */}
-      <section className="transit-section" id="venue">
-        <div className="section-wrapper">
-
-          <div className="editorial-section-header">
-            <div className="editorial-header-left">
-              <div className="editorial-category-tag">CAMPUS &amp; LOGISTICS // BENGALURU-MYSURU EXPRESSWAY</div>
-              <h2 className="editorial-section-title">Stadium Complex &amp; Campus Logistics</h2>
-              <p className="editorial-section-desc">
-                World-class Mud track infrastructure and transit connectivity at Dr. ACS College of Engineering, Bengaluru.
-              </p>
-            </div>
-            <div className="editorial-header-right">
-              <span className="editorial-header-badge">GPS: 12.8910233° N, 77.4655618° E</span>
-            </div>
-          </div>
-
-          <div className="transit-modern-grid">
-
-            {/* Left: Stadium Specifications */}
-            <div className="transit-card-box">
-              <div className="transit-box-top-tag">FACILITY INFRASTRUCTURE</div>
-              <h3 className="transit-card-title">
-                Athletic Stadium Arena Specifications
-              </h3>
-              <ul className="transit-spec-list">
-                <li className="transit-spec-item">
-                  <span className="transit-spec-marker">&bull;</span>
-                  <div>
-                    <strong>8-Lane 400m Mud Track:</strong> Full polyurethane Mud surface complying with World Athletics technical specifications and ultrasonic wind gauges.
-                  </div>
-                </li>
-                <li className="transit-spec-item">
-                  <span className="transit-spec-marker">&bull;</span>
-                  <div>
-                    <strong>Dual Sector Jumping Pits:</strong> International standard sand pits with calibrated take-off boards for Long Jump and Triple Jump disciplines.
-                  </div>
-                </li>
-                <li className="transit-spec-item">
-                  <span className="transit-spec-marker">&bull;</span>
-                  <div>
-                    <strong>Dedicated Throwing Rings:</strong> Concrete reinforced sectors with protective netting cages for Shot Put, Discus Throw, and Javelin runways.
-                  </div>
-                </li>
-                <li className="transit-spec-item">
-                  <span className="transit-spec-marker">&bull;</span>
-                  <div>
-                    <strong>Sports Medicine &amp; Physiotherapy Center:</strong> 24&times;7 on-track emergency response, medical physicians, and athletic recovery beds.
-                  </div>
-                </li>
-              </ul>
-            </div>
-
-            {/* Right: Transit & Connectivity */}
-            <div className="transit-card-box">
-              <div className="transit-box-top-tag">CONNECTIVITY &amp; ACCOMMODATION</div>
-              <h3 className="transit-card-title">
-                Transit Connectivity &amp; Hostels
-              </h3>
-              <p style={{ color: '#475569', fontSize: '0.925rem', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
-                Dr. ACS College of Engineering is strategically situated along the Bengaluru-Mysuru Expressway (NH 275) with direct Namma Metro and South Western railway connectivity.
-              </p>
-
-              <div className="transit-distance-pills">
-                <div className="distance-pill">
-                  <div className="dist-km">2.0 km</div>
-                  <div className="dist-label">Challagatta Metro Station</div>
-                </div>
-                <div className="distance-pill">
-                  <div className="dist-km">3.5 km</div>
-                  <div className="dist-label">Kengeri Metro Station</div>
-                </div>
-                <div className="distance-pill">
-                  <div className="dist-km">18 km</div>
-                  <div className="dist-label">KSR Bengaluru City Railway</div>
-                </div>
-                <div className="distance-pill">
-                  <div className="dist-km">18.5 km</div>
-                  <div className="dist-label">Majestic Bus Stand</div>
-                </div>
-              </div>
-
-              <div className="athlete-village-box">
-                <strong>Athlete Village Hostels:</strong> Separate hostel blocks for Men and Women contingents are pre-allocated on campus. Breakfast, lunch, and dinner are served at the Central Dining Pavilion.
-              </div>
-            </div>
-
-          </div>
-
-          {/* Dedicated Campus & Stadium Location Map Card */}
-          <div className="transit-map-wrapper">
-            <div className="transit-map-header">
-              <div className="transit-map-header-left">
-                <span className="transit-map-badge">12.8910233° N, 77.4655618° E &bull; LIVE STADIUM PINPOINT</span>
-                <h3 className="transit-map-title">Dr. ACS College of Engineering &bull; Athletics Stadium Arena</h3>
-                <p className="transit-map-address">
-                  Mysore Road, Kambipura, Kengeri Hobli, Bengaluru, Karnataka 560074 &bull; NH 275 (Bengaluru-Mysuru Expressway)
-                </p>
-              </div>
-              <div className="transit-map-header-right">
-                <a
-                  href="https://maps.google.com/maps?q=12.8910233%2C77.4655618&z=17&hl=en"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-open-maps"
-                  title="Open live navigation in Google Maps (Exact Stadium Pin)"
-                >
-                  <span>Open in Google Maps</span>
-                  <span>↗</span>
-                </a>
-              </div>
-            </div>
-
-            <div className="transit-map-frame-box">
-              <iframe
-                title="Dr. ACS College of Engineering Athletic Stadium on Google Maps"
-                src="https://maps.google.com/maps?q=12.8910233,77.4655618&t=&z=17&ie=UTF8&iwloc=&output=embed"
-                className="transit-map-iframe"
-                loading="lazy"
-                allowFullScreen
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
-
-            <div className="transit-map-footer-strip">
-              <div className="transit-footer-item">
-                <span className="transit-footer-tag">METRO</span>
-                <div>
-                  <strong>Namma Metro (Purple Line):</strong> Challagatta Terminal (2.0 km) &amp; Kengeri Station (3.5 km) with direct tournament connectivity
-                </div>
-              </div>
-              <div className="transit-footer-item">
-                <span className="transit-footer-tag">RAILWAY</span>
-                <div>
-                  <strong>South Western Railway:</strong> Kengeri Station (4.0 km) &amp; KSR Bengaluru City Railway (18 km)
-                </div>
-              </div>
-              <div className="transit-footer-item">
-                <span className="transit-footer-tag">BMTC BUS</span>
-                <div>
-                  <strong>Majestic Bus Terminal:</strong> Kempegowda Bus Station (18.5 km) with direct BMTC 226 series buses to campus gates
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Official Contingent Logistics & Transit Routes (From Transport Doc) */}
-          <TransitRoutes />
-
-        </div>
-      </section>
-
-      {/* 7. ABOUT THE INSTITUTION & HOST PROFILE */}
+      {/* 3. ABOUT US — Dr. ACS COLLEGE OF ENGINEERING (HOST) */}
       <section className="host-section" id="host-college">
         <div className="section-wrapper">
 
           <div className="editorial-section-header">
             <div className="editorial-header-left">
-              <div className="editorial-category-tag">HOST INSTITUTION // ABOUT Dr. ACSCE</div>
-              <h2 className="editorial-section-title">About the Institution</h2>
+              <div className="editorial-category-tag">ABOUT US // HOST INSTITUTION</div>
+              <h2 className="editorial-section-title">About Us</h2>
               <p className="editorial-section-desc">
                 Dr. ACS College of Engineering (Dr. ACSCE), Bengaluru &bull; Autonomous Institution under VTU, Belagavi
               </p>
@@ -873,16 +450,499 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Organizing Patrons, Executive Leadership & VTU University Rank Holders */}
-          <LeadershipAndRanks />
+        </div>
+      </section>
+
+      {/* 4. ABOUT VTU */}
+      <section className="about-vtu-section" id="about-vtu">
+        <div className="section-wrapper">
+
+          <div className="editorial-section-header">
+            <div className="editorial-header-left">
+              <div className="editorial-category-tag">THE UNIVERSITY // VTU, BELAGAVI</div>
+              <h2 className="editorial-section-title">About VTU</h2>
+              <p className="editorial-section-desc">
+                Visvesvaraya Technological University, Jnana Sangama, Belagavi
+              </p>
+            </div>
+            <div className="editorial-header-right">
+              <span className="editorial-header-badge">ESTD. 1998</span>
+            </div>
+          </div>
+
+          <div className="about-vtu-card">
+            <img src="/vtu.png" alt="Visvesvaraya Technological University emblem" className="about-vtu-emblem" />
+            <p className="about-vtu-text">
+              <strong>Visvesvaraya Technological University (VTU)</strong>, established in 1998 by the Government of Karnataka,
+              is one of India&rsquo;s largest technological universities, renowned for its 25-year legacy of excellence in
+              engineering, technical education, research, and innovation. Founded to address the increasing demand for skilled
+              technical professionals, VTU has successfully integrated institutions with diverse curricula, procedures, and
+              traditions under a unified framework. With four regional centers in Belagavi, Bengaluru, Kalaburagi, and Mysuru,
+              the university has a significant presence across the state. In 2024, VTU secured the <strong>75th position in the
+              university category</strong> and <strong>69th in the engineering category</strong> in the National Institutional
+              Ranking Framework (NIRF).
+            </p>
+          </div>
+
+          <div className="about-vtu-stats">
+            {[
+              ['208', 'Affiliated Colleges'],
+              ['25', 'Autonomous Colleges'],
+              ['1', 'Constituent College'],
+              ['37', 'Undergraduate Programs'],
+              ['96', 'Postgraduate Programs'],
+              ['3,00,000', 'Students Served'],
+              ['13', 'QIP Centers'],
+              ['16', 'Postgraduate Extension Centers'],
+            ].map(([num, label]) => (
+              <div key={label} className="about-vtu-stat">
+                <span className="about-vtu-stat-num">{num}</span>
+                <span className="about-vtu-stat-label">{label}</span>
+              </div>
+            ))}
+          </div>
 
         </div>
       </section>
 
-      {/* 8. CHAMPIONSHIP GALLERY & HALL OF GLORY */}
+      {/* 5. KEY PATRONS, ORGANIZING COMMITTEE & RANK HOLDERS */}
+      <section className="key-patrons-section" id="key-patrons">
+        <div className="section-wrapper">
+          <LeadershipAndRanks />
+        </div>
+      </section>
+
+      {/* 6. COUNTDOWN TO THE INAUGURAL CEREMONY */}
+      <section className="countdown-section" id="countdown">
+        <div className="section-wrapper">
+          <div className="hero-countdown-wrapper">
+            <CountdownTimer />
+          </div>
+        </div>
+      </section>
+
+      {/* 7. THREE OFFICIAL PORTAL ACCESS DESKS */}
+      <section className="portal-cards-section" id="access-desks">
+        <div className="section-wrapper">
+
+          <div className="editorial-section-header">
+            <div className="editorial-header-left">
+              <div className="editorial-category-tag">CHAMPIONSHIP OPERATIONS // SECURE DESKS</div>
+              <h2 className="editorial-section-title">Official Portal Access Desks</h2>
+              <p className="editorial-section-desc">
+                Dedicated operational interfaces for college sports directors, physical education staff, and Directorate technical officials.
+              </p>
+            </div>
+            <div className="editorial-header-right">
+              <span className="editorial-header-badge">VTU &bull; DPE &bull; 2026-27</span>
+            </div>
+          </div>
+
+          <div className="cards-triple-grid">
+
+            {/* Card 1: Institution Squad Portal */}
+            <div className="portal-official-card card-accent-blue">
+              <div>
+                <div className="card-top-tag">DESK 01 // INSTITUTION SQUADS</div>
+                <h3 className="card-title">Delegation Roster Portal</h3>
+                <p className="card-desc">
+                  Decentralized athlete onboarding and entry fee settlement desk for all affiliated engineering colleges.
+                </p>
+                <ul className="card-feature-list">
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Register Men and Women squads using institutional passphrases</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Student athlete nomination with USN, 12-digit Aadhaar &amp; photo uploads</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Enforce event quotas (Compulsory 1, Optional 2, 1 Reserve)</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Configure 4&times;100m, 4&times;400m &amp; 4&times;400m Mixed relay squads &amp; 21km Road Half Marathon runners</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Fee computation (₹100/event, reserves free) &amp; direct UPI submission</span>
+                  </li>
+                </ul>
+              </div>
+              <Link href="/login/squad" className="btn-card-action btn-card-blue" id="portal-card-squad">
+                <span>Enter Squad Portal &rarr;</span>
+              </Link>
+            </div>
+
+            {/* Card 2: Directorate Admin Suite */}
+            <div className="portal-official-card card-accent-dark">
+              <div>
+                <div className="card-top-tag">DESK 02 // DIRECTORATE COMMAND</div>
+                <h3 className="card-title">Directorate Administrative Suite</h3>
+                <p className="card-desc">
+                  Central meet command desk for the VTU Physical Education Directorate and technical officials.
+                </p>
+                <ul className="card-feature-list">
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Central Meet Control: One-click registration window lockdown</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Contiguous serialized bib numbers (Men #100+, Women #2001+)</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Finance clearance desk for verifying college UTR payments</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Batch printable PDF ID badges with encrypted security QR tags</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Event-wise heat sheets &amp; lane draw exports for technical judges</span>
+                  </li>
+                </ul>
+              </div>
+              <Link href="/login/admin" className="btn-card-action btn-card-dark" id="portal-card-admin">
+                <span>Enter Admin Console &rarr;</span>
+              </Link>
+            </div>
+
+            {/* Card 3: Regulations & Meet Guidelines */}
+            <div className="portal-official-card card-accent-gold">
+              <div>
+                <div className="card-top-tag">DESK 03 // TOURNAMENT PROTOCOL</div>
+                <h3 className="card-title">Technical Norms &amp; Rulebook</h3>
+                <p className="card-desc">
+                  Directorate guidelines governing competition conduct, eligibility scrutiny, and points allocation.
+                </p>
+                <ul className="card-feature-list">
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Day-by-day 4-day athletics time table with call-room reporting</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Campus arrival protocol, athlete village hostels &amp; transit GPS</span>
+                  </li>
+                  <li>
+                    <span className="check" aria-hidden="true">&bull;</span>
+                    <span>Points matrix (Individual 5-3-1), Relay &amp; Team Championships(10-6-</span>
+                  </li>
+                </ul>
+              </div>
+              <a href="#rules" className="btn-card-action btn-card-gold">
+                <span>View Guidelines &amp; Rules &darr;</span>
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* 8. CHAMPIONSHIP REGULATIONS & PARTICIPATION QUOTAS */}
+      <section className="regulations-section" id="rules">
+        <div className="section-wrapper">
+
+          <div className="editorial-section-header">
+            <div className="editorial-header-left">
+              <div className="editorial-category-tag">REGULATORY FRAMEWORK // VTU SPORTS CODE</div>
+              <h2 className="editorial-section-title">Eligibility Norms &amp; Competition Quotas</h2>
+              <p className="editorial-section-desc">
+                All participating institutions must adhere strictly to Directorate of Physical Education &amp; Sports regulations.
+              </p>
+            </div>
+            <div className="editorial-header-right">
+              <span className="editorial-header-badge">VTU REGULATIONS</span>
+            </div>
+          </div>
+
+          <div className="regulations-grid-modern">
+
+            {/* Rule 1: Individual Event Quota & Reserve Rule */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 01</span>
+                <span className="reg-badge-quota">MAX 2 EVENTS + 1 RESERVE</span>
+              </div>
+              <h3 className="reg-card-title">Individual Discipline Quota &amp; Reserve Rule</h3>
+              <p className="reg-card-desc">
+                Each athlete may compete in a maximum of 2 individual track or field events and may nominate <strong>1 reserve event, even when registered for both Event 1 and Event 2</strong>. The reserve must be a different event from Event 1 and Event 2. Athletes can still register for 4&times;400m Mixed Relay and 21km Half Marathon unrestricted.
+              </p>
+            </div>
+
+            {/* Rule 2: Standalone Disciplines & Relay Squads */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 02</span>
+                <span className="reg-badge-quota">STANDALONE &bull; 6 PER TEAM</span>
+              </div>
+              <h3 className="reg-card-title">Standalone Relays &amp; Relay Team Quota</h3>
+              <p className="reg-card-desc">
+                All relays (4&times;100m, 4&times;400m, Mixed Relay) and 21km Half Marathon can be registered <strong>standalone</strong> (no Event 1 required). A college can enter up to 3 relay teams with <strong>6 members per relay team</strong> (4 active runners + 2 reserves). Only 1 divisional relay team per member. Call Room Officials can approve and update substitutes <strong>up to 24 hours before the race start</strong>.
+              </p>
+            </div>
+
+            {/* Rule 3: Hurdle Specifications */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 03</span>
+                <span className="reg-badge-quota">HURDLE HEIGHT NORMS</span>
+              </div>
+              <h3 className="reg-card-title">Official Hurdle Height Specifications</h3>
+              <p className="reg-card-desc">
+                Standard hurdle heights: <strong>110m Hurdles (Men) &ndash; 1.067 m</strong> (3.5 ft / 42 in); <strong>100m Hurdles (Women) &ndash; 0.838 m</strong> (2.75 ft / 33 in); <strong>400m Hurdles (Men) &ndash; 0.914 m</strong> (3.0 ft / 36 in); <strong>400m Hurdles (Women) &ndash; 0.762 m</strong> (2.5 ft / 30 in).
+              </p>
+            </div>
+
+            {/* Rule 4: Field Events Pass Rules */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 04</span>
+                <span className="reg-badge-quota">VERTICAL &amp; HORIZONTAL PASS</span>
+              </div>
+              <h3 className="reg-card-title">Field Jumps &amp; Throws Pass Protocols</h3>
+              <p className="reg-card-desc">
+                <strong>Vertical Jumps</strong> (High Jump, Pole Vault): Athletes may pass at any given height. <strong>Horizontal Jumps</strong> (Long Jump, Triple Jump) &amp; <strong>Throws</strong> (Shot Put, Discus, Javelin, Hammer): Athletes may pass on any individual attempt / trial.
+              </p>
+            </div>
+
+            {/* Rule 5: Championship Scoring Matrix */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 05</span>
+                <span className="reg-badge-quota">POINTS: 10-6-2 &amp; 5-3-1</span>
+              </div>
+              <h3 className="reg-card-title">Championship Points &amp; Scoring Matrix</h3>
+              <p className="reg-card-desc">
+                <strong>Individual Events:</strong> 1st = 5 pts, 2nd = 3 pts, 3rd = 1 pt. <strong>Relay Events (4&times;100m &amp; 4&times;400m):</strong> 1st = 10 pts, 2nd = 6 pts, 3rd = 2 pts.
+              </p>
+            </div>
+
+            {/* Rule 7: 5 Major Championship Awards */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 06</span>
+                <span className="reg-badge-quota">5 CHAMPIONSHIP TROPHIES</span>
+              </div>
+              <h3 className="reg-card-title">Championship Trophies &amp; Best Athletes</h3>
+              <p className="reg-card-desc">
+                Five major championship trophies will be awarded: (1) <strong>Best Male Athlete</strong> (Individual Champion), (2) <strong>Best Female Athlete</strong> (Individual Champion), (3) <strong>Best Men&rsquo;s College Team</strong> (Champions &amp; Runners-up), (4) <strong>Best Women&rsquo;s College Team</strong> (Champions &amp; Runners-up), and (5) <strong>Overall Championship Trophy</strong>.
+              </p>
+            </div>
+
+            {/* Rule 8: Results & Attendance to College PEDs */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 07</span>
+                <span className="reg-badge-quota">PED DESK DISTRIBUTION</span>
+              </div>
+              <h3 className="reg-card-title">Results Bulletins &amp; Contingent Attendance</h3>
+              <p className="reg-card-desc">
+                Official verified competition result bulletins and contingent daily attendance certificates will be issued directly to college Physical Education Directors (PEDs) at the Directorate Control Desk and downloadable online.
+              </p>
+            </div>
+
+            {/* Rule 9: Entry Fee Structure & Differential Settlement */}
+            <div className="regulation-card">
+              <div className="reg-card-header">
+                <span className="reg-norm-code">NORM 08</span>
+                <span className="reg-badge-quota">FLAT ₹400 RELAY &bull; ₹100 INDIVIDUAL</span>
+              </div>
+              <h3 className="reg-card-title">Transparent Fee Structure &amp; Differential Pay</h3>
+              <p className="reg-card-desc">
+                Individual &amp; 21km Half Marathon: <strong>₹100/entry</strong>. Reserves: <strong>FREE (₹0)</strong>. Relays: <strong>Flat ₹400 per relay team</strong> (even with 6 members: 4 runners + 2 reserves free). If colleges register more athletes later, they pay only the differential balance due. Printable official invoice with ACSCE logo provided.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* 9. INTERACTIVE 4-DAY EVENT TIME TABLE */}
+      <section className="schedule-section" id="schedule">
+        <div className="section-wrapper">
+
+          <div className="editorial-section-header">
+            <div className="editorial-header-left">
+              <div className="editorial-category-tag">EVENT TIME TABLE // 4-DAY CHAMPIONSHIP</div>
+              <h2 className="editorial-section-title">Interactive Discipline Schedule</h2>
+              <p className="editorial-section-desc">
+                Track heats, field qualification rounds, and valedictory finals scheduled across the 4-day athletic meet.
+              </p>
+            </div>
+            <div className="editorial-header-right">
+              <span className="editorial-header-badge">DEC 07 – 10, 2026</span>
+            </div>
+          </div>
+
+          <ScheduleView />
+
+        </div>
+      </section>
+
+      {/* 10. STADIUM FACILITIES & TRANSIT LOGISTICS */}
+      <section className="transit-section" id="venue">
+        <div className="section-wrapper">
+
+          <div className="editorial-section-header">
+            <div className="editorial-header-left">
+              <div className="editorial-category-tag">CAMPUS &amp; LOGISTICS // BENGALURU-MYSURU EXPRESSWAY</div>
+              <h2 className="editorial-section-title">Stadium Complex &amp; Campus Logistics</h2>
+              <p className="editorial-section-desc">
+                World-class Mud track infrastructure and transit connectivity at Dr. ACS College of Engineering, Bengaluru.
+              </p>
+            </div>
+            <div className="editorial-header-right">
+              <span className="editorial-header-badge">GPS: 12.8910233° N, 77.4655618° E</span>
+            </div>
+          </div>
+
+          <div className="transit-modern-grid">
+
+            {/* Left: Stadium Specifications */}
+            <div className="transit-card-box">
+              <div className="transit-box-top-tag">FACILITY INFRASTRUCTURE</div>
+              <h3 className="transit-card-title">
+                Athletic Stadium Arena Specifications
+              </h3>
+              <ul className="transit-spec-list">
+                <li className="transit-spec-item">
+                  <span className="transit-spec-marker">&bull;</span>
+                  <div>
+                    <strong>8-Lane 400m Mud Track:</strong> Well-prepared 400 m mud track with clearly marked lanes for all track events.
+                  </div>
+                </li>
+                <li className="transit-spec-item">
+                  <span className="transit-spec-marker">&bull;</span>
+                  <div>
+                    <strong>Dual Sector Jumping Pits:</strong> International standard sand pits with calibrated take-off boards for Long Jump and Triple Jump disciplines.
+                  </div>
+                </li>
+                <li className="transit-spec-item">
+                  <span className="transit-spec-marker">&bull;</span>
+                  <div>
+                    <strong>Dedicated Throwing Rings:</strong> Concrete reinforced sectors with protective netting cages for Shot Put, Discus Throw, and Javelin runways.
+                  </div>
+                </li>
+                <li className="transit-spec-item">
+                  <span className="transit-spec-marker">&bull;</span>
+                  <div>
+                    <strong>Sports Medicine &amp; Physiotherapy Center:</strong> 24&times;7 on-track emergency response, medical physicians, and athletic recovery beds.
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            {/* Right: Transit & Connectivity */}
+            <div className="transit-card-box">
+              <div className="transit-box-top-tag">CONNECTIVITY &amp; ACCOMMODATION</div>
+              <h3 className="transit-card-title">
+                Transit Connectivity &amp; Hostels
+              </h3>
+              <p style={{ color: '#475569', fontSize: '0.925rem', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
+                Dr. ACS College of Engineering is strategically situated along the Bengaluru-Mysuru Expressway (NH 275) with direct Namma Metro and South Western railway connectivity.
+              </p>
+
+              <div className="transit-distance-pills">
+                <div className="distance-pill">
+                  <div className="dist-km">2.0 km</div>
+                  <div className="dist-label">Challagatta Metro Station</div>
+                </div>
+                <div className="distance-pill">
+                  <div className="dist-km">3.5 km</div>
+                  <div className="dist-label">Kengeri Metro Station</div>
+                </div>
+                <div className="distance-pill">
+                  <div className="dist-km">18 km</div>
+                  <div className="dist-label">KSR Bengaluru City Railway</div>
+                </div>
+                <div className="distance-pill">
+                  <div className="dist-km">18.5 km</div>
+                  <div className="dist-label">Majestic Bus Stand</div>
+                </div>
+              </div>
+
+              <div className="athlete-village-box">
+                <strong>Athlete Village Hostels:</strong> Separate hostel blocks for Men and Women contingents are pre-allocated on campus. Breakfast, lunch, and dinner are served at the Central Dining Pavilion.
+              </div>
+            </div>
+
+          </div>
+
+          {/* Dedicated Campus & Stadium Location Map Card */}
+          <div className="transit-map-wrapper">
+            <div className="transit-map-header">
+              <div className="transit-map-header-left">
+                <span className="transit-map-badge">12.8910233° N, 77.4655618° E &bull; LIVE STADIUM PINPOINT</span>
+                <h3 className="transit-map-title">Dr. ACS College of Engineering &bull; Athletics Stadium Arena</h3>
+                <p className="transit-map-address">
+                  Mysore Road, Kambipura, Kengeri Hobli, Bengaluru, Karnataka 560074 &bull; NH 275 (Bengaluru-Mysuru Expressway)
+                </p>
+              </div>
+              <div className="transit-map-header-right">
+                <a
+                  href="https://maps.google.com/maps?q=12.8910233%2C77.4655618&z=17&hl=en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-open-maps"
+                  title="Open live navigation in Google Maps (Exact Stadium Pin)"
+                >
+                  <span>Open in Google Maps</span>
+                  <span>↗</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="transit-map-frame-box">
+              <iframe
+                title="Dr. ACS College of Engineering Athletic Stadium on Google Maps"
+                src="https://maps.google.com/maps?q=12.8910233,77.4655618&t=&z=17&ie=UTF8&iwloc=&output=embed"
+                className="transit-map-iframe"
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+
+            <div className="transit-map-footer-strip">
+              <div className="transit-footer-item">
+                <span className="transit-footer-tag">METRO</span>
+                <div>
+                  <strong>Namma Metro (Purple Line):</strong> Challagatta Terminal (2.0 km) &amp; Kengeri Station (3.5 km) with direct tournament connectivity
+                </div>
+              </div>
+              <div className="transit-footer-item">
+                <span className="transit-footer-tag">RAILWAY</span>
+                <div>
+                  <strong>South Western Railway:</strong> Kengeri Station (4.0 km) &amp; KSR Bengaluru City Railway (18 km)
+                </div>
+              </div>
+              <div className="transit-footer-item">
+                <span className="transit-footer-tag">BMTC BUS</span>
+                <div>
+                  <strong>Majestic Bus Terminal:</strong> Kempegowda Bus Station (18.5 km) with direct BMTC 226 series buses to campus gates
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Official Contingent Logistics & Transit Routes (From Transport Doc) */}
+          <TransitRoutes />
+
+        </div>
+      </section>
+
+      {/* 11. CHAMPIONSHIP GALLERY & HALL OF GLORY */}
       <GallerySection />
 
-      {/* 9. OFFICIAL FOOTER */}
+      {/* 12. OFFICIAL FOOTER */}
       <footer className="modern-light-footer">
         <div className="footer-grid">
 
@@ -917,7 +977,7 @@ export default function HomePage() {
             <ul>
               <li>
                 <Link href="/login/squad" style={{ color: '#1d4ed8', fontWeight: 700 }}>
-                  Institution Student Registration Portal
+                  Institutional Student Registration Portal
                 </Link>
               </li>
               <li>
@@ -926,9 +986,9 @@ export default function HomePage() {
                 </Link>
               </li>
               <li><a href="#rules">Championship Regulations</a></li>
-              <li><a href="#schedule">Discipline Timetable</a></li>
+              <li><a href="#schedule">Discipline Time Table</a></li>
               <li><a href="#venue">Stadium Location &amp; Transit</a></li>
-              <li><a href="#host-college">About the Institution</a></li>
+              <li><a href="#host-college">About Us</a></li>
               <li><a href="#gallery">Championship Gallery</a></li>
             </ul>
           </div>

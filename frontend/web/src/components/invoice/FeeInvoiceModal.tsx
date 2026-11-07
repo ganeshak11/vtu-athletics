@@ -98,7 +98,7 @@ export default function FeeInvoiceModal({ isOpen, onClose, breakdown, payments, 
               <div className="kit-host-name">Dr. ACS COLLEGE OF ENGINEERING</div>
               <div className="kit-host-sub">Kambipura, Mysore Road, Bengaluru – 560074, Karnataka</div>
               <div className="kit-meet-line">
-                28th VTU State Level Inter-Collegiate Athletic Meet 2026 &bull; Dr. ACS-AURA 2026 &bull; 7th – 10th December 2026
+                VTU&rsquo;s 28th Inter-Collegiate State Level Athletic Meet 2026 &bull; Dr. ACS-AURA 2026 &bull; 7th – 10th December 2026
               </div>
               <div className="kit-form-title">Registration Form</div>
             </div>

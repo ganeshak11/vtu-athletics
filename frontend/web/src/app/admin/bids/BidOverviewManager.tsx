@@ -76,7 +76,7 @@ export default function BidOverviewManager({ initialSquads }: Props) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Contiguous Bid Number Allocation</h1>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Contiguous Bib Number Allocation</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '0.25rem' }}>
             Append-only numbering: Men from 100+, Women from 2001+. Existing numbers never change; late verifications and late entries get the next free number.
           </p>

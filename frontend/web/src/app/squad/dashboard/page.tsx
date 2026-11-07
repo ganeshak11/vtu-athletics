@@ -9,7 +9,7 @@ import { canEditRoster, isLateEntryWindow } from '@/lib/roster-window';
 
 export const metadata = {
   title: 'Contingent Overview — VTU SportsOS',
-  description: 'Executive overview, roster verification, and squad operations for 28th VTU Inter-Collegiate Athletic Meet – 2026',
+  description: 'Executive overview, roster verification, and squad operations for VTU’s 28th Inter-Collegiate State Level Athletic Meet 2026',
 };
 
 export default async function SquadDashboardPage() {
@@ -111,7 +111,7 @@ export default async function SquadDashboardPage() {
             </div>
             <div className="squad-identity-info">
               <div className="squad-micro-eyebrow">
-                <span>VTU 28TH INTER-COLLEGIATE ATHLETIC MEET 2026</span>
+                <span>VTU's 28TH INTER-COLLEGIATE ATHLETIC MEET 2026</span>
                 <span>&bull;</span>
                 <span>OFFICIAL CONTINGENT DELEGATION</span>
               </div>
@@ -336,7 +336,7 @@ export default async function SquadDashboardPage() {
             <div className="squad-empty-icon">🏃</div>
             <div className="squad-empty-title">No Athletes Registered Yet</div>
             <div className="squad-empty-desc">
-              Your college delegation currently has 0 athletes nominated for the 28th VTU Inter-Collegiate Athletic Meet – 2026. Nominate students from your college to participate in track, field, and relay events.
+              Your college delegation currently has 0 athletes nominated for VTU&rsquo;s 28th Inter-Collegiate State Level Athletic Meet 2026. Nominate students from your college to participate in track, field, and relay events.
             </div>
             {canAddAthletes && (
               <Link href="/squad/athletes" className="squad-cta-primary">
@@ -538,7 +538,7 @@ export default async function SquadDashboardPage() {
               </span>
             </div>
             <p className="squad-op-desc">
-              Official serialized chest bibs and security QR-coded smart badges are issued exclusively at the Dr. ACSCE Call Room Registration Desk on Dec 8, 2026 upon physical arrival.
+              Official serialized chest bibs and security QR-coded smart badges are issued exclusively at the Dr. ACSCE Registration Desk during reporting on 07 December 2026.
             </p>
           </div>
           <div

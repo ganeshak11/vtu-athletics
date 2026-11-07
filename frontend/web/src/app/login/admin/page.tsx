@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
             ← Back to Home
           </Link>
           <Link href="/login/squad" style={{ color: '#2563eb', fontWeight: 600 }}>
-            Institution Student Registration Portal →
+            Institutional Student Registration Portal →
           </Link>
         </div>
       </div>

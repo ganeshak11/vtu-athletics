@@ -147,7 +147,7 @@ export default function RegistrationReportModal({
           <div className="report-meet-banner">
             <div className="report-meet-tag">Dr. ACS-AURA – 2026</div>
             <h1 className="report-meet-title">
-              28th VTU Inter-Collegiate State Level Athletic Meet 2026
+              VTU&rsquo;s 28th Inter-Collegiate State Level Athletic Meet 2026
             </h1>
             <div className="report-doc-type">
               OFFICIAL CONTINGENT REGISTRATION REPORT &amp; ELIGIBILITY PROFORMA
@@ -330,7 +330,7 @@ export default function RegistrationReportModal({
           {/* 7. INSTITUTIONAL CERTIFICATION & SIGNATURE SEALS */}
           <div className="report-cert-text">
             <strong>INSTITUTIONAL DECLARATION &amp; ELIGIBILITY CERTIFICATION:</strong><br />
-            I hereby certify that the student athletes listed above are bonafide regular students studying in our institution, are eligible to represent our college in the 28th VTU Inter-Collegiate State Level Athletic Meet 2026 as per AIU &amp; VTU sports regulations, and have been declared medically fit to participate in the athletic events nominated.
+            I hereby certify that the student athletes listed above are bonafide regular students studying in our institution, are eligible to represent our college in the VTU&rsquo;s 28th Inter-Collegiate State Level Athletic Meet 2026 as per AIU &amp; VTU sports regulations, and have been declared medically fit to participate in the athletic events nominated.
           </div>
 
           <div className="report-signatures">
@@ -359,7 +359,7 @@ export default function RegistrationReportModal({
 
           {/* 8. FOOTER NOTE */}
           <div className="report-footer-note">
-            Note: This official registration report, along with entry fee receipt and eligibility proforma with attested documents, must be submitted at the Registration Counter on 07 December 2026 during reporting at JNNCE / Dr. ACSCE sports pavilion.
+            Note: This official registration report, along with entry fee receipt and eligibility proforma with attested documents, must be submitted at the Registration Counter on 07 December 2026 during reporting at the Dr. ACS College of Engineering sports pavilion.
           </div>
 
         </div>

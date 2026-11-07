@@ -23,7 +23,7 @@ export default async function AdminCollegesPage() {
         </Link>
         <span style={{ color: 'var(--text-secondary)' }}>•</span>
         <Link href="/admin/bids" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.95rem' }}>
-          Bid Numbers
+          Bib Numbers
         </Link>
         <span style={{ color: 'var(--text-secondary)' }}>•</span>
         <Link href="/admin/amendments" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.95rem' }}>

@@ -194,8 +194,8 @@ export default function AthletesClient({ athletes }: Props) {
             id="filter-gender"
           >
             <option value="ALL">All Divisions</option>
-            <option value="men">Men (Boys)</option>
-            <option value="women">Women (Girls)</option>
+            <option value="men">Men</option>
+            <option value="women">Women</option>
           </select>
 
           {/* Status Filter */}

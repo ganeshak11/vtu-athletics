@@ -336,7 +336,7 @@ export default function LeadershipAndRanks() {
             <div className="editorial-category-tag">HONORARY CHIEF PATRONS // VTU &amp; RRGI</div>
             <h3 className="editorial-section-title">Chief Patrons</h3>
             <p className="editorial-section-desc">
-              Distinguished university and institutional leadership steering the 28th VTU State Level Inter-Collegiate Athletic Meet – 2026.
+              Distinguished university and institutional leadership steering VTU&rsquo;s 28th Inter-Collegiate State Level Athletic Meet 2026.
             </p>
           </div>
           <div className="editorial-header-right">

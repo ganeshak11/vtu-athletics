@@ -126,8 +126,8 @@ export default function IdCardsClient({ athletes }: Props) {
             className="filter-control"
           >
             <option value="ALL">All Divisions</option>
-            <option value="men">Men (Boys)</option>
-            <option value="women">Women (Girls)</option>
+            <option value="men">Men</option>
+            <option value="women">Women</option>
           </select>
 
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#334155', cursor: 'pointer' }}>

@@ -104,7 +104,7 @@ export default function DelegationsClient({ squads }: Props) {
                 <div>
                   <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Division & Squad</div>
                   <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
-                    {sq.gender === 'men' ? 'Men (Boys)' : 'Women (Girls)'}
+                    {sq.gender === 'men' ? 'Men' : 'Women'}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Squad ID: {sq.squad_code}</div>
                 </div>

@@ -57,7 +57,7 @@ export default async function AdminSchedulePage() {
             </Link>
             <span style={{ color: 'var(--text-secondary)' }}>•</span>
             <Link href="/admin/bids" style={{ color: 'var(--accent-cyan)', textDecoration: 'none', fontSize: '0.9rem' }}>
-              Bid Numbers
+              Bib Numbers
             </Link>
             <span style={{ color: 'var(--text-secondary)' }}>•</span>
             <Link href="/admin/amendments" style={{ color: 'var(--accent-cyan)', textDecoration: 'none', fontSize: '0.9rem' }}>

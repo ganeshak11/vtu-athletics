@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'VTU SportsOS — Central Inter-Collegiate Athletics Platform',
+  title: 'Dr. ACS-AURA 2026 — VTU’s 28th Inter-Collegiate State Level Athletic Meet 2026',
   description: 'Official athletic management, accreditation, heat seeding, and real-time live scoring system for VTU athletic meets.',
 };
 

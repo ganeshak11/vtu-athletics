@@ -444,7 +444,7 @@ export default function ScheduleView() {
       <div style={{ background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '12px', padding: '1.25rem 1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', boxShadow: '0 2px 10px rgba(15,23,42,0.03)' }}>
         <div>
           <span style={{ fontSize: '0.7rem', fontWeight: 850, color: '#2563eb', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            CHAMPIONSHIP TIMETABLE &bull; {currentDayData.date}
+            CHAMPIONSHIP TIME TABLE &bull; {currentDayData.date}
           </span>
           <h3 style={{ fontSize: '1.35rem', fontWeight: 850, color: '#0f172a', margin: '0.2rem 0 0' }}>
             {currentDayData.title}
@@ -600,7 +600,7 @@ export default function ScheduleView() {
 
       {/* Footer Note */}
       <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.8rem', padding: '0.5rem 0' }}>
-        Official VTU Order of Events &bull; Verified Timetable from Championship Directorate &bull; Dr. ACS College of Engineering, Bengaluru
+        Official VTU Order of Events &bull; Verified Time Table from Championship Directorate &bull; Dr. ACS College of Engineering, Bengaluru
       </div>
 
     </div>
