@@ -15,6 +15,7 @@ export interface EditableAthlete {
   sem_start_date: string;
   aadhaar_number?: string;
   date_of_birth?: string | null;
+  phone?: string | null;
   photo_url?: string;
 }
 
@@ -38,6 +39,7 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
   const [joiningDate, setJoiningDate] = useState(toDateInput(athlete.college_joining_date));
   const [semStartDate, setSemStartDate] = useState(toDateInput(athlete.sem_start_date));
   const [aadhaarNumber, setAadhaarNumber] = useState(athlete.aadhaar_number || '');
+  const [phone, setPhone] = useState(athlete.phone || '');
   const [dateOfBirth, setDateOfBirth] = useState(toDateInput(athlete.date_of_birth || ''));
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -81,11 +83,12 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
     if (!sslcName.trim()) return setError('Full name is required.');
     if (!VTU_USN_REGEX.test(cleanUsn)) return setError(`Invalid USN '${cleanUsn}'. Enter a valid VTU USN (e.g. 1RV21CS001).`);
     if (!/^\d{12}$/.test(cleanAadhaar)) return setError('Aadhaar Number must be exactly 12 numeric digits.');
+    if (!/^[6-9]\d{9}$/.test(phone)) return setError("Enter the student's 10-digit mobile number (e.g. 9876543210).");
     const dobError = validateDateOfBirth(dateOfBirth);
     if (dobError) return setError(dobError);
     if (!joiningDate || !semStartDate) return setError('Both dates are required.');
     if (new Date(semStartDate) < new Date(joiningDate)) {
-      return setError('Current semester start date cannot be earlier than college joining date.');
+      return setError('Present year start date cannot be earlier than the college joining date.');
     }
 
     const formData = new FormData();
@@ -97,6 +100,7 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
     formData.set('collegeJoiningDate', joiningDate);
     formData.set('semStartDate', semStartDate);
     formData.set('aadhaarNumber', cleanAadhaar);
+    formData.set('phone', phone);
     formData.set('dateOfBirth', dateOfBirth);
     if (photoPreview) formData.set('photoData', photoPreview);
 
@@ -239,7 +243,7 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
             <div>
               <label style={labelStyle} htmlFor="edit-sem">Current Semester *</label>
               <select id="edit-sem" value={semester} onChange={(e) => setSemester(e.target.value)} style={inputStyle}>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((s) => (
                   <option key={s} value={s}>Semester {s}</option>
                 ))}
               </select>
@@ -270,6 +274,21 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
           </div>
 
           <div>
+            <label style={labelStyle} htmlFor="edit-phone">Student Phone Number *</label>
+            <input
+              id="edit-phone"
+              type="tel"
+              inputMode="numeric"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              maxLength={10}
+              placeholder="9876543210"
+              style={inputStyle}
+              required
+            />
+          </div>
+
+          <div>
             <label style={labelStyle} htmlFor="edit-dob">Date of Birth (as per SSLC) *</label>
             <input
               id="edit-dob"
@@ -289,7 +308,7 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
               <input id="edit-join" type="date" max={today} value={joiningDate} onChange={(e) => setJoiningDate(e.target.value)} style={inputStyle} required />
             </div>
             <div>
-              <label style={labelStyle} htmlFor="edit-semstart">Current Sem Start Date *</label>
+              <label style={labelStyle} htmlFor="edit-semstart">Present Year Start Date *</label>
               <input id="edit-semstart" type="date" min={joiningDate || undefined} value={semStartDate} onChange={(e) => setSemStartDate(e.target.value)} style={inputStyle} required />
             </div>
           </div>

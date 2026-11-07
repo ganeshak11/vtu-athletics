@@ -31,7 +31,7 @@ export default function SquadLoginPage() {
         router.push(res.redirectTo);
         router.refresh();
       } else {
-        setError(res.error || 'Login failed. Please check your college code, Boys/Girls and password.');
+        setError(res.error || 'Login failed. Please check your college code, Men/Women and password.');
       }
     } catch {
       setError('Could not connect. Please check your internet and try again.');
@@ -174,7 +174,7 @@ export default function SquadLoginPage() {
               {/* Prompt 2: Division (Gender) */}
               <div>
                 <label className="login-label">
-                  2. Choose Boys or Girls
+                  2. Choose Men or Women
                 </label>
                 <input type="hidden" name="gender" value={gender} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -198,7 +198,7 @@ export default function SquadLoginPage() {
                     }}
                     id="btn-select-male"
                   >
-                    <span>🚹</span> Boys
+                    <span>🚹</span> Men
                   </button>
                   <button
                     type="button"
@@ -220,7 +220,7 @@ export default function SquadLoginPage() {
                     }}
                     id="btn-select-female"
                   >
-                    <span>🚺</span> Girls
+                    <span>🚺</span> Women
                   </button>
                 </div>
               </div>
@@ -242,7 +242,7 @@ export default function SquadLoginPage() {
                   style={{ textTransform: 'none', letterSpacing: 'normal', fontSize: '0.95rem' }}
                 />
                 <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.35rem' }}>
-                  The password given to your college for Boys or Girls. Type it exactly, including the dashes ( - ).
+                  The password given to your college for Men or Women. Type it exactly, including the dashes ( - ).
                 </span>
               </div>
 

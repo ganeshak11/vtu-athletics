@@ -82,7 +82,7 @@ const STEPS: Step[] = [
           Registration is done by the college PED (Physical Education Director). Follow the stages in this order:
         </p>
         <ol style={ol}>
-          <li><strong>Sign in</strong> with your college code, division (Boys / Girls) and passphrase.</li>
+          <li><strong>Sign in</strong> with your college code, division (Men / Women) and passphrase.</li>
           <li><strong>Register every athlete</strong> with their events (and relay nomination, if any).</li>
           <li><strong>Build your relay teams</strong> on the Relay Teams page, if you nominated anyone for a relay.</li>
           <li><strong>Check everything.</strong> The roster can&apos;t be changed after you pay.</li>
@@ -112,10 +112,11 @@ const STEPS: Step[] = [
             <tr><td style={td}>Full name</td><td style={td}>Exactly as printed on the SSLC (10th) marks card</td></tr>
             <tr><td style={td}>USN</td><td style={td}>Valid VTU USN, e.g. <code>1RV21CS001</code>. Each USN can be registered only once in the whole championship</td></tr>
             <tr><td style={td}>Aadhaar number</td><td style={td}>Exactly 12 digits. Each Aadhaar can be registered only once in the whole championship</td></tr>
+            <tr><td style={td}>Student phone number</td><td style={td}>The student&apos;s own 10-digit mobile number (e.g. 9876543210)</td></tr>
             <tr><td style={td}>Semester</td><td style={td}>Current semester (1–10)</td></tr>
             <tr><td style={td}>Blood group</td><td style={td}>e.g. O+, B−</td></tr>
             <tr><td style={td}>College joining date</td><td style={td}>Can&apos;t be a future date</td></tr>
-            <tr><td style={td}>Current semester start date</td><td style={td}>Can&apos;t be earlier than the joining date</td></tr>
+            <tr><td style={td}>Present year start date</td><td style={td}>Can&apos;t be earlier than the joining date</td></tr>
             <tr><td style={td}>Passport-size photo</td><td style={td}>JPG, PNG or WebP, under 4 MB, face clearly visible. <em>iPhone HEIC photos must be converted to JPG first.</em></td></tr>
             <tr><td style={td}>Events</td><td style={td}>Decide each athlete&apos;s events and relay before you start (see stage 2)</td></tr>
           </tbody>
@@ -134,13 +135,13 @@ const STEPS: Step[] = [
       <>
         <ol style={ol}>
           <li>Enter your <strong>College Code</strong>, the official code given by VTU (e.g. <code>ACSCE</code>).</li>
-          <li>Choose the <strong>Division</strong>: <strong>Boys (Men)</strong> or <strong>Girls (Women)</strong>.</li>
+          <li>Choose the <strong>Division</strong>: <strong>Men</strong> or <strong>Women</strong>.</li>
           <li>Enter the <strong>Passphrase</strong> issued by the VTU Athletics Directorate (format like <code>swift-falcon-84</code>).</li>
           <li>Click <strong>Sign In to Institution Portal</strong>.</li>
         </ol>
         <div style={box}>
-          👥 <strong>Boys and Girls are separate squads.</strong> Each has its own login, roster, fee and payment. To
-          register girls, sign out and sign in again with <strong>Girls (Women)</strong> selected.
+          👥 <strong>Men and Women are separate squads.</strong> Each has its own login, roster, fee and payment. To
+          register women, sign out and sign in again with <strong>Women</strong> selected.
         </div>
         <div style={warn}>
           ⚠️ <strong>&quot;Invalid college code, division, or passphrase&quot;?</strong> Check the code spelling and that the
@@ -173,7 +174,7 @@ const STEPS: Step[] = [
             <tr><td style={td}><strong>Event 2</strong></td><td style={td}>Optional; must be different from Event 1. <strong>Max 2 individual events</strong> per athlete</td><td style={td}>₹100</td></tr>
             <tr><td style={td}><strong>Reserve event</strong></td><td style={td}><strong>1 reserve allowed</strong> when the athlete has at least one individual event &mdash; <strong>even with 2 events</strong>. Must be a different event</td><td style={td}>Free</td></tr>
             <tr><td style={td}><strong>Divisional relay</strong></td><td style={td}>Choose <strong>4×100m OR 4×400m</strong>, never both. Max 6 athletes per relay (4 runners + 2 reserves)</td><td style={td}>₹400 per team</td></tr>
-            <tr><td style={td}><strong>4×400m Mixed relay</strong></td><td style={td}>Optional tick box. Max 6 per college (Boys + Girls together); needs at least 2 girls and 2 boys</td><td style={td}>₹400 per team (once per college)</td></tr>
+            <tr><td style={td}><strong>4×400m Mixed relay</strong></td><td style={td}>Optional tick box. Max 6 per college (Men + Women together); needs at least 2 women and 2 men</td><td style={td}>₹400 per team (once per college)</td></tr>
             <tr><td style={td}><strong>Half Marathon (21 km)</strong></td><td style={td}>Optional tick box; can be the only event</td><td style={td}>₹100</td></tr>
           </tbody>
         </table>
@@ -214,7 +215,7 @@ const STEPS: Step[] = [
             <tr><td style={td}>Team size</td><td style={td}>Exactly 4 runners + up to 2 reserves (max 6). A team needs at least 4 nominated athletes</td></tr>
             <tr><td style={td}>One divisional relay</td><td style={td}>An athlete can run 4×100m <strong>or</strong> 4×400m, not both</td></tr>
             <tr><td style={td}>Mixed relay order</td><td style={td}><strong>Leg 1: Girl → Leg 2: Boy → Leg 3: Girl → Leg 4: Boy</strong></td></tr>
-            <tr><td style={td}>Mixed relay team</td><td style={td}>Shared by the college; girls come from the Girls squad and boys from the Boys squad. Either PED can edit it</td></tr>
+            <tr><td style={td}>Mixed relay team</td><td style={td}>Shared by the college; women come from the Women squad and men from the Men squad. Either PED can edit it</td></tr>
           </tbody>
         </table>
         <div style={danger}>

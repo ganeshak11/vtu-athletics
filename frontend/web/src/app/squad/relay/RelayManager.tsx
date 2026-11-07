@@ -292,13 +292,13 @@ function RelayTeamCard({
       {/* Notice if athletes of required gender are missing */}
       {isMixed && womenAthletes.length === 0 && (
         <div style={{ padding: '0.65rem 0.85rem', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fcd34d', fontSize: '0.78rem', marginBottom: '1rem' }}>
-          ⚠️ 0 Women athletes registered in your Girls squad. Register female athletes in Girls squad to assign Leg 1 &amp; Leg 3.
+          ⚠️ 0 Women athletes registered in your Women's squad. Register female athletes in the Women's squad to assign Leg 1 &amp; Leg 3.
         </div>
       )}
 
       {isMixed && menAthletes.length === 0 && (
         <div style={{ padding: '0.65rem 0.85rem', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fcd34d', fontSize: '0.78rem', marginBottom: '1rem' }}>
-          ⚠️ 0 Men athletes registered in your Boys squad. Register male athletes in Boys squad to assign Leg 2 &amp; Leg 4.
+          ⚠️ 0 Men athletes registered in your Men's squad. Register male athletes in the Men's squad to assign Leg 2 &amp; Leg 4.
         </div>
       )}
 

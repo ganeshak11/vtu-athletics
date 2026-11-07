@@ -39,6 +39,7 @@ interface AthleteItem {
   sem_start_date: string;
   aadhaar_number?: string;
   date_of_birth?: string | null;
+  phone?: string | null;
   photo_url?: string;
   bid_number?: number;
   accreditation_status: string;
@@ -104,6 +105,7 @@ export default function AthletesManager({
   const [joiningDate, setJoiningDate] = useState('');
   const [semStartDate, setSemStartDate] = useState('');
   const [aadhaarNumber, setAadhaarNumber] = useState('');
+  const [phone, setPhone] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
@@ -251,6 +253,7 @@ export default function AthletesManager({
     setJoiningDate('');
     setSemStartDate('');
     setAadhaarNumber('');
+    setPhone('');
     setDateOfBirth('');
     setPhotoPreview(null);
     setEvent1('');
@@ -309,6 +312,13 @@ export default function AthletesManager({
       return;
     }
 
+    // 2b. Validate student mobile number (10 digits, starts 6–9)
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      setError("Enter the student's 10-digit mobile number (e.g. 9876543210).");
+      setLoading(false);
+      return;
+    }
+
     // Check duplicate Aadhaar in local roster
     if (athletes.some((a) => a.aadhaar_number === cleanAadhaar)) {
       setError(`An athlete with Aadhaar '${cleanAadhaar}' is already registered in this squad roster.`);
@@ -328,7 +338,7 @@ export default function AthletesManager({
     }
 
     if (semStartDateObj < joiningDateObj) {
-      setError('Current semester start date cannot be earlier than college joining date.');
+      setError('Present year start date cannot be earlier than the college joining date.');
       setLoading(false);
       return;
     }
@@ -398,6 +408,7 @@ export default function AthletesManager({
     formData.set('collegeJoiningDate', joiningDate);
     formData.set('semStartDate', semStartDate);
     formData.set('aadhaarNumber', cleanAadhaar);
+    formData.set('phone', phone);
     formData.set('dateOfBirth', dateOfBirth);
     formData.set('event1Id', event1);
     if (event2) formData.set('event2Id', event2);
@@ -1054,7 +1065,7 @@ export default function AthletesManager({
                   Dr. ACS College of Engineering Athletics Meet 2026
                 </span>
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
-                  Register Athlete ({gender === 'men' ? "Boys Division" : "Girls Division"})
+                  Register Athlete ({gender === 'men' ? "Men's Division" : "Women's Division"})
                 </h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                   {collegeName} &bull; Code: <strong>{squadCode}</strong> &bull; Official Registration Form
@@ -1147,14 +1158,14 @@ export default function AthletesManager({
                             onChange={(e) => setSemester(e.target.value)}
                             style={inputStyle}
                           >
-                            {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((s) => (
                               <option key={s} value={s}>Semester {s}</option>
                             ))}
                           </select>
                         </div>
                       </div>
 
-                      {/* Blood Group, Joining Date, Sem Start Date */}
+                      {/* Blood Group, Joining Date, Present Year Start Date */}
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
                         <div>
                           <label style={labelStyle}>Blood Group *</label>
@@ -1179,7 +1190,7 @@ export default function AthletesManager({
                           />
                         </div>
                         <div>
-                          <label style={labelStyle}>Sem Start Date *</label>
+                          <label style={labelStyle}>Present Year Start Date *</label>
                           <input
                             type="date"
                             required
@@ -1207,6 +1218,24 @@ export default function AthletesManager({
                           />
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginTop: '0.25rem' }}>
                             12 digits. Unique per championship athlete.
+                          </span>
+
+                          <label style={{ ...labelStyle, marginTop: '0.9rem' }} htmlFor="add-phone">Student Phone Number *</label>
+                          <input
+                            id="add-phone"
+                            type="tel"
+                            inputMode="numeric"
+                            required
+                            maxLength={10}
+                            pattern="[6-9][0-9]{9}"
+                            placeholder="9876543210"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                            style={{ ...inputStyle, fontFamily: 'monospace', letterSpacing: '0.06em', fontWeight: 700 }}
+                            autoComplete="off"
+                          />
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginTop: '0.25rem' }}>
+                            Student&apos;s own 10-digit mobile number.
                           </span>
 
                           <label style={{ ...labelStyle, marginTop: '0.9rem' }} htmlFor="add-dob">Date of Birth (as per SSLC) *</label>

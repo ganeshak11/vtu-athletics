@@ -449,7 +449,7 @@ export async function saveRelayTeamAction(
       if (a && a.squad_id !== session.squadId) {
         return {
           success: false,
-          error: `Selected athlete "${a.sslc_name}" must be registered in your ${session.gender === 'men' ? 'Boys' : 'Girls'} squad.`,
+          error: `Selected athlete "${a.sslc_name}" must be registered in your ${session.gender === 'men' ? "Men's" : "Women's"} squad.`,
         };
       }
     }
