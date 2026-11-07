@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { creditedAmount } from '@/lib/payment-status';
 import { createPortal } from 'react-dom';
 import { FeeBreakdown, PaymentRecord } from '@/app/actions/payment';
 
@@ -285,7 +286,7 @@ export default function FeeInvoiceModal({
                         </span>
                       </td>
                       <td className="text-right" style={{ fontWeight: 700 }}>
-                        ₹{p.amount_submitted.toLocaleString('en-IN')}
+                        ₹{(p.status === 'VERIFIED' ? creditedAmount(p) : p.amount_submitted).toLocaleString('en-IN')}
                       </td>
                     </tr>
                   ))}

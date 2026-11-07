@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 import { calculateSquadFees, reviewPayment } from '@/lib/payments';
+import { normalizePaymentStatus, totalCredited } from '@/lib/payment-status';
 import { OFFICIAL_UPI_ID, OFFICIAL_ACCOUNT_NAME } from '@/lib/payment-config';
 
 export interface AdminDashboardStats {
@@ -67,7 +68,7 @@ export async function getAdminDashboardStatsAction(): Promise<AdminDashboardStat
   const verifiedSquadsCount = squads?.filter((s) => s.payment_status === 'VERIFIED').length || 0;
   const pendingSquadsCount = squads?.filter((s) => s.payment_status === 'SUBMITTED').length || 0;
   const rejectedSquadsCount = squads?.filter((s) => s.payment_status === 'REJECTED').length || 0;
-  const draftSquadsCount = squads?.filter((s) => s.payment_status === 'DrAFT').length || 0;
+  const draftSquadsCount = squads?.filter((s) => normalizePaymentStatus(s.payment_status) === 'DRAFT').length || 0;
 
   // Bibs Generated Count
   const { count: totalBibsGenerated } = await supabaseAdmin
@@ -160,10 +161,17 @@ export async function toggleRegistrationStatusAction(): Promise<{
 
   // If closing registration, also lock all squad rosters
   if (!newStatus) {
-    await supabaseAdmin
+    const lockAll = await supabaseAdmin
       .from('squads')
-      .update({ roster_locked: true, updated_at: new Date().toISOString() })
+      .update({ roster_locked: true, late_entry_open: false, updated_at: new Date().toISOString() })
       .not('id', 'is', null);
+    // Before migration 0017 the late_entry_open column does not exist yet
+    if (lockAll.error) {
+      await supabaseAdmin
+        .from('squads')
+        .update({ roster_locked: true, updated_at: new Date().toISOString() })
+        .not('id', 'is', null);
+    }
   }
 
   await logAudit(
@@ -180,19 +188,20 @@ export async function toggleRegistrationStatusAction(): Promise<{
 }
 
 /**
- * 3. Generates serialized bib numbers and QR codes with strict preconditions:
- * - Rule 1: Registration MUST be closed.
- * - Rule 2: Every college squad with registered athletes MUST be either VERIFIED or REJECTED (no unverified pending payments).
+ * 3. Assigns bib numbers via the single database path (close_registration_and_generate_bids,
+ * migration 0017). Append-only: athletes that already have a number keep it; only athletes of
+ * VERIFIED + locked squads without a number get the next free one (Men 100+, Women 2001+).
+ * Safe to run repeatedly — e.g. after late payment verification or a late entry.
  */
 export async function generateBibNumbersAction(): Promise<{
   success: boolean;
   assignedCount?: number;
+  lateEntries?: number;
   error?: string;
   unverifiedSquads?: string[];
 }> {
   await requireAdmin();
 
-  // Check Rule 1: Registration must be closed
   const { data: settings } = await supabaseAdmin
     .from('meet_settings')
     .select('registration_open')
@@ -206,125 +215,40 @@ export async function generateBibNumbersAction(): Promise<{
     };
   }
 
-  // Check Rule 2: Every squad with registered athletes must be verified (VERIFIED or REJECTED)
-  const { data: squadsWithAthletes } = await supabaseAdmin
-    .from('squads')
-    .select(`
-      id,
-      squad_code,
-      payment_status,
-      colleges (
-        name,
-        code
-      ),
-      profiles (
-        id
-      )
-    `);
+  const { data, error } = await supabaseAdmin.rpc('close_registration_and_generate_bids');
+  if (error) return { success: false, error: error.message };
 
-  const unverifiedList: string[] = [];
-  (squadsWithAthletes || []).forEach((sq: any) => {
-    const athleteCount = sq.profiles?.length || 0;
-    // Only check squads that actually registered athletes
-    if (athleteCount > 0) {
-      if (sq.payment_status !== 'VERIFIED' && sq.payment_status !== 'REJECTED') {
-        const colName = sq.colleges?.name || sq.squad_code;
-        unverifiedList.push(`${colName} (${sq.squad_code}) — Status: ${sq.payment_status}`);
-      }
-    }
+  const result: any = data || {};
+  const assignedCount = (result.total_men_bids_assigned || 0) + (result.total_women_bids_assigned || 0);
+  const pending: string[] = (Array.isArray(result.pending_squads) ? result.pending_squads : []).map((p: any) => {
+    const why =
+      p.payment_status === 'VERIFIED' && !p.roster_locked
+        ? 'roster unlocked (late-entry window open)'
+        : `payment ${normalizePaymentStatus(p.payment_status)}`;
+    return `${p.college} (${p.squad_code}) — ${p.waiting} athlete(s) waiting: ${why}`;
   });
 
-  if (unverifiedList.length > 0) {
-    return {
-      success: false,
-      error: `Cannot generate bib numbers: ${unverifiedList.length} college squad(s) have unverified payments. Every participating college must be either Approved or Rejected by the admin first.`,
-      unverifiedSquads: unverifiedList,
-    };
-  }
-
-  // Fetch verified athletes to allocate serialized numbers
-  const { data: verifiedAthletes, error: fetchErr } = await supabaseAdmin
-    .from('profiles')
-    .select(`
-      id,
-      sslc_name,
-      usn,
-      squad_id,
-      squads!inner (
-        id,
-        gender,
-        squad_code,
-        payment_status,
-        colleges (
-          name,
-          code
-        )
-      )
-    `)
-    .eq('squads.payment_status', 'VERIFIED');
-
-  if (fetchErr || !verifiedAthletes || verifiedAthletes.length === 0) {
-    return {
-      success: false,
-      error: 'No athletes found in verified college squads to assign bib numbers.',
-    };
-  }
-
-  // Separate boys and girls
-  const boys = verifiedAthletes.filter((a: any) => a.squads?.gender === 'men');
-  const girls = verifiedAthletes.filter((a: any) => a.squads?.gender === 'women');
-
-  // Helper to group by college and sort alphabetically
-  const sortAndGroup = (list: any[]) => {
-    return list.sort((a, b) => {
-      const colA = a.squads?.colleges?.name || a.squads?.squad_code || '';
-      const colB = b.squads?.colleges?.name || b.squads?.squad_code || '';
-      if (colA !== colB) return colA.localeCompare(colB);
-      return (a.sslc_name || '').localeCompare(b.sslc_name || '');
-    });
-  };
-
-  const sortedBoys = sortAndGroup(boys);
-  const sortedGirls = sortAndGroup(girls);
-
-  let boyBibCounter = 100; // Boys start from 100 upwards
-  let girlBibCounter = 2001; // Girls start from 2001 upwards
-  let totalAssigned = 0;
-
-  // Batch update boys
-  for (const athlete of sortedBoys) {
-    await supabaseAdmin
-      .from('profiles')
-      .update({ bid_number: boyBibCounter })
-      .eq('id', athlete.id);
-    boyBibCounter++;
-    totalAssigned++;
-  }
-
-  // Batch update girls
-  for (const athlete of sortedGirls) {
-    await supabaseAdmin
-      .from('profiles')
-      .update({ bid_number: girlBibCounter })
-      .eq('id', athlete.id);
-    girlBibCounter++;
-    totalAssigned++;
-  }
-
   await logAudit('GENERATED_BIB_NUMBERS', {
-    totalAssigned,
-    boysCount: sortedBoys.length,
-    girlsCount: sortedGirls.length,
-    boysRange: sortedBoys.length > 0 ? `100 - ${boyBibCounter - 1}` : 'None',
-    girlsRange: sortedGirls.length > 0 ? `2001 - ${girlBibCounter - 1}` : 'None',
+    assignedCount,
+    menAssigned: result.total_men_bids_assigned || 0,
+    womenAssigned: result.total_women_bids_assigned || 0,
+    lateEntries: result.late_entries_numbered || 0,
+    pendingSquads: pending.length,
   });
 
   revalidatePath('/admin');
   revalidatePath('/admin/athletes');
   revalidatePath('/admin/id-cards');
   revalidatePath('/admin/bids');
+  revalidatePath('/admin/amendments');
+  revalidatePath('/squad/cards');
 
-  return { success: true, assignedCount: totalAssigned };
+  return {
+    success: true,
+    assignedCount,
+    lateEntries: result.late_entries_numbered || 0,
+    unverifiedSquads: pending,
+  };
 }
 
 /**
@@ -419,17 +343,7 @@ export async function listPaymentsForAdminAction() {
           )
         )
       ),
-      payments (
-        id,
-        amount_submitted,
-        amount_expected,
-        utr_number,
-        screenshot_url,
-        status,
-        rejection_reason,
-        created_at,
-        verified_at
-      )
+      payments (*)
     `)
     .order('squad_code', { ascending: true });
 
@@ -449,9 +363,7 @@ export async function listPaymentsForAdminAction() {
       );
       const latestPayment = sortedPayments[0] || null;
       const pendingPayment = sortedPayments.find((p: any) => p.status === 'SUBMITTED') || null;
-      const totalVerified = sortedPayments
-        .filter((p: any) => p.status === 'VERIFIED')
-        .reduce((sum: number, p: any) => sum + (p.amount_submitted || 0), 0);
+      const totalVerified = totalCredited(sortedPayments);
 
       return {
         ...sq,
@@ -475,7 +387,8 @@ export async function listPaymentsForAdminAction() {
 export async function verifySquadPaymentAction(
   squadId: string,
   status: 'VERIFIED' | 'REJECTED',
-  rejectionReason?: string
+  rejectionReason?: string,
+  amountReceived?: number
 ): Promise<{ success: boolean; error?: string }> {
   const adminSession = await requireAdmin();
 
@@ -484,7 +397,7 @@ export async function verifySquadPaymentAction(
   // which could already be VERIFIED/REJECTED and would be re-processed.
   const { data: pendingPayment, error: findErr } = await supabaseAdmin
     .from('payments')
-    .select('id')
+    .select('id, amount_submitted, utr_number')
     .eq('squad_id', squadId)
     .eq('status', 'SUBMITTED')
     .order('created_at', { ascending: true })
@@ -496,12 +409,21 @@ export async function verifySquadPaymentAction(
     return { success: false, error: 'This squad has no payment awaiting verification. It may already have been processed.' };
   }
 
-  const result = await reviewPayment(pendingPayment.id, status, rejectionReason, adminSession.entityId);
+  const result = await reviewPayment(pendingPayment.id, status, rejectionReason, adminSession.entityId, amountReceived);
   if (!result.success) return result;
 
   await logAudit(
     status === 'VERIFIED' ? 'PAYMENT_APPROVED' : 'PAYMENT_REJECTED',
-    { squadId, paymentId: pendingPayment.id, status, rejectionReason: rejectionReason || 'None' }
+    {
+      squadId,
+      paymentId: pendingPayment.id,
+      utr: pendingPayment.utr_number,
+      status,
+      amountClaimed: pendingPayment.amount_submitted,
+      amountReceived: status === 'VERIFIED' ? amountReceived : null,
+      mismatch: status === 'VERIFIED' && amountReceived !== pendingPayment.amount_submitted,
+      rejectionReason: rejectionReason || 'None',
+    }
   );
 
   revalidatePath('/admin/payments');

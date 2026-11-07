@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { normalizePaymentStatus, creditedAmount } from '@/lib/payment-status';
 import { verifySquadPaymentAction } from '@/app/actions/admin-operations';
 
 interface Props {
@@ -18,11 +19,13 @@ export default function PaymentsClient({ squads }: Props) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectInput, setShowRejectInput] = useState(false);
+  // Amount Finance actually finds credited in the bank statement for the UTR
+  const [amountReceived, setAmountReceived] = useState('');
   const [actionError, setActionError] = useState<string | null>(null);
 
   // Filter squads
   const filteredSquads = squads.filter((sq) => {
-    if (statusFilter !== 'ALL' && sq.payment_status !== statusFilter) {
+    if (statusFilter !== 'ALL' && normalizePaymentStatus(sq.payment_status) !== statusFilter) {
       return false;
     }
     if (searchQuery.trim()) {
@@ -41,20 +44,47 @@ export default function PaymentsClient({ squads }: Props) {
   // Handle Verify or Reject
   async function handleVerification(status: 'VERIFIED' | 'REJECTED') {
     if (!selectedSquad) return;
-    setIsVerifying(true);
     setActionError(null);
 
+    let received: number | undefined;
+    if (status === 'VERIFIED') {
+      received = Number(amountReceived);
+      if (!/^\d+$/.test(amountReceived.trim()) || received < 1) {
+        setActionError('Enter the amount actually credited in the bank statement for this UTR. If nothing was received, reject the payment.');
+        return;
+      }
+      const claimed = Number(selectedSquad.pendingPayment?.amount_submitted || 0);
+      const due = Number(selectedSquad.balanceDue || 0);
+      if (received !== claimed || received < due) {
+        const lines = [
+          `Bank credited: ₹${received}`,
+          `College claimed: ₹${claimed}`,
+          `Balance due: ₹${due}`,
+          '',
+          received < due
+            ? `Only ₹${received} will be counted. The squad stays SUBMITTED with ₹${due - received} still due — no bib numbers until it is paid.`
+            : `₹${received} will be counted (not the claimed ₹${claimed}).`,
+          '',
+          'Verify with the bank-credited amount?',
+        ];
+        if (!window.confirm(lines.join('\n'))) return;
+      }
+    }
+
+    setIsVerifying(true);
     try {
       const res = await verifySquadPaymentAction(
         selectedSquad.id,
         status,
-        status === 'REJECTED' ? rejectionReason : undefined
+        status === 'REJECTED' ? rejectionReason : undefined,
+        received
       );
 
       if (res.success) {
         setSelectedSquad(null);
         setShowRejectInput(false);
         setRejectionReason('');
+        setAmountReceived('');
         router.refresh();
       } else {
         setActionError(res.error || 'Failed to update payment status.');
@@ -99,7 +129,7 @@ export default function PaymentsClient({ squads }: Props) {
             <option value="SUBMITTED">⏳ Pending Verification</option>
             <option value="VERIFIED">✓ Verified & Approved</option>
             <option value="REJECTED">✕ Rejected</option>
-            <option value="DrAFT">Draft (Unsubmitted)</option>
+            <option value="DRAFT">Draft (Unsubmitted)</option>
           </select>
         </div>
 
@@ -137,7 +167,7 @@ export default function PaymentsClient({ squads }: Props) {
               </tr>
             ) : (
               filteredSquads.map((sq) => {
-                const status = sq.payment_status || 'DrAFT';
+                const status = normalizePaymentStatus(sq.payment_status);
                 const athleteCount = sq.profiles?.length || 0;
                 const payment = sq.latestPayment;
 
@@ -200,7 +230,9 @@ export default function PaymentsClient({ squads }: Props) {
                             UTR: {payment.utr_number || 'N/A'}
                           </div>
                           <div style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 600 }}>
-                            Paid: ₹{(payment.amount_submitted || 0).toLocaleString()}
+                            {payment.status === 'VERIFIED'
+                              ? `Credited: ₹${creditedAmount(payment).toLocaleString()}`
+                              : `Claimed: ₹${(payment.amount_submitted || 0).toLocaleString()}`}
                           </div>
                         </div>
                       ) : (
@@ -239,6 +271,7 @@ export default function PaymentsClient({ squads }: Props) {
                         onClick={() => {
                           setSelectedSquad(sq);
                           setShowRejectInput(false);
+                          setAmountReceived('');
                           setRejectionReason(sq.latestPayment?.rejection_reason || '');
                           setActionError(null);
                         }}
@@ -309,15 +342,15 @@ export default function PaymentsClient({ squads }: Props) {
                     </strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0', borderBottom: '1px solid #e2e8f0' }}>
-                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Amount Submitted by College:</span>
-                    <strong style={{ fontSize: '1.05rem', color: '#059669' }}>
-                      ₹{(selectedSquad.latestPayment?.amount_submitted || 0).toLocaleString()}
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Amount Claimed by College (unverified):</span>
+                    <strong style={{ fontSize: '1.05rem', color: '#b45309' }}>
+                      ₹{((selectedSquad.pendingPayment || selectedSquad.latestPayment)?.amount_submitted || 0).toLocaleString()}
                     </strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0', borderBottom: '1px solid #e2e8f0' }}>
                     <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Transaction UTR / Ref #:</span>
                     <strong style={{ fontSize: '0.85rem', color: '#2563eb', fontFamily: 'monospace' }}>
-                      {selectedSquad.latestPayment?.utr_number || 'N/A'}
+                      {(selectedSquad.pendingPayment || selectedSquad.latestPayment)?.utr_number || 'N/A'}
                     </strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.4rem 0' }}>
@@ -414,6 +447,44 @@ export default function PaymentsClient({ squads }: Props) {
                 </div>
               </div>
 
+              {/* Bank-credited amount: required to verify */}
+              {selectedSquad.pendingPayment && !showRejectInput && (() => {
+                const claimed = Number(selectedSquad.pendingPayment.amount_submitted || 0);
+                const due = Number(selectedSquad.balanceDue || 0);
+                const entered = /^\d+$/.test(amountReceived.trim()) ? Number(amountReceived) : null;
+                return (
+                  <div style={{ marginTop: '1rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '0.75rem' }}>
+                    <label htmlFor="input-amount-received" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '0.35rem' }}>
+                      Amount credited in bank statement for UTR {selectedSquad.pendingPayment.utr_number} (₹) *
+                    </label>
+                    <input
+                      id="input-amount-received"
+                      type="text"
+                      inputMode="numeric"
+                      value={amountReceived}
+                      onChange={(e) => setAmountReceived(e.target.value.replace(/[^\d]/g, ''))}
+                      placeholder="Look up the UTR in the bank statement"
+                      className="filter-control"
+                      style={{ width: '100%', borderColor: '#93c5fd', fontWeight: 700 }}
+                      autoComplete="off"
+                    />
+                    <div style={{ fontSize: '0.75rem', color: '#1e40af', marginTop: '0.35rem', lineHeight: 1.45 }}>
+                      Do not copy the college&apos;s claimed amount or trust the screenshot — only this figure counts toward fees.
+                    </div>
+                    {entered !== null && entered !== claimed && (
+                      <div role="alert" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#b91c1c', marginTop: '0.4rem' }}>
+                        ⚠️ Mismatch: college claimed ₹{claimed.toLocaleString()}, bank shows ₹{entered.toLocaleString()}.
+                      </div>
+                    )}
+                    {entered !== null && entered < due && (
+                      <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#b45309', marginTop: '0.25rem' }}>
+                        ₹{(due - entered).toLocaleString()} will remain due — squad stays SUBMITTED, no bib numbers yet.
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Rejection input box when toggled */}
               {showRejectInput && (
                 <div style={{ marginTop: '1rem', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '8px', padding: '0.75rem' }}>
@@ -483,7 +554,8 @@ export default function PaymentsClient({ squads }: Props) {
               {selectedSquad.pendingPayment && (
                 <button
                   type="button"
-                  disabled={isVerifying}
+                  disabled={isVerifying || !/^\d+$/.test(amountReceived.trim()) || Number(amountReceived) < 1}
+                  title={!amountReceived.trim() ? 'Enter the bank-credited amount first' : undefined}
                   onClick={() => handleVerification('VERIFIED')}
                   className="btn-admin btn-admin-success"
                   id="btn-approve-payment"

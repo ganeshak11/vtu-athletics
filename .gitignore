@@ -39,3 +39,9 @@ next-env.d.ts
 **/.vercel
 scratch/
 prototype/
+# Credentials — never commit (plaintext passphrases/PINs, and bcrypt hashes of
+# low-entropy passphrases, which are cheap to brute-force offline)
+docs/College Login Credentials*.xlsx
+docs/Staff Login Credentials*.md
+docs/staff_credentials_*.sql
+supabase/migrations/college_credentials_*.sql

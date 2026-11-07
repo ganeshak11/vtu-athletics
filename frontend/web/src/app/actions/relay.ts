@@ -3,6 +3,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireSquad } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
+import { canEditRoster } from '@/lib/roster-window';
 
 export interface RelayMemberDTO {
   profile_id: string;
@@ -33,18 +34,23 @@ async function getRelayMutationBlock(squadIds: string[]): Promise<string | null>
   const ids = Array.from(new Set(squadIds.filter(Boolean)));
   const [{ data: meetSettings }, { data: squads, error: squadErr }] = await Promise.all([
     supabaseAdmin.from('meet_settings').select('registration_open').limit(1).maybeSingle(),
-    supabaseAdmin.from('squads').select('id, gender, roster_locked').in('id', ids),
+    supabaseAdmin.from('squads').select('*').in('id', ids),
   ]);
 
-  if (meetSettings && meetSettings.registration_open === false) {
-    return 'Registration is officially closed. Relay teams cannot be modified.';
-  }
   if (squadErr || !squads || squads.length !== ids.length) {
     return 'Unable to verify squad roster status. Please try again.';
   }
-  const locked = squads.find((s: any) => s.roster_locked === true);
-  if (locked) {
-    return `Roster Locked & Payment Submitted: The ${locked.gender === 'men' ? "Men's" : "Women's"} squad roster is frozen, so relay teams cannot be modified. Contact the VTU Directorate for an emergency unlock.`;
+  const registrationOpen = meetSettings?.registration_open !== false;
+  const blocked = squads.find((s: any) => !canEditRoster(registrationOpen, s));
+  if (blocked) {
+    const division = blocked.gender === 'men' ? "Men's" : "Women's";
+    if (!registrationOpen && blocked.roster_locked !== true) {
+      return `Registration is officially closed. The ${division} squad has no late-entry window open, so relay teams cannot be modified. Contact the VTU Directorate.`;
+    }
+    if (!registrationOpen) {
+      return 'Registration is officially closed. Relay teams cannot be modified.';
+    }
+    return `Roster Locked & Payment Submitted: The ${division} squad roster is frozen, so relay teams cannot be modified. Contact the VTU Directorate for an emergency unlock.`;
   }
   return null;
 }

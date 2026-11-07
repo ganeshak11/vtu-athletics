@@ -5,6 +5,8 @@ import { requireAdmin } from '@/lib/auth-guard';
 import { generateSquadPassphrase, hashPassphrase, hashPin } from '@/lib/passphrase';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
+import { calculateSquadFees } from '@/lib/payments';
+import { normalizePaymentStatus, totalCredited, type SquadPaymentStatus } from '@/lib/payment-status';
 
 export interface CreateCollegeResult {
   success: boolean;
@@ -115,19 +117,96 @@ export async function resetSquadPassphraseAction(squadId: string): Promise<{ suc
 }
 
 /**
- * Toggles roster lock for a squad.
+ * Emergency roster lock / unlock for a squad (admin only).
+ *
+ * - Unlock is refused while a payment is still awaiting Finance Desk verification: that
+ *   payment was computed for the frozen roster, and a pending receipt also blocks the squad
+ *   from submitting the differential fee for any changes made while unlocked.
+ *   payment_status is kept as-is (VERIFIED / REJECTED / DRAFT) so payment history stays true;
+ *   any balance created by roster edits is paid via a new submission, which re-locks.
+ * - Re-lock recomputes payment_status from verified payments vs the CURRENT fee, so a squad
+ *   that added entries while unlocked is not left marked VERIFIED with a balance due.
  */
-export async function toggleSquadRosterLockAction(squadId: string, locked: boolean): Promise<{ success: boolean; error?: string }> {
+export async function toggleSquadRosterLockAction(
+  squadId: string,
+  locked: boolean
+): Promise<{ success: boolean; error?: string; paymentStatus?: SquadPaymentStatus; lateEntryOpen?: boolean }> {
   await requireAdmin();
 
-  const { error } = await supabaseAdmin
-    .from('squads')
-    .update({ roster_locked: locked })
-    .eq('id', squadId);
+  // select('*') so this works before migration 0017 adds late_entry_open
+  const [{ data: squad, error: squadErr }, { data: meetSettings }] = await Promise.all([
+    supabaseAdmin.from('squads').select('*').eq('id', squadId).maybeSingle(),
+    supabaseAdmin.from('meet_settings').select('registration_open').limit(1).maybeSingle(),
+  ]);
+  const registrationOpen = meetSettings?.registration_open !== false;
+  const hasLateEntryColumn = Boolean(squad && 'late_entry_open' in squad);
+  if (squadErr) return { success: false, error: squadErr.message };
+  if (!squad) return { success: false, error: 'Squad not found.' };
 
+  const { data: payments, error: payErr } = await supabaseAdmin
+    .from('payments')
+    .select('*')
+    .eq('squad_id', squadId);
+  if (payErr) return { success: false, error: payErr.message };
+
+  const pendingCount = (payments || []).filter((p: any) => p.status === 'SUBMITTED').length;
+  const update: Record<string, any> = { roster_locked: locked, updated_at: new Date().toISOString() };
+
+  if (!locked) {
+    if (pendingCount > 0) {
+      return {
+        success: false,
+        error: 'This squad has a payment awaiting verification. Verify or reject it on the Payments desk before unlocking the roster.',
+      };
+    }
+    if (!registrationOpen) {
+      // Unlocking after the close opens a late-entry window for this squad only
+      if (!hasLateEntryColumn) {
+        return {
+          success: false,
+          error: 'Late entries need database migration 0017 (squads.late_entry_open). Apply it in Supabase, then try again.',
+        };
+      }
+      update.late_entry_open = true;
+    }
+  } else {
+    if (hasLateEntryColumn) update.late_entry_open = false;
+    const verifiedSum = totalCredited(payments as any[]);
+    const fees = await calculateSquadFees(squadId);
+
+    if (verifiedSum > 0 && verifiedSum >= fees.totalAmount) {
+      update.payment_status = 'VERIFIED';
+    } else if (pendingCount > 0 || verifiedSum > 0) {
+      // Pending receipt, or verified but under-paid after roster edits: balance due
+      update.payment_status = 'SUBMITTED';
+    }
+    // Otherwise (no payments yet / last one rejected) keep DRAFT or REJECTED as-is.
+  }
+
+  const { error } = await supabaseAdmin.from('squads').update(update).eq('id', squadId);
   if (error) return { success: false, error: error.message };
+
+  try {
+    await supabaseAdmin.from('admin_audit_logs').insert({
+      action: locked ? 'ROSTER_LOCKED' : update.late_entry_open ? 'LATE_ENTRY_WINDOW_OPENED' : 'ROSTER_EMERGENCY_UNLOCK',
+      details: { squadId, previousStatus: squad.payment_status, newStatus: update.payment_status || squad.payment_status },
+      performed_by: 'Administrator',
+    });
+  } catch (err) {
+    console.warn('Audit logging notice (non-fatal):', err);
+  }
+
   revalidatePath('/admin/colleges');
-  return { success: true };
+  revalidatePath('/admin/payments');
+  revalidatePath('/squad/dashboard');
+  revalidatePath('/squad/athletes');
+  revalidatePath('/squad/relay');
+  revalidatePath('/squad/payment');
+  return {
+    success: true,
+    paymentStatus: normalizePaymentStatus(update.payment_status || squad.payment_status),
+    lateEntryOpen: update.late_entry_open === true,
+  };
 }
 
 /**

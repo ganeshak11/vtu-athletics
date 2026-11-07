@@ -5,6 +5,7 @@ import { requireSquad, requireStaff } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 import { calculateSquadFees, reviewPayment, getRelayReadinessIssues } from '@/lib/payments';
 import { resolveHostUpiId, resolveHostAccountName } from '@/lib/payment-config';
+import { normalizePaymentStatus, totalCredited, type SquadPaymentStatus } from '@/lib/payment-status';
 
 export interface FeeBreakdown {
   regularEventsCount: number;
@@ -35,16 +36,14 @@ export interface FeeBreakdown {
   athletesCount?: number;
 }
 
-/**
- * Squad payment lifecycle. The DB constraint currently stores the draft state as 'DrAFT'
- * (legacy spelling); 'DRAFT' is accepted too so either schema revision works.
- */
-export type SquadPaymentStatus = 'DrAFT' | 'DRAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
+export type { SquadPaymentStatus } from '@/lib/payment-status';
 
 export interface PaymentRecord {
   id: string;
   amount_submitted: number;
   amount_expected: number;
+  /** Bank-confirmed amount entered by Finance at verification (migration 0018) */
+  amount_received?: number | null;
   utr_number: string;
   screenshot_url: string;
   status: 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
@@ -108,9 +107,7 @@ export async function getSquadFeeBreakdownAction(): Promise<{
     .eq('squad_id', session.squadId)
     .order('created_at', { ascending: false });
 
-  const totalPaid = (payments || [])
-    .filter((p: any) => p.status === 'VERIFIED')
-    .reduce((sum: number, p: any) => sum + (p.amount_submitted || 0), 0);
+  const totalPaid = totalCredited(payments as any[]);
 
   const totalAmount = feeCalc.totalAmount;
   const balanceDue = Math.max(0, totalAmount - totalPaid);
@@ -131,7 +128,7 @@ export async function getSquadFeeBreakdownAction(): Promise<{
       balanceDue,
       hostUpiId: resolveHostUpiId(settings?.host_upi_id),
       hostAccountName: resolveHostAccountName(settings?.host_account_name),
-      squadPaymentStatus: (squad?.payment_status || 'DrAFT') as SquadPaymentStatus,
+      squadPaymentStatus: normalizePaymentStatus(squad?.payment_status),
       hasPendingPayment: (payments || []).some((p: any) => p.status === 'SUBMITTED'),
       relayIssues: squad?.roster_locked === true ? [] : relayIssues,
       registrationOpen: settings?.registration_open !== false,
@@ -178,9 +175,17 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
     // (Skipped when already locked — e.g. re-upload after rejection — since the PED cannot edit then.)
     const { data: lockRow } = await supabaseAdmin
       .from('squads')
-      .select('roster_locked')
+      .select('roster_locked, ped_name, ped_phone')
       .eq('id', session.squadId)
       .maybeSingle();
+
+    // The invoice, registration report and Finance Desk need a reachable PED
+    if (!String(lockRow?.ped_name || '').trim() || !String(lockRow?.ped_phone || '').trim()) {
+      return {
+        success: false,
+        error: 'Please add the PED / Sports Director name and mobile number on the Contingent Overview page before submitting payment.',
+      };
+    }
     const relayIssues = lockRow?.roster_locked === true ? [] : await getRelayReadinessIssues(session.squadId);
     if (relayIssues.length > 0) {
       return {
@@ -205,8 +210,47 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
       };
     }
 
+    // Get expected total fee calculated accurately with flat ₹400 per relay team
+    const feeCalc = await calculateSquadFees(session.squadId);
+    const totalAmount = feeCalc.totalAmount;
+    if (totalAmount <= 0) {
+      return {
+        success: false,
+        error: 'Cannot submit payment for an empty squad roster. Please register athletes before settling fees.',
+      };
+    }
+
+    // Check prior verified payments to prevent duplicate payments on settled rosters
+    // Only bank-confirmed amounts (amount_received) count as already paid
+    const { data: pastPayments } = await supabaseAdmin
+      .from('payments')
+      .select('*')
+      .eq('squad_id', session.squadId)
+      .eq('status', 'VERIFIED');
+
+    const priorVerified = totalCredited(pastPayments as any[]);
+    const balanceDue = Math.max(0, totalAmount - priorVerified);
+
+    if (balanceDue === 0 && priorVerified > 0) {
+      return {
+        success: false,
+        error: 'All entry fees for your current roster have already been fully verified and settled.',
+      };
+    }
+
+    // The college may not type an arbitrary amount: it must pay exactly the balance due.
+    // (Finance still confirms the amount actually credited in the bank at verification.)
+    if (amountSubmitted !== balanceDue) {
+      return {
+        success: false,
+        error: `The amount must equal your balance due of ₹${balanceDue}. Pay exactly ₹${balanceDue} and enter that amount.`,
+      };
+    }
+
+
     // Upload screenshot to Supabase Storage Bucket ('payment-proofs') with validation
-    let screenshotUrl = screenshotData || '';
+    // Only a real storage URL is ever saved — never the raw base64 payload
+    let screenshotUrl = '';
     const screenshotFile = formData.get('screenshot') as File | null;
 
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -243,6 +287,7 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
             upsert: true,
           });
 
+        if (uploadErr) console.error('Storage upload error:', uploadErr.message);
         if (!uploadErr && uploadResult) {
           const { data: pubData } = supabaseAdmin.storage
             .from('payment-proofs')
@@ -272,6 +317,7 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
               upsert: true,
             });
 
+          if (uploadErr) console.error('Storage upload error:', uploadErr.message);
           if (!uploadErr && uploadResult) {
             const { data: pubData } = supabaseAdmin.storage
               .from('payment-proofs')
@@ -281,35 +327,17 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
         }
       }
     } catch (storageErr) {
-      console.error('Payment screenshot storage upload warning:', storageErr);
+      console.error('Payment proof upload failed:', storageErr);
+      return { success: false, error: 'The payment proof could not be uploaded. Please try again.' };
     }
 
-    // Get expected total fee calculated accurately with flat ₹400 per relay team
-    const feeCalc = await calculateSquadFees(session.squadId);
-    const totalAmount = feeCalc.totalAmount;
-    if (totalAmount <= 0) {
+    if (!screenshotUrl) {
       return {
         success: false,
-        error: 'Cannot submit payment for an empty squad roster. Please register athletes before settling fees.',
+        error: 'The payment proof could not be uploaded. Please attach a JPG, PNG, WebP or PDF receipt (max 5MB) and try again.',
       };
     }
 
-    // Check prior verified payments to prevent duplicate payments on settled rosters
-    const { data: pastPayments } = await supabaseAdmin
-      .from('payments')
-      .select('amount_submitted')
-      .eq('squad_id', session.squadId)
-      .eq('status', 'VERIFIED');
-
-    const priorVerified = (pastPayments || []).reduce((acc: number, p: any) => acc + (p.amount_submitted || 0), 0);
-    const balanceDue = Math.max(0, totalAmount - priorVerified);
-
-    if (balanceDue === 0 && priorVerified > 0) {
-      return {
-        success: false,
-        error: 'All entry fees for your current roster have already been fully verified and settled.',
-      };
-    }
 
     const { error } = await supabaseAdmin.from('payments').insert({
       squad_id: session.squadId,
@@ -397,11 +425,12 @@ export async function listPaymentsForFinanceAction() {
 export async function verifyPaymentAction(
   paymentId: string,
   newStatus: 'VERIFIED' | 'REJECTED',
-  reason?: string
+  reason?: string,
+  amountReceived?: number
 ): Promise<{ success: boolean; error?: string }> {
   const staffSession = await requireStaff(['meet_admin', 'finance_desk']);
 
-  const result = await reviewPayment(paymentId, newStatus, reason, staffSession.entityId);
+  const result = await reviewPayment(paymentId, newStatus, reason, staffSession.entityId, amountReceived);
   if (!result.success) return result;
 
   revalidatePath('/finance');

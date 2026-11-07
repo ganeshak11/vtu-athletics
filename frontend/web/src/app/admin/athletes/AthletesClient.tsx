@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
+import { normalizePaymentStatus } from '@/lib/payment-status';
 
 interface Props {
   athletes: any[];
@@ -67,7 +68,7 @@ export default function AthletesClient({ athletes }: Props) {
 
       // Status filter
       if (selectedStatus !== 'ALL') {
-        if (a.squads?.payment_status !== selectedStatus) return false;
+        if (normalizePaymentStatus(a.squads?.payment_status) !== selectedStatus) return false;
       }
 
       // Event filter
@@ -98,7 +99,7 @@ export default function AthletesClient({ athletes }: Props) {
         'Semester': a.semester || '',
         'Blood Group': a.blood_group || '',
         'Registered Events': eventNames,
-        'Payment Status': a.squads?.payment_status || 'DrAFT',
+        'Payment Status': normalizePaymentStatus(a.squads?.payment_status),
       };
     });
   }
@@ -208,7 +209,7 @@ export default function AthletesClient({ athletes }: Props) {
             <option value="VERIFIED">Verified (Approved)</option>
             <option value="SUBMITTED">Pending Verification</option>
             <option value="REJECTED">Rejected</option>
-            <option value="DrAFT">Draft</option>
+            <option value="DRAFT">Draft</option>
           </select>
 
           {/* Event Filter */}
@@ -286,7 +287,7 @@ export default function AthletesClient({ athletes }: Props) {
               </tr>
             ) : (
               filteredAthletes.map((athlete) => {
-                const status = athlete.squads?.payment_status || 'DrAFT';
+                const status = normalizePaymentStatus(athlete.squads?.payment_status);
                 return (
                   <tr key={athlete.id}>
                     {/* Bib Number */}

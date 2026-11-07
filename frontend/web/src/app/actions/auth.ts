@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getSession } from '@/lib/session';
 import { verifyPassphrase, verifyPin } from '@/lib/passphrase';
 import bcrypt from 'bcryptjs';
+import { checkLoginThrottle, recordLoginFailure, clearLoginFailures, getClientIp } from '@/lib/login-throttle';
 
 export interface AuthResponse {
   success: boolean;
@@ -48,6 +49,14 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
     gender = 'men';
   }
 
+  // Brute-force throttling (per college+division and per IP)
+  const ip = await getClientIp();
+  const throttleKey = `${collegeCode}:${gender}`;
+  const throttled = await checkLoginThrottle('squad', throttleKey, ip);
+  if (throttled) {
+    return { success: false, error: throttled };
+  }
+
   // 1. Try finding college first by code
   const { data: college } = await supabaseAdmin
     .from('colleges')
@@ -79,6 +88,7 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
   }
 
   if (!squad) {
+    await recordLoginFailure('squad', throttleKey, ip);
     return { success: false, error: 'Invalid college code, division, or passphrase.' };
   }
 
@@ -89,8 +99,10 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
     isValid = await verifyPassphrase(passphrase.toLowerCase(), squad.passphrase_hash);
   }
   if (!isValid) {
+    await recordLoginFailure('squad', throttleKey, ip);
     return { success: false, error: 'Invalid college code, division, or passphrase.' };
   }
+  await clearLoginFailures('squad', throttleKey);
 
   let fullCollege = college;
   if (!fullCollege && squad.college_id) {
@@ -134,6 +146,13 @@ export async function loginAdmin(formData: FormData): Promise<AuthResponse> {
     return { success: false, error: 'Username and password are required.' };
   }
 
+  const ip = await getClientIp();
+  const throttleKey = username.toLowerCase();
+  const throttled = await checkLoginThrottle('admin', throttleKey, ip);
+  if (throttled) {
+    return { success: false, error: throttled };
+  }
+
   const { data: staffMember, error } = await supabaseAdmin
     .from('staff')
     .select('id, username, password_hash, display_name, role, is_active')
@@ -141,6 +160,7 @@ export async function loginAdmin(formData: FormData): Promise<AuthResponse> {
     .single();
 
   if (error || !staffMember) {
+    await recordLoginFailure('admin', throttleKey, ip);
     return { success: false, error: 'Invalid credentials.' };
   }
 
@@ -154,8 +174,10 @@ export async function loginAdmin(formData: FormData): Promise<AuthResponse> {
 
   const isValid = await bcrypt.compare(password, staffMember.password_hash);
   if (!isValid) {
+    await recordLoginFailure('admin', throttleKey, ip);
     return { success: false, error: 'Invalid credentials.' };
   }
+  await clearLoginFailures('admin', throttleKey);
 
   const session = await getSession();
   session.isLoggedIn = true;
@@ -181,6 +203,13 @@ export async function loginStaffPin(formData: FormData): Promise<AuthResponse> {
 
   if (!pin) {
     return { success: false, error: 'Please enter your access PIN.' };
+  }
+
+  const ip = await getClientIp();
+  const throttleKey = role || 'any';
+  const throttled = await checkLoginThrottle('pin', throttleKey, ip);
+  if (throttled) {
+    return { success: false, error: throttled };
   }
 
   // Fetch active staff with matching role and a pin_hash
@@ -210,6 +239,7 @@ export async function loginStaffPin(formData: FormData): Promise<AuthResponse> {
   }
 
   if (!matchedStaff) {
+    await recordLoginFailure('pin', throttleKey, ip);
     return { success: false, error: 'Invalid access PIN.' };
   }
 

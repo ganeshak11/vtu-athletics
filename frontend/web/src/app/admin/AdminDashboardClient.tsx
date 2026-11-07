@@ -92,13 +92,17 @@ export default function AdminDashboardClient({ initialStats }: Props) {
       if (res.success) {
         setStats((prev) => ({
           ...prev,
-          totalBibsGenerated: res.assignedCount || prev.totalBibsGenerated,
+          totalBibsGenerated: (prev.totalBibsGenerated || 0) + (res.assignedCount || 0),
         }));
+        const late = res.lateEntries ? ` (${res.lateEntries} late entr${res.lateEntries === 1 ? 'y' : 'ies'})` : '';
         setModalState({
           isOpen: true,
           type: 'success',
-          title: 'Bib Numbers & QR Codes Generated!',
-          message: `Successfully allocated serialized bib numbers to ${res.assignedCount} verified athletes (Boys starting at #100, Girls starting at #2001). QR codes have been attached to their accreditation badges.`,
+          title: res.assignedCount ? 'Bib Numbers Assigned' : 'No New Bib Numbers',
+          message: res.assignedCount
+            ? `Assigned bib numbers to ${res.assignedCount} newly eligible athlete(s)${late}. Existing numbers were not changed. Run this again any time a college is verified later or a late entry is approved.`
+            : 'Every athlete in verified, locked squads already has a bib number. Existing numbers were not changed.',
+          items: res.unverifiedSquads,
         });
       } else {
         setModalState({

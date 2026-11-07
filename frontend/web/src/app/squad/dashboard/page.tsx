@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import { requireSquad } from '@/lib/auth-guard';
 import { supabaseAdmin } from '@/lib/supabase';
+import { normalizePaymentStatus } from '@/lib/payment-status';
 import { listSquadAthletesAction, getSquadRelayCountAction } from '@/app/actions/athletes';
 import './dashboard.css';
+import PedContactCard from './PedContactCard';
+import { canEditRoster, isLateEntryWindow } from '@/lib/roster-window';
 
 export const metadata = {
   title: 'Contingent Overview — VTU SportsOS',
@@ -15,7 +18,7 @@ export default async function SquadDashboardPage() {
   // Fetch squad details from DB
   const { data: squad } = await supabaseAdmin
     .from('squads')
-    .select('id, gender, squad_code, ped_name, ped_phone, ped_email, roster_locked, payment_status, colleges(name, code, district)')
+    .select('*, colleges(name, code, district)')
     .eq('id', session.squadId)
     .single();
 
@@ -25,12 +28,11 @@ export default async function SquadDashboardPage() {
   const collegeCode = college?.code || session.collegeCode || squad?.squad_code || 'VTU';
   const district = college?.district || 'Karnataka';
   const squadCode = squad?.squad_code || session.squadCode || '';
-  const paymentStatus = squad?.payment_status || 'DrAFT';
+  const paymentStatus = normalizePaymentStatus(squad?.payment_status);
   const isPaymentVerified = paymentStatus === 'VERIFIED';
   const rosterLocked = squad?.roster_locked === true;
-  // Legacy DB spelling 'DrAFT' is shown as DRAFT
   const paymentStatusLabel =
-    (paymentStatus === 'DrAFT' ? 'DRAFT' : paymentStatus) + (rosterLocked ? ' · 🔒 Roster Locked' : '');
+    paymentStatus + (rosterLocked ? ' · 🔒 Roster Locked' : '');
 
   // Fetch championship registration status
   const { data: meetSettings } = await supabaseAdmin
@@ -39,6 +41,8 @@ export default async function SquadDashboardPage() {
     .limit(1)
     .maybeSingle();
   const isRegistrationOpen = meetSettings ? meetSettings.registration_open !== false : true;
+  const lateEntryOpen = isLateEntryWindow(isRegistrationOpen, squad);
+  const canAddAthletes = canEditRoster(isRegistrationOpen, squad);
 
   // Fetch athletes and relay count
   const athletes = await listSquadAthletesAction();
@@ -142,7 +146,7 @@ export default async function SquadDashboardPage() {
                 {isPaymentVerified ? '✓ Payment: Verified' : `⚠️ Payment: ${paymentStatusLabel}`}
               </span>
               <span className={`squad-status-badge ${isRegistrationOpen ? 'squad-badge-open' : 'squad-badge-pending'}`}>
-                {isRegistrationOpen ? '🔓 Registration: Open' : '🔒 Registration: Closed'}
+                {isRegistrationOpen ? '🔓 Registration: Open' : lateEntryOpen ? '⏱️ Late Entry Window Open' : '🔒 Registration: Closed'}
               </span>
             </div>
 
@@ -160,6 +164,13 @@ export default async function SquadDashboardPage() {
           </div>
         </div>
       </section>
+
+      {/* 2. PED / SPORTS DIRECTOR CONTACT (required before payment) */}
+      <PedContactCard
+        initialName={squad?.ped_name || ''}
+        initialPhone={squad?.ped_phone || ''}
+        initialEmail={squad?.ped_email || ''}
+      />
 
       {/* 3. EXECUTIVE KPI METRICS GRID */}
       <section className="squad-kpi-grid">
@@ -288,7 +299,7 @@ export default async function SquadDashboardPage() {
           </div>
 
           <div className="squad-roster-actions">
-            {isRegistrationOpen && (
+            {canAddAthletes && (
               <Link href="/squad/athletes" className="squad-cta-primary" style={{ padding: '0.45rem 0.95rem', fontSize: '0.825rem' }}>
                 <span>+</span> Nominate Athlete
               </Link>
@@ -311,7 +322,7 @@ export default async function SquadDashboardPage() {
             <div className="squad-empty-desc">
               Your college delegation currently has 0 athletes nominated for the 28th VTU Inter-Collegiate Athletic Meet – 2026. Nominate students from your college to participate in track, field, and relay events.
             </div>
-            {isRegistrationOpen && (
+            {canAddAthletes && (
               <Link href="/squad/athletes" className="squad-cta-primary">
                 + Register First Athlete
               </Link>

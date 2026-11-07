@@ -3,6 +3,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireSquad } from '@/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
+import { rosterEditBlockReason } from '@/lib/roster-window';
 
 export interface AddAthleteResult {
   success: boolean;
@@ -18,23 +19,17 @@ const VTU_USN_REGEX = /^[1-4][A-Z]{2}\d{2}[A-Z]{2,3}\d{2,3}$/;
  * (payment submitted / verified / admin lock) or championship registration is closed.
  */
 async function getRosterMutationBlock(squadId: string): Promise<string | null> {
+  // select('*') so this keeps working before migration 0017 adds late_entry_open
   const [{ data: meetSettings }, { data: squad, error: squadErr }] = await Promise.all([
     supabaseAdmin.from('meet_settings').select('registration_open').limit(1).maybeSingle(),
-    supabaseAdmin.from('squads').select('roster_locked, payment_status').eq('id', squadId).maybeSingle(),
+    supabaseAdmin.from('squads').select('*').eq('id', squadId).maybeSingle(),
   ]);
 
-  if (meetSettings && meetSettings.registration_open === false) {
-    return 'Championship registrations are officially closed by the VTU Directorate.';
-  }
   if (squadErr || !squad) {
     return 'Unable to verify squad roster status. Please try again.';
   }
-  if (squad.roster_locked === true) {
-    return squad.payment_status === 'VERIFIED'
-      ? 'Roster Locked: Your entry fee payment has been verified. The squad roster is permanently frozen. Contact the VTU Directorate for an emergency unlock.'
-      : 'Roster Locked & Payment Submitted: Athletes cannot be added or removed while the roster is frozen. Contact the VTU Directorate for an emergency unlock.';
-  }
-  return null;
+  // Registration closed → only an admin-opened late-entry window allows edits
+  return rosterEditBlockReason(meetSettings?.registration_open !== false, squad);
 }
 
 /**
@@ -89,8 +84,8 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     return { success: false, error: `Invalid USN '${usn}'. Enter a valid VTU USN (e.g. 1RV21CS001).` };
   }
 
-  if (!Number.isInteger(semester) || semester < 1 || semester > 10) {
-    return { success: false, error: 'Semester must be between 1 and 10.' };
+  if (!Number.isInteger(semester) || semester < 1 || semester > 8) {
+    return { success: false, error: 'Semester must be between 1 and 8.' };
   }
 
   // Date Logic Validation: Semester start date cannot be before college joining date
@@ -368,6 +363,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
           upsert: true,
         });
 
+      if (uploadErr) console.error('Storage upload error:', uploadErr.message);
       if (!uploadErr && uploadResult) {
         const { data: pubData } = supabaseAdmin.storage
           .from('athlete-photos')
@@ -397,6 +393,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
             upsert: true,
           });
 
+        if (uploadErr) console.error('Storage upload error:', uploadErr.message);
         if (!uploadErr && uploadResult) {
           const { data: pubData } = supabaseAdmin.storage
             .from('athlete-photos')
@@ -406,7 +403,19 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
       }
     }
   } catch (storageErr) {
-    console.error('Storage bucket upload warning:', storageErr);
+    console.error('Athlete photo upload failed:', storageErr);
+    return { success: false, error: 'The athlete photo could not be uploaded. Please try again.' };
+  }
+
+  // Photo is mandatory for the accreditation ID card: never save an athlete without one
+  if (!photoUrl) {
+    const hadPhoto = Boolean((photoFile && photoFile.size > 0) || (photoData && photoData.startsWith('data:image')));
+    return {
+      success: false,
+      error: hadPhoto
+        ? 'The athlete photo could not be uploaded. Please try again.'
+        : 'A passport-size photo (JPG, PNG or WebP, max 5MB) is mandatory for every athlete.',
+    };
   }
 
   // Insert athlete profile
@@ -531,13 +540,22 @@ export async function deleteAthleteAction(profileId: string): Promise<{ success:
   // IDOR protection: verify the athlete belongs to this squad BEFORE touching any child rows
   const { data: owned } = await supabaseAdmin
     .from('profiles')
-    .select('id')
+    .select('id, bid_number')
     .eq('id', profileId)
     .eq('squad_id', session.squadId)
     .maybeSingle();
 
   if (!owned) {
     return { success: false, error: 'Athlete not found in your squad roster.' };
+  }
+
+  // A numbered athlete may already be on printed cards / heat sheets: removing them must go
+  // through the Directorate's withdrawal (keeps the bib reserved and logs an amendment).
+  if (owned.bid_number) {
+    return {
+      success: false,
+      error: `This athlete already has bib number ${owned.bid_number}. Contact the VTU Directorate to withdraw or substitute them.`,
+    };
   }
 
   // Clean up child rows first (registrations, relay memberships, heat slots) so the
@@ -565,6 +583,172 @@ export async function deleteAthleteAction(profileId: string): Promise<{ success:
   revalidatePath('/squad/dashboard');
   revalidatePath('/squad/payment');
   return { success: true };
+}
+
+export interface UpdateAthleteResult {
+  success: boolean;
+  error?: string;
+  athlete?: {
+    id: string;
+    sslc_name: string;
+    usn: string;
+    semester: number;
+    blood_group: string;
+    college_joining_date: string;
+    sem_start_date: string;
+    aadhaar_number: string;
+    photo_url?: string;
+  };
+}
+
+const BLOOD_GROUPS = new Set(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']);
+
+/**
+ * Corrects an athlete's identification bio-data (name, USN, semester, blood group, dates,
+ * Aadhaar) and optionally replaces the photo. Event selections are NOT changed here:
+ * quotas, fees and relay lineups depend on them, so event changes are remove + re-register.
+ * Allowed only while the roster is unlocked (same guard as add/delete).
+ */
+export async function updateAthleteAction(formData: FormData): Promise<UpdateAthleteResult> {
+  try {
+    const session = await requireSquad();
+
+    const lockError = await getRosterMutationBlock(session.squadId);
+    if (lockError) return { success: false, error: lockError };
+
+    const profileId = (formData.get('profileId') as string || '').trim();
+    const sslcName = (formData.get('sslcName') as string || '').trim();
+    const usn = (formData.get('usn') as string || '').trim().toUpperCase();
+    const semester = parseInt(formData.get('semester') as string, 10);
+    const bloodGroup = (formData.get('bloodGroup') as string || '').trim();
+    const collegeJoiningDate = (formData.get('collegeJoiningDate') as string || '').trim();
+    const semStartDate = (formData.get('semStartDate') as string || '').trim();
+    const aadhaarNumber = (formData.get('aadhaarNumber') as string || '').trim().replace(/[\s-]/g, '');
+    const photoData = (formData.get('photoData') as string | null) || '';
+
+    if (!profileId) return { success: false, error: 'Athlete not specified.' };
+
+    // IDOR protection: athlete must belong to this squad
+    const { data: owned } = await supabaseAdmin
+      .from('profiles')
+      .select('id, photo_url')
+      .eq('id', profileId)
+      .eq('squad_id', session.squadId)
+      .maybeSingle();
+    if (!owned) return { success: false, error: 'Athlete not found in your squad roster.' };
+
+    if (!sslcName || !usn || !semester || !bloodGroup || !collegeJoiningDate || !semStartDate || !aadhaarNumber) {
+      return { success: false, error: 'All student identification fields (including 12-digit Aadhaar Number) are mandatory.' };
+    }
+    if (!/^\d{12}$/.test(aadhaarNumber)) {
+      return { success: false, error: 'Aadhaar Number must be exactly 12 numeric digits.' };
+    }
+    if (!VTU_USN_REGEX.test(usn)) {
+      return { success: false, error: `Invalid USN '${usn}'. Enter a valid VTU USN (e.g. 1RV21CS001).` };
+    }
+    if (!Number.isInteger(semester) || semester < 1 || semester > 8) {
+      return { success: false, error: 'Semester must be between 1 and 8.' };
+    }
+    if (!BLOOD_GROUPS.has(bloodGroup)) {
+      return { success: false, error: 'Please select a valid blood group.' };
+    }
+    const joiningDateObj = new Date(collegeJoiningDate);
+    const semStartDateObj = new Date(semStartDate);
+    if (isNaN(joiningDateObj.getTime()) || isNaN(semStartDateObj.getTime())) {
+      return { success: false, error: 'Please enter valid dates.' };
+    }
+    if (joiningDateObj > new Date()) {
+      return { success: false, error: 'College joining date cannot be in the future.' };
+    }
+    if (semStartDateObj < joiningDateObj) {
+      return { success: false, error: 'Current semester start date cannot be earlier than college joining date.' };
+    }
+
+    // Championship-wide uniqueness, excluding this athlete
+    const [{ data: aadhaarClash }, { data: usnClash }] = await Promise.all([
+      supabaseAdmin.from('profiles').select('id, sslc_name').eq('aadhaar_number', aadhaarNumber).neq('id', profileId).maybeSingle(),
+      supabaseAdmin.from('profiles').select('id, sslc_name').eq('usn', usn).neq('id', profileId).maybeSingle(),
+    ]);
+    if (aadhaarClash) {
+      return { success: false, error: `An athlete with Aadhaar '${aadhaarNumber}' is already registered (${aadhaarClash.sslc_name}).` };
+    }
+    if (usnClash) {
+      return { success: false, error: `An athlete with USN '${usn}' is already registered (${usnClash.sslc_name}).` };
+    }
+
+    // Optional photo replacement
+    let photoUrl: string | undefined;
+    if (photoData) {
+      const match = photoData.match(/^data:([^;]+);base64,(.+)$/);
+      const ALLOWED: Record<string, string> = { 'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+      const mime = match?.[1]?.toLowerCase() || '';
+      const ext = ALLOWED[mime];
+      if (!match || !ext) {
+        return { success: false, error: 'Invalid photo format. Only JPG, PNG, and WebP images are permitted.' };
+      }
+      const buffer = Buffer.from(match[2], 'base64');
+      if (buffer.length > 5 * 1024 * 1024) {
+        return { success: false, error: 'Photo size exceeds the maximum limit of 5MB.' };
+      }
+      const storagePath = `${session.squadId}/${Date.now()}_${usn}.${ext}`;
+      const { data: uploadResult, error: uploadErr } = await supabaseAdmin.storage
+        .from('athlete-photos')
+        .upload(storagePath, buffer, { contentType: mime, upsert: true });
+      if (uploadErr || !uploadResult) {
+        if (uploadErr) console.error('Storage upload error:', uploadErr.message);
+        return { success: false, error: 'The athlete photo could not be uploaded. Please try again.' };
+      }
+      photoUrl = supabaseAdmin.storage.from('athlete-photos').getPublicUrl(uploadResult.path).data.publicUrl;
+    }
+
+    const updatePayload: Record<string, any> = {
+      sslc_name: sslcName,
+      usn,
+      semester,
+      blood_group: bloodGroup,
+      college_joining_date: collegeJoiningDate,
+      sem_start_date: semStartDate,
+      aadhaar_number: aadhaarNumber,
+      updated_at: new Date().toISOString(),
+    };
+    if (photoUrl) updatePayload.photo_url = photoUrl;
+
+    const { error: updErr } = await supabaseAdmin
+      .from('profiles')
+      .update(updatePayload)
+      .eq('id', profileId)
+      .eq('squad_id', session.squadId);
+
+    if (updErr) {
+      if (updErr.code === '23505') {
+        return { success: false, error: 'Another athlete is already registered with this USN or Aadhaar number.' };
+      }
+      return { success: false, error: updErr.message };
+    }
+
+    revalidatePath('/squad/athletes');
+    revalidatePath('/squad/dashboard');
+    revalidatePath('/squad/relay');
+    revalidatePath('/squad/cards');
+
+    return {
+      success: true,
+      athlete: {
+        id: profileId,
+        sslc_name: sslcName,
+        usn,
+        semester,
+        blood_group: bloodGroup,
+        college_joining_date: collegeJoiningDate,
+        sem_start_date: semStartDate,
+        aadhaar_number: aadhaarNumber,
+        photo_url: photoUrl || owned.photo_url || undefined,
+      },
+    };
+  } catch (err: any) {
+    console.error('updateAthleteAction error:', err);
+    return { success: false, error: err?.message || 'Failed to update athlete.' };
+  }
 }
 
 /**

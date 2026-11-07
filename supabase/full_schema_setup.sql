@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS squads (
   ped_phone TEXT NOT NULL DEFAULT '',
   ped_email TEXT,
   roster_locked BOOLEAN NOT NULL DEFAULT FALSE,
-  payment_status TEXT NOT NULL DEFAULT 'DrAFT'
-    CHECK (payment_status IN ('DrAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED')),
+  payment_status TEXT NOT NULL DEFAULT 'DRAFT'
+    CHECK (payment_status IN ('DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED')),
   bid_block_start INT,
   bid_block_end INT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),

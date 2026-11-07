@@ -1,7 +1,9 @@
 import { requireSquad } from '@/lib/auth-guard';
 import { supabaseAdmin } from '@/lib/supabase';
+import { normalizePaymentStatus } from '@/lib/payment-status';
 import { listSquadAthletesAction, getAvailableEventsAction, getSquadRelayCountAction } from '@/app/actions/athletes';
 import AthletesManager from './AthletesManager';
+import { canEditRoster, isLateEntryWindow } from '@/lib/roster-window';
 
 export const metadata = {
   title: 'Athlete Roster — VTU SportsOS Squad',
@@ -13,7 +15,7 @@ export default async function SquadAthletesPage() {
   // Fetch squad status
   const { data: squad } = await supabaseAdmin
     .from('squads')
-    .select('roster_locked, squad_code, gender, payment_status')
+    .select('*')
     .eq('id', session.squadId)
     .single();
 
@@ -22,7 +24,9 @@ export default async function SquadAthletesPage() {
     .select('registration_open')
     .limit(1)
     .maybeSingle();
-  const registrationClosed = meetSettings?.registration_open === false;
+  const registrationOpen = meetSettings?.registration_open !== false;
+  const lateEntryOpen = isLateEntryWindow(registrationOpen, squad);
+  const registrationClosed = !registrationOpen && !lateEntryOpen;
 
   const athletes = await listSquadAthletesAction();
   const events = await getAvailableEventsAction();
@@ -44,9 +48,10 @@ export default async function SquadAthletesPage() {
       <AthletesManager
         initialAthletes={formattedAthletes}
         availableEvents={events}
-        rosterLocked={squad?.roster_locked === true || registrationClosed}
+        rosterLocked={!canEditRoster(registrationOpen, squad)}
         registrationClosed={registrationClosed}
-        paymentStatus={squad?.payment_status || 'DrAFT'}
+        lateEntryOpen={lateEntryOpen}
+        paymentStatus={normalizePaymentStatus(squad?.payment_status)}
         squadCode={squad?.squad_code || session.squadCode || ''}
         gender={session.gender as 'men' | 'women'}
         relayCount={relayCount}

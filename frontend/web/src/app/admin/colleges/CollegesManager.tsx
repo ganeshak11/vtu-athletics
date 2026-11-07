@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { SquadPaymentStatus } from '@/lib/payment-status';
 import { createCollegeAction, resetSquadPassphraseAction, toggleSquadRosterLockAction, CreateCollegeResult } from '@/app/actions/admin';
 
 interface SquadItem {
@@ -11,7 +12,7 @@ interface SquadItem {
   ped_phone: string;
   ped_email?: string;
   roster_locked: boolean;
-  payment_status: 'DrAFT' | 'SUBMITTED' | 'VERIFIED' | 'REJECTED';
+  payment_status: SquadPaymentStatus;
   bid_block_start?: number;
   bid_block_end?: number;
 }
@@ -60,7 +61,7 @@ export default function CollegesManager({ initialColleges }: Props) {
               ped_name: (formData.get('pedName') as string) || '',
               ped_phone: (formData.get('pedPhone') as string) || '',
               roster_locked: false,
-              payment_status: 'DrAFT',
+              payment_status: 'DRAFT',
             },
             {
               id: res.womenSquad.id,
@@ -69,7 +70,7 @@ export default function CollegesManager({ initialColleges }: Props) {
               ped_name: (formData.get('pedName') as string) || '',
               ped_phone: (formData.get('pedPhone') as string) || '',
               roster_locked: false,
-              payment_status: 'DrAFT',
+              payment_status: 'DRAFT',
             },
           ],
         };
@@ -98,11 +99,22 @@ export default function CollegesManager({ initialColleges }: Props) {
 
   async function handleToggleLock(squadId: string, currentLocked: boolean) {
     const res = await toggleSquadRosterLockAction(squadId, !currentLocked);
+    if (res.success && res.lateEntryOpen) {
+      alert(
+        'Late-entry window opened for this squad.\n\nRegistration is closed, so only this college can now add or edit athletes. ' +
+          'They must pay any new fees (which re-locks the roster). Once Finance verifies the payment, run "Assign Bib Numbers" — ' +
+          'new athletes get the next free numbers and existing numbers stay unchanged.'
+      );
+    }
     if (res.success) {
       setColleges((prev) =>
         prev.map((c) => ({
           ...c,
-          squads: c.squads.map((s) => (s.id === squadId ? { ...s, roster_locked: !currentLocked } : s)),
+          squads: c.squads.map((s) =>
+            s.id === squadId
+              ? { ...s, roster_locked: !currentLocked, payment_status: res.paymentStatus || s.payment_status }
+              : s
+          ),
         }))
       );
     } else {

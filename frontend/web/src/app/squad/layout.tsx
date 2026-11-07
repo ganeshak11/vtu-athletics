@@ -20,7 +20,7 @@ export default async function SquadLayout({
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc', width: '100%', maxWidth: '100%', overflowX: 'clip' }}>
       {/* 1. Official Top Banner with Bilingual Crest & Dual Emblems (ACSCE left, VTU right) */}
-      <OfficialBanner portalBadge="INSTITUTION DELEGATION PORTAL &bull; 26TH ATHLETICS CHAMPIONSHIP" />
+      <OfficialBanner portalBadge="INSTITUTION DELEGATION PORTAL &bull; 28TH VTU ATHLETIC MEET 2026" />
 
       {/* 2. Responsive Sticky Navigation Bar with Active Tabs */}
       <SquadNav

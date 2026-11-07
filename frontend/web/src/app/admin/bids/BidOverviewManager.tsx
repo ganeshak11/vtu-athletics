@@ -39,7 +39,7 @@ export default function BidOverviewManager({ initialSquads }: Props) {
   async function handleCloseRegistration() {
     if (
       !confirm(
-        'Are you sure you want to CLOSE registration?\n\nThis will lock all squads and sequentially generate contiguous bid/chest numbers:\n• Men: starting from 100\n• Women: starting from 2001'
+        'Assign bib numbers now?\n\n• If registration is still open, it will be CLOSED and every squad roster locked.\n• Only athletes of VERIFIED, locked squads who have no number yet get one (Men 100+, Women 2001+).\n• Existing numbers are never changed — safe to run again after late verifications or late entries.'
       )
     ) {
       return;
@@ -49,6 +49,14 @@ export default function BidOverviewManager({ initialSquads }: Props) {
     const res = await closeRegistrationAction();
     if (res.success) {
       setResult(res.result);
+      const r: any = res.result || {};
+      const pending = Array.isArray(r.pending_squads) ? r.pending_squads.length : 0;
+      alert(
+        `Assigned ${r.total_men_bids_assigned || 0} Men and ${r.total_women_bids_assigned || 0} Women bib numbers` +
+          (r.late_entries_numbered ? ` (${r.late_entries_numbered} late entries)` : '') +
+          '.' +
+          (pending ? `\n\n${pending} squad(s) still have athletes waiting (payment not verified, or roster unlocked).` : '')
+      );
       window.location.reload();
     } else {
       alert(`Error closing registration: ${res.error}`);
@@ -70,7 +78,7 @@ export default function BidOverviewManager({ initialSquads }: Props) {
         <div>
           <h1 style={{ fontSize: '2rem', fontWeight: 800 }}>Contiguous Bid Number Allocation</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '0.25rem' }}>
-            Automatic block generation: Men squads assigned from 100+, Women squads from 2001+.
+            Append-only numbering: Men from 100+, Women from 2001+. Existing numbers never change; late verifications and late entries get the next free number.
           </p>
         </div>
 
@@ -82,7 +90,7 @@ export default function BidOverviewManager({ initialSquads }: Props) {
             style={{ padding: '0.85rem 1.75rem', fontSize: '1rem' }}
             id="btn-close-registration"
           >
-            {loading ? 'Generating Bids...' : '🔒 Close Registration & Generate Bids'}
+            {loading ? 'Assigning Numbers...' : '🔢 Close Registration & Assign Bib Numbers'}
           </button>
         </div>
       </div>
@@ -90,10 +98,10 @@ export default function BidOverviewManager({ initialSquads }: Props) {
       {result && (
         <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid rgba(16, 185, 129, 0.4)', background: 'rgba(16, 185, 129, 0.08)' }}>
           <h3 style={{ color: '#34d399', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-            ✓ Registration Closed &amp; Bids Generated!
+            ✓ Bib Numbers Assigned
           </h3>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Assigned {result.total_men_bids_assigned} Men bids (up to {result.men_bid_range_end}) and {result.total_women_bids_assigned} Women bids (up to {result.women_bid_range_end}).
+            Assigned {result.total_men_bids_assigned} new Men bids and {result.total_women_bids_assigned} new Women bids. Existing numbers were not changed.
           </p>
         </div>
       )}
@@ -105,7 +113,7 @@ export default function BidOverviewManager({ initialSquads }: Props) {
             Men&apos;s Division Allocation
           </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0.5rem 0' }}>
-            Chest 100 → {menSquads.find((s) => s.bid_block_end)?.bid_block_end || 'Pending'}
+            Chest 100 → {Math.max(0, ...menSquads.map((s) => s.bid_block_end || 0)) || 'Pending'}
           </div>
           <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
             {menSquads.length} Men squads registered
@@ -117,7 +125,7 @@ export default function BidOverviewManager({ initialSquads }: Props) {
             Women&apos;s Division Allocation
           </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0.5rem 0' }}>
-            Chest 2001 → {womenSquads.find((s) => s.bid_block_end)?.bid_block_end || 'Pending'}
+            Chest 2001 → {Math.max(0, ...womenSquads.map((s) => s.bid_block_end || 0)) || 'Pending'}
           </div>
           <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
             {womenSquads.length} Women squads registered

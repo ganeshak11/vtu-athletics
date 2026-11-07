@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import FeeInvoiceModal from '@/components/invoice/FeeInvoiceModal';
 import Link from 'next/link';
 import { OFFICIAL_UPI_QR_SRC } from '@/lib/payment-config';
+import { creditedAmount } from '@/lib/payment-status';
 
 interface Props {
   breakdown: FeeBreakdown;
@@ -32,7 +33,9 @@ function formatDate(dateStr: string): string {
 
 export default function PaymentClient({ breakdown, payments, squadCode }: Props) {
   const payableTarget = breakdown.balanceDue > 0 ? breakdown.balanceDue : (breakdown.totalPaid > 0 ? 0 : breakdown.totalAmount);
-  const [amount, setAmount] = useState(payableTarget.toString());
+  // The amount is fixed to the balance due (the server rejects anything else); Finance then
+  // records what was actually credited in the bank when verifying.
+  const amount = String(breakdown.balanceDue);
   const [utr, setUtr] = useState('');
   const [screenshotData, setScreenshotData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,9 +51,10 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
   const latestRejection = payments.find((p) => p.status === 'REJECTED');
   const relayIssues = breakdown.relayIssues || [];
   const hasRelayBlockers = relayIssues.length > 0;
-  const isFormDisabled = isZeroSquad || isFullySettled || isAwaitingVerification || hasRelayBlockers;
+  const isPedMissing = !breakdown.pedName?.trim() || !breakdown.pedPhone?.trim();
+  const isFormDisabled = isZeroSquad || isFullySettled || isAwaitingVerification || hasRelayBlockers || isPedMissing;
   const statusLabel =
-    breakdown.squadPaymentStatus === 'DrAFT' || breakdown.squadPaymentStatus === 'DRAFT'
+    breakdown.squadPaymentStatus === 'DRAFT'
       ? 'DRAFT'
       : breakdown.squadPaymentStatus;
 
@@ -130,19 +134,6 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
       setError('Amount must be a whole number of rupees greater than zero.');
       setLoading(false);
       return;
-    }
-
-    // Warn on amount mismatch (no refunds for over-payment; short payments leave a balance due)
-    if (breakdown.balanceDue > 0 && amountNum !== breakdown.balanceDue) {
-      const proceed = window.confirm(
-        amountNum < breakdown.balanceDue
-          ? `You entered ₹${amountNum}, but the balance due is ₹${breakdown.balanceDue}. The remaining ₹${breakdown.balanceDue - amountNum} will still be due after verification. Continue?`
-          : `You entered ₹${amountNum}, which is MORE than the balance due of ₹${breakdown.balanceDue}. Excess payments are not refunded. Continue?`
-      );
-      if (!proceed) {
-        setLoading(false);
-        return;
-      }
     }
 
     // Confirmation prompt
@@ -232,6 +223,13 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
       {isZeroSquad && (
         <div style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-sm)', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.25)', color: '#b45309', fontSize: '0.95rem' }}>
           ℹ️ <strong>Roster Empty:</strong> You currently have 0 registered athletes. Please <Link href="/squad/dashboard" style={{ fontWeight: 700, textDecoration: 'underline' }}>register athletes</Link> into individual and relay disciplines before settling entry fees.
+        </div>
+      )}
+
+      {isPedMissing && !isAwaitingVerification && !isFullySettled && (
+        <div id="banner-ped-missing" style={{ padding: '1rem 1.25rem', borderRadius: 'var(--radius-sm)', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.35)', color: '#92400e', fontSize: '0.92rem' }}>
+          ⚠️ <strong>Add your PED / Sports Director contact before paying.</strong> The name and mobile number appear on your invoice and are used by the Finance Desk to reach you.{' '}
+          <Link href="/squad/dashboard#ped-contact-card" style={{ fontWeight: 700, textDecoration: 'underline', color: '#92400e' }}>Add contact details &rarr;</Link>
         </div>
       )}
 
@@ -483,13 +481,16 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                 <label style={labelStyle} htmlFor="amount">Amount Transferred (₹) *</label>
                 <input
                   id="amount"
-                  type="number"
-                  required
-                  style={inputStyle}
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  type="text"
+                  readOnly
+                  aria-describedby="amount-help"
+                  style={{ ...inputStyle, fontWeight: 800, background: 'var(--bg-tertiary)', cursor: 'default' }}
+                  value={`₹${amount}`}
                   disabled={isFormDisabled}
                 />
+                <div id="amount-help" style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.35rem', lineHeight: 1.45 }}>
+                  Transfer exactly this amount. The Finance Desk checks the amount actually credited against your UTR in the bank statement — only that amount is counted.
+                </div>
               </div>
 
               <div>
@@ -559,6 +560,8 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                     ? '✓ Entry Fees Fully Settled' 
                     : isAwaitingVerification
                     ? '🔒 Roster Locked & Payment Submitted'
+                    : isPedMissing
+                    ? '⚠️ Add PED Contact Details First'
                     : hasRelayBlockers
                     ? '⚠️ Complete Relay Teams First'
                     : isRejected
@@ -605,7 +608,14 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
                       <td style={{ padding: '1rem' }}>
                         <code style={{ fontWeight: 700, color: 'var(--accent-primary)' }}>{p.utr_number}</code>
                       </td>
-                      <td style={{ padding: '1rem', fontWeight: 700 }}>₹{p.amount_submitted}</td>
+                      <td style={{ padding: '1rem', fontWeight: 700 }}>
+                        ₹{p.amount_submitted}
+                        {p.status === 'VERIFIED' && creditedAmount(p) !== p.amount_submitted && (
+                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--danger)', marginTop: '0.2rem' }}>
+                            Credited in bank: ₹{creditedAmount(p)}
+                          </div>
+                        )}
+                      </td>
                       <td style={{ padding: '1rem' }}>
                         <Badge variant={p.status === 'VERIFIED' ? 'success' : p.status === 'REJECTED' ? 'danger' : 'warning'}>
                           {p.status}

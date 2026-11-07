@@ -9,6 +9,7 @@ import { StatBox } from '@/components/ui/StatBox';
 import { Button } from '@/components/ui/Button';
 import { DB_CODE_TO_OFFICIAL_MAP } from '@/lib/championship-events';
 import RegistrationReportModal from '@/components/invoice/RegistrationReportModal';
+import EditAthleteModal from './EditAthleteModal';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -51,6 +52,7 @@ interface Props {
   collegeName?: string;
   paymentStatus?: string;
   registrationClosed?: boolean;
+  lateEntryOpen?: boolean;
 }
 
 /** Official VTU USN pattern, e.g. 1RV21CS001, 4MT22MBA05 (mirrors server validation) */
@@ -64,12 +66,14 @@ export default function AthletesManager({
   gender,
   relayCount: initialRelayCount = 0,
   collegeName = 'Affiliated Institution',
-  paymentStatus = 'DrAFT',
+  paymentStatus = 'DRAFT',
   registrationClosed = false,
+  lateEntryOpen = false,
 }: Props) {
   const [athletes, setAthletes] = useState<AthleteItem[]>(initialAthletes);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [editingAthlete, setEditingAthlete] = useState<AthleteItem | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -549,7 +553,26 @@ export default function AthletesManager({
         </div>
       )}
 
-      {paymentStatus === 'VERIFIED' && !rosterLocked && (
+      {lateEntryOpen && !rosterLocked && (
+        <div
+          id="banner-late-entry-window"
+          style={{
+            padding: '0.85rem 1.25rem',
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: '12px',
+            color: '#92400e',
+            fontSize: '0.875rem',
+            lineHeight: 1.5,
+          }}
+        >
+          ⏱️ <strong>Late Entry Window Open:</strong> Registration is closed, but the VTU Directorate has allowed your college to make late entries.
+          Add the athletes, then pay the additional fee on the Fee Settlement page (this locks the roster again). New athletes receive bib numbers
+          once the payment is verified; existing bib numbers do not change.
+        </div>
+      )}
+
+      {paymentStatus === 'VERIFIED' && !rosterLocked && !lateEntryOpen && (
         <div style={{
           padding: '0.85rem 1.25rem',
           background: 'rgba(16, 185, 129, 0.08)',
@@ -869,7 +892,27 @@ export default function AthletesManager({
                           )}
                         </td>
 
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>
+                        <td style={{ padding: '1rem', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          {!rosterLocked && (
+                            <button
+                              type="button"
+                              onClick={() => setEditingAthlete(athlete)}
+                              id={`btn-edit-${athlete.id}`}
+                              style={{
+                                background: 'none',
+                                border: '1px solid var(--border-color)',
+                                color: 'var(--accent-primary)',
+                                padding: '0.35rem 0.75rem',
+                                borderRadius: 'var(--radius-sm)',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                marginRight: '0.5rem',
+                              }}
+                            >
+                              ✎ Edit
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => handleDelete(athlete.id, athlete.sslc_name)}
@@ -941,6 +984,17 @@ export default function AthletesManager({
       {/* =========================================================================
           REGISTER NEW STUDENT / ATHLETE MODAL (EXACT PROTOTYPE REGISTERCLIENT UI)
           ========================================================================= */}
+      {mounted && editingAthlete && !rosterLocked && (
+        <EditAthleteModal
+          athlete={editingAthlete}
+          onClose={() => setEditingAthlete(null)}
+          onSaved={(updated) => {
+            setAthletes((prev) => prev.map((a) => (a.id === updated.id ? { ...a, ...updated } : a)));
+            setEditingAthlete(null);
+          }}
+        />
+      )}
+
       {mounted && showAddModal && !rosterLocked && createPortal(
         <div
           className="athlete-modal-overlay"

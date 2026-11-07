@@ -15,7 +15,7 @@ export default function LoginLayout({
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
       {/* 1. Official Top Banner with Bilingual Crest & Dual Emblems (ACSCE left, VTU right) */}
-      <OfficialBanner portalBadge="SECURE AUTHENTICATION DESK &bull; 26TH ATHLETICS CHAMPIONSHIP" />
+      <OfficialBanner portalBadge="SECURE AUTHENTICATION DESK &bull; 28TH VTU ATHLETIC MEET 2026" />
 
       {/* 2. Solid Deep Navy Sub-Navigation Bar */}
       <nav className="univ-main-nav">

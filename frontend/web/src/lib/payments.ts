@@ -5,6 +5,7 @@
  * cannot be invoked from the browser as server actions (no auth bypass on arbitrary squads).
  */
 import { supabaseAdmin } from '@/lib/supabase';
+import { totalCredited } from '@/lib/payment-status';
 
 /**
  * Accurately calculates squad fees:
@@ -116,10 +117,20 @@ export async function reviewPayment(
   paymentId: string,
   decision: PaymentDecision,
   reason: string | undefined,
-  staffId: string | null | undefined
+  staffId: string | null | undefined,
+  amountReceived?: number | null
 ): Promise<{ success: boolean; error?: string; squadId?: string }> {
   if (decision === 'REJECTED' && !reason?.trim()) {
     return { success: false, error: 'A rejection reason is mandatory when rejecting payments.' };
+  }
+  // Verification must record what the bank statement actually shows for this UTR
+  if (decision === 'VERIFIED') {
+    if (amountReceived == null || !Number.isInteger(amountReceived) || amountReceived < 1 || amountReceived > 10_000_000) {
+      return {
+        success: false,
+        error: 'Enter the amount actually credited in the bank statement for this UTR (whole rupees). If nothing was received, reject the payment instead.',
+      };
+    }
   }
 
   // Conditional update: matches only while the payment is still pending (atomic guard)
@@ -128,6 +139,7 @@ export async function reviewPayment(
     .update({
       status: decision,
       rejection_reason: decision === 'REJECTED' ? reason!.trim() : null,
+      amount_received: decision === 'VERIFIED' ? amountReceived : null,
       verified_by: staffId || null,
       verified_at: new Date().toISOString(),
     })
@@ -136,7 +148,12 @@ export async function reviewPayment(
     .select('squad_id')
     .maybeSingle();
 
-  if (error) return { success: false, error: error.message };
+  if (error) {
+    if (/amount_received/.test(error.message)) {
+      return { success: false, error: 'Database migration 0018 (payments.amount_received) has not been applied yet. Apply it in Supabase, then verify again.' };
+    }
+    return { success: false, error: error.message };
+  }
 
   if (!updated) {
     const { data: existing } = await supabaseAdmin
@@ -155,13 +172,11 @@ export async function reviewPayment(
   const now = new Date().toISOString();
 
   const [{ data: allPayments }, fees] = await Promise.all([
-    supabaseAdmin.from('payments').select('status, amount_submitted').eq('squad_id', squadId),
+    supabaseAdmin.from('payments').select('*').eq('squad_id', squadId),
     calculateSquadFees(squadId),
   ]);
 
-  const verifiedSum = (allPayments || [])
-    .filter((p: any) => p.status === 'VERIFIED')
-    .reduce((sum: number, p: any) => sum + (p.amount_submitted || 0), 0);
+  const verifiedSum = totalCredited(allPayments as any[]);
   const pendingCount = (allPayments || []).filter((p: any) => p.status === 'SUBMITTED').length;
 
   let squadStatus: 'VERIFIED' | 'SUBMITTED' | 'REJECTED';
