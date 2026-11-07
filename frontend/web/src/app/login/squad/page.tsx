@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { loginSquad } from '@/app/actions/auth';
 import Link from 'next/link';
 import Image from 'next/image';
-import RulesRegulationsModal from '@/components/modals/RulesRegulationsModal';
 import ListOfEventsModal from '@/components/modals/ListOfEventsModal';
 import HelpManualModal from '@/components/modals/HelpManualModal';
 import '../login.css';
@@ -17,7 +16,6 @@ export default function SquadLoginPage() {
   const [collegeCode, setCollegeCode] = useState('');
   const [gender, setGender] = useState<'men' | 'women'>('men');
   const [passphrase, setPassphrase] = useState('');
-  const [showRulesModal, setShowRulesModal] = useState(false);
   const [showEventsModal, setShowEventsModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
@@ -60,11 +58,13 @@ export default function SquadLoginPage() {
           <div className="login-body">
             {/* Quick Championship Handbook & Events Actions */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '1.25rem' }}>
-              <button
-                type="button"
-                onClick={() => setShowRulesModal(true)}
+              <a
+                href="/docs/vtu-28-athletic-meet-invite-letter.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 id="btn-login-rules-regulations"
                 style={{
+                  textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -82,7 +82,7 @@ export default function SquadLoginPage() {
                 }}
               >
                 <span>📜</span> Rules &amp; Regulations
-              </button>
+              </a>
               <button
                 type="button"
                 onClick={() => setShowEventsModal(true)}
@@ -265,12 +265,6 @@ export default function SquadLoginPage() {
             </div>
           </div>
         </div>
-
-        {/* Modal: Rules & Regulations */}
-        <RulesRegulationsModal
-          isOpen={showRulesModal}
-          onClose={() => setShowRulesModal(false)}
-        />
 
         {/* Modal: PED Help Manual */}
         <HelpManualModal
