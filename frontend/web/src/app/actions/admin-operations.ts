@@ -355,7 +355,7 @@ export async function listPaymentsForAdminAction() {
   // Compute expected fee for each squad
   const enrichedSquads = await Promise.all(
     (squads || []).map(async (sq: any) => {
-      // Same fee engine as the squad's Fee Settlement page (flat ₹400 per relay team,
+      // Same fee engine as the squad's Fee Settlement page (₹100 per relay member, first 4 per team,
       // reserves free, mixed relay billed once per college) so Finance and PED see one number.
       const fees = await calculateSquadFees(sq.id);
       const expectedFee = fees.totalAmount;

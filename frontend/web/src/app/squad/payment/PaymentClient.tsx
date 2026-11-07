@@ -284,13 +284,18 @@ export default function PaymentClient({ breakdown, payments, squadCode, athletes
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.6rem', borderBottom: '1px solid var(--border-color)' }}>
                 <div>
                   <span style={{ color: 'var(--text-secondary)' }}>
-                    Relay Teams ({breakdown.relayTeamsCount} teams &times; ₹{breakdown.relayFeeRate})
+                    Relay Members ({breakdown.relayMembersBilled} &times; ₹{breakdown.relayFeeRate})
                   </span>
                   <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                    Flat ₹400 per team (covers 4 active runners + 2 reserves free)
+                    ₹100 for each of the first 4 members of a team; members 5 &amp; 6 free (max ₹400 per team)
                   </div>
+                  {(breakdown.relayTeams || []).map((t) => (
+                    <div key={t.eventId} style={{ fontSize: '0.78rem', color: '#475569' }}>
+                      {t.name}: {t.members} member{t.members === 1 ? '' : 's'} &rarr; ₹{t.fee}
+                    </div>
+                  ))}
                 </div>
-                <span style={{ fontWeight: 700 }}>₹{breakdown.relayTeamsCount * breakdown.relayFeeRate}</span>
+                <span style={{ fontWeight: 700 }}>₹{breakdown.relayFeeTotal}</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '0.6rem', borderBottom: '1px solid var(--border-color)' }}>

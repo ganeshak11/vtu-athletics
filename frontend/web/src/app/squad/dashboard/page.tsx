@@ -1,3 +1,4 @@
+import { calculateSquadFees } from '@/lib/payments';
 import Link from 'next/link';
 import { requireSquad } from '@/lib/auth-guard';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -63,24 +64,9 @@ export default async function SquadDashboardPage() {
   const maxQuota = 25;
   const quotaPercent = Math.min(100, Math.round((totalAthletes / maxQuota) * 100));
 
-  const regularCount = formattedAthletes.reduce(
-    (acc: number, a: any) => acc + a.registrations.filter((r: any) => r.kind === 'regular').length,
-    0
-  );
-  const hmCount = formattedAthletes.reduce(
-    (acc: number, a: any) => acc + a.registrations.filter((r: any) => r.kind === 'half_marathon').length,
-    0
-  );
-  const relayEvents = new Set<string>();
-  formattedAthletes.forEach((a: any) => {
-    a.registrations
-      .filter((r: any) => r.kind === 'relay')
-      .forEach((r: any) => {
-        if (r.event_id) relayEvents.add(r.event_id);
-      });
-  });
-  // Flat ₹400 per relay team (regardless of up to 6 members: 4 runners + 2 reserves)
-  const totalSquadFee = (regularCount * 100) + (hmCount * 100) + (relayEvents.size * 400);
+  // Same fee calculation as the payment page: ₹100 per regular / Half Marathon entry and,
+  // per relay team, ₹100 for each of the first 4 members (members 5 & 6 free).
+  const totalSquadFee = (await calculateSquadFees(session.squadId)).totalAmount;
 
   const billableEntries = formattedAthletes.reduce((acc: number, athlete: any) => {
     const billable = athlete.registrations.filter((r: any) => r.kind !== 'reserve').length;

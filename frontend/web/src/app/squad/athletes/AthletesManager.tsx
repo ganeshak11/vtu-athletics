@@ -53,6 +53,10 @@ interface Props {
   squadCode: string;
   gender: 'men' | 'women';
   relayCount?: number;
+  /** Total dues from the server fee calculation (same as the payment page) */
+  totalDues?: number;
+  /** Mixed-relay nominations from the other division of this college */
+  siblingMixedCount?: number;
   collegeName?: string;
   paymentStatus?: string;
   registrationClosed?: boolean;
@@ -80,6 +84,8 @@ export default function AthletesManager({
   squadCode,
   gender,
   relayCount: initialRelayCount = 0,
+  totalDues,
+  siblingMixedCount = 0,
   collegeName = 'Affiliated Institution',
   paymentStatus = 'DRAFT',
   registrationClosed = false,
@@ -175,9 +181,10 @@ export default function AthletesManager({
   ).length;
   const is400mRelayFull = registered400mRelay >= 6;
 
+  // Mixed team is shared by the college: include the other division's nominations
   const registeredMixedRelay = athletes.filter((a) =>
     a.registrations.some((r) => r.events?.code?.includes('4X400M-MIX'))
-  ).length;
+  ).length + siblingMixedCount;
 
   // Real-time fee calculation for current athlete modal:
   // ₹100 per regular event / HM. Reserve is FREE (₹0).
@@ -195,27 +202,22 @@ export default function AthletesManager({
     return fee;
   }, [event1, event2, relayChoice, isMixedRelay, isHalfMarathon, registered100mRelay, registered400mRelay, registeredMixedRelay]);
 
-  // Squad total computed fee:
-  // Regular events (@ ₹100) + Half Marathon (@ ₹100) + Relay Teams (@ ₹400 flat per team, covering up to 6 members)
+  // Squad total dues. The server value (same calculation as the payment page) is used when
+  // available; the fallback mirrors it: ₹100 per regular / Half Marathon entry and, per relay
+  // team, ₹100 for each of the first 4 members (members 5 & 6 free).
   const totalSquadFee = useMemo(() => {
-    const regularEntries = athletes.reduce((acc, a) => {
-      return acc + a.registrations.filter((r) => r.kind === 'regular').length;
-    }, 0);
-    const hmEntries = athletes.reduce((acc, a) => {
-      return acc + a.registrations.filter((r) => r.kind === 'half_marathon').length;
-    }, 0);
-
-    const enteredRelays = new Set<string>();
+    if (typeof totalDues === 'number') return totalDues;
+    const regularEntries = athletes.reduce((acc, a) => acc + a.registrations.filter((r) => r.kind === 'regular').length, 0);
+    const hmEntries = athletes.reduce((acc, a) => acc + a.registrations.filter((r) => r.kind === 'half_marathon').length, 0);
+    const relayMembers = new Map<string, number>();
     athletes.forEach((a) => {
       a.registrations
-        .filter((r) => r.kind === 'relay')
-        .forEach((r) => {
-          if (r.event_id) enteredRelays.add(r.event_id);
-        });
+        .filter((r) => r.kind === 'relay' && r.event_id)
+        .forEach((r) => relayMembers.set(r.event_id, (relayMembers.get(r.event_id) || 0) + 1));
     });
-
-    return (regularEntries * 100) + (hmEntries * 100) + (enteredRelays.size * 400);
-  }, [athletes]);
+    const relayFee = Array.from(relayMembers.values()).reduce((sum, n) => sum + Math.min(n, 4) * 100, 0);
+    return regularEntries * 100 + hmEntries * 100 + relayFee;
+  }, [athletes, totalDues]);
 
   const totalBillableEntries = useMemo(() => {
     return athletes.reduce((acc, athlete) => {
@@ -454,6 +456,8 @@ export default function AthletesManager({
     const res = await deleteAthleteAction(athleteId);
     if (res.success) {
       setAthletes((prev) => prev.filter((a) => a.id !== athleteId));
+      // Reload so Total Dues is recalculated by the server (relay fee depends on team size)
+      window.location.reload();
     } else {
       alert(`Error: ${res.error}`);
     }
@@ -670,7 +674,7 @@ export default function AthletesManager({
             </div>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-            Up to 6 members/relay &bull; ₹100 each for the first 4 runners, 2 reserves free (₹400/team)
+            Up to 6 members/relay &bull; ₹100 each for the first 4 members, members 5 &amp; 6 free (max ₹400/team)
           </span>
         </div>
       </div>

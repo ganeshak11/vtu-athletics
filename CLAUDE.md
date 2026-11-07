@@ -95,9 +95,9 @@ Fees are calculated dynamically via `calculateSquadFees()` in `frontend/web/src/
 - **Regular Individual Event**: ₹100 per entry
 - **Reserve Event**: **₹0 (Free)**
 - **Half Marathon**: ₹100 per entry
-- **Relay Team**: **Flat ₹400 per relay team** (irrespective of whether the team has 4 or 6 members).
+- **Relay Team**: **₹100 for each of the first 4 members**, members 5 & 6 free → ₹100 × min(members, 4), max ₹400 per team. Members = athletes nominated to that relay (athlete form tick-box) ∪ Relay-page lineup, counted once. The Mixed Relay team is shared by the college (members from both squads) and billed once, to the owning squad.
 - **Total Amount Formula**:
-  $$\text{Total Amount} = (\text{Regular Count} \times 100) + (\text{HM Count} \times 100) + (\text{Relay Teams Count} \times 400)$$
+  $$\text{Total Amount} = (\text{Regular Count} \times 100) + (\text{HM Count} \times 100) + (\sum_{\text{teams}} 100 \times \min(\text{members}, 4))$$
 - **Balance Due**: $\max(0, \text{Total Amount} - \text{Total Verified Payments})$
 
 ### 4. Payment Submission & Roster Lock Lifecycle

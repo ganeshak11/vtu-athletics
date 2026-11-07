@@ -12,7 +12,30 @@ import { totalCredited } from '@/lib/payment-status';
  * - Regular events = ₹100
  * - Reserve events = Free (₹0)
  * - 21km Half Marathon = ₹100
- * - Relay teams = Flat ₹400 per relay team (regardless of having 4 active + 2 reserves = 6 members)
+ * - Relay teams = ₹100 for each of the first 4 members; members 5 & 6 free (max ₹400 per team)
+ */
+/** Relay fee: ₹100 for each of the first 4 members of a team; members 5 & 6 are free (max ₹400/team). */
+export const RELAY_FEE_PER_MEMBER = 100;
+export const RELAY_BILLABLE_MEMBERS = 4;
+export const MIXED_RELAY_CODE = '4X400M-MIX';
+
+export interface RelayTeamFee {
+  eventId: string;
+  code: string;
+  name: string;
+  members: number;
+  billedMembers: number;
+  fee: number;
+}
+
+/**
+ * Entry fees for a squad, computed live from the current roster:
+ *  - Event 1 / Event 2 / Half Marathon: ₹100 per entry. Reserve events: ₹0.
+ *  - Relays: ₹100 × (number of team members, counting at most 4). So a team of 1/2/3 costs
+ *    ₹100/₹200/₹300 and a team of 4–6 costs ₹400. A member is any athlete nominated to that
+ *    relay (tick-box on the athlete form) or placed on the Relay page lineup — counted once.
+ *  - The 4x400m Mixed Relay team is shared by the college's Men's and Women's squads: its members
+ *    come from both and it is billed once, to the squad that owns the team (as before).
  */
 export async function calculateSquadFees(squadId: string) {
   const { data: squadProfiles } = await supabaseAdmin
@@ -25,24 +48,33 @@ export async function calculateSquadFees(squadId: string) {
   let reserveEventsCount = 0;
   let hmCount = 0;
   const relayEventIds = new Set<string>();
+  // event_id -> athletes nominated to it from THIS squad
+  const nominations = new Map<string, Set<string>>();
+  const addMember = (map: Map<string, Set<string>>, eventId: string, profileId: string) => {
+    if (!map.has(eventId)) map.set(eventId, new Set());
+    map.get(eventId)!.add(profileId);
+  };
 
   if (profileIds.length > 0) {
     const { data: regs } = await supabaseAdmin
       .from('registrations')
-      .select('id, kind, event_id')
+      .select('id, kind, event_id, profile_id')
       .in('profile_id', profileIds);
 
     (regs || []).forEach((r: any) => {
       if (r.kind === 'regular') regularEventsCount++;
       else if (r.kind === 'reserve') reserveEventsCount++;
       else if (r.kind === 'half_marathon') hmCount++;
-      else if (r.kind === 'relay' && r.event_id) relayEventIds.add(r.event_id);
+      else if (r.kind === 'relay' && r.event_id) {
+        relayEventIds.add(r.event_id);
+        addMember(nominations, r.event_id, r.profile_id);
+      }
     });
   }
 
   // Relay teams composed on the Relay page (relay_teams + relay_members) are billed to the
   // squad that owns the team row. A mixed relay team is shared by the college and owned by
-  // ONE squad, so it is billed exactly once. Fee is flat per team, independent of 4 or 6 members.
+  // ONE squad, so it is billed exactly once.
   const { data: squadRow } = await supabaseAdmin
     .from('squads')
     .select('college_id')
@@ -62,12 +94,21 @@ export async function calculateSquadFees(squadId: string) {
 
   // A relay nomination made at athlete registration for an event whose (mixed) team is owned
   // by the sibling squad of the same college is already billed there — don't double-charge.
-  if (squadRow?.college_id && relayEventIds.size > 0) {
+  let siblingSquadIds: string[] = [];
+  if (squadRow?.college_id) {
+    const { data: siblings } = await supabaseAdmin
+      .from('squads')
+      .select('id')
+      .eq('college_id', squadRow.college_id)
+      .neq('id', squadId);
+    siblingSquadIds = (siblings || []).map((x: any) => x.id);
+  }
+
+  if (siblingSquadIds.length > 0 && relayEventIds.size > 0) {
     const { data: siblingTeams } = await supabaseAdmin
       .from('relay_teams')
-      .select('event_id, squad_id, relay_members(profile_id), squads!inner(college_id)')
-      .eq('squads.college_id', squadRow.college_id)
-      .neq('squad_id', squadId)
+      .select('event_id, squad_id, relay_members(profile_id)')
+      .in('squad_id', siblingSquadIds)
       .in('event_id', Array.from(relayEventIds));
 
     (siblingTeams || []).forEach((t: any) => {
@@ -79,14 +120,65 @@ export async function calculateSquadFees(squadId: string) {
     });
   }
 
-  const relayTeamsCount = relayEventIds.size;
+  // Member count per billed relay team
+  const relayTeams: RelayTeamFee[] = [];
+  if (relayEventIds.size > 0) {
+    const { data: relayEvents } = await supabaseAdmin
+      .from('events')
+      .select('id, code, name')
+      .in('id', Array.from(relayEventIds));
+    const eventById = new Map((relayEvents || []).map((e: any) => [e.id, e]));
+
+    // Mixed relay draws members from the whole college: add the sibling squad's nominations
+    const mixedEventIds = (relayEvents || [])
+      .filter((e: any) => String(e.code || '').toUpperCase() === MIXED_RELAY_CODE)
+      .map((e: any) => e.id);
+    const collegeMixedNominations = new Map<string, Set<string>>();
+    if (mixedEventIds.length > 0 && siblingSquadIds.length > 0) {
+      const { data: siblingProfiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .in('squad_id', siblingSquadIds);
+      const siblingProfileIds = (siblingProfiles || []).map((p: any) => p.id);
+      if (siblingProfileIds.length > 0) {
+        const { data: siblingRegs } = await supabaseAdmin
+          .from('registrations')
+          .select('event_id, profile_id')
+          .eq('kind', 'relay')
+          .in('event_id', mixedEventIds)
+          .in('profile_id', siblingProfileIds);
+        (siblingRegs || []).forEach((r: any) => addMember(collegeMixedNominations, r.event_id, r.profile_id));
+      }
+    }
+
+    for (const eventId of relayEventIds) {
+      const members = new Set<string>(nominations.get(eventId) || []);
+      (collegeMixedNominations.get(eventId) || new Set()).forEach((id) => members.add(id));
+      (ownedTeams || [])
+        .filter((t: any) => t.event_id === eventId)
+        .forEach((t: any) => (t.relay_members || []).forEach((m: any) => m?.profile_id && members.add(m.profile_id)));
+
+      const billedMembers = Math.min(members.size, RELAY_BILLABLE_MEMBERS);
+      const ev: any = eventById.get(eventId) || {};
+      relayTeams.push({
+        eventId,
+        code: ev.code || '',
+        name: ev.name || 'Relay',
+        members: members.size,
+        billedMembers,
+        fee: billedMembers * RELAY_FEE_PER_MEMBER,
+      });
+    }
+    relayTeams.sort((a, b) => a.code.localeCompare(b.code));
+  }
+
+  const relayTeamsCount = relayTeams.length;
+  const relayMembersBilled = relayTeams.reduce((sum, t) => sum + t.billedMembers, 0);
+  const relayFeeTotal = relayTeams.reduce((sum, t) => sum + t.fee, 0);
   const regularFeeRate = 100;
   const hmFeeRate = 100;
-  const relayFeeRate = 400; // Flat ₹400 per relay team
-  const totalAmount =
-    regularEventsCount * regularFeeRate +
-    hmCount * hmFeeRate +
-    relayTeamsCount * relayFeeRate;
+  const relayFeeRate = RELAY_FEE_PER_MEMBER; // per member, first 4 members of each team
+  const totalAmount = regularEventsCount * regularFeeRate + hmCount * hmFeeRate + relayFeeTotal;
 
   return {
     regularEventsCount,
@@ -96,6 +188,9 @@ export async function calculateSquadFees(squadId: string) {
     hmFeeRate,
     relayTeamsCount,
     relayFeeRate,
+    relayMembersBilled,
+    relayFeeTotal,
+    relayTeams,
     totalAmount,
   };
 }

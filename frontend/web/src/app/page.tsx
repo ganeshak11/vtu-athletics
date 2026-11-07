@@ -752,11 +752,11 @@ export default function HomePage() {
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 08</span>
-                <span className="reg-badge-quota">FLAT ₹400 RELAY &bull; ₹100 INDIVIDUAL</span>
+                <span className="reg-badge-quota">₹100 PER ENTRY &bull; RELAY MAX ₹400</span>
               </div>
               <h3 className="reg-card-title">Transparent Fee Structure &amp; Differential Pay</h3>
               <p className="reg-card-desc">
-                Individual &amp; 21km Half Marathon: <strong>₹100/entry</strong>. Reserves: <strong>FREE (₹0)</strong>. Relays: <strong>Flat ₹400 per relay team</strong> (even with 6 members: 4 runners + 2 reserves free). If colleges register more athletes later, they pay only the differential balance due. Printable official invoice with ACSCE logo provided.
+                Individual &amp; 21km Half Marathon: <strong>₹100/entry</strong>. Reserves: <strong>FREE (₹0)</strong>. Relays: <strong>₹100 for each of the first 4 members</strong> of a team; members 5 &amp; 6 are free (max ₹400 per team). If colleges register more athletes later, they pay only the differential balance due. Printable official invoice with ACSCE logo provided.
               </p>
             </div>
 

@@ -35,7 +35,7 @@ const CHAMPIONSHIP_RULES: RuleItem[] = [
     id: 3,
     category: 'eligibility',
     title: 'Event Entry Fees',
-    desc: 'Entry fees are ₹100/- per participant per individual regular event, and flat ₹400/- for each relay squad (4x100m, 4x400m, Mixed Relay). Reserve nominations carry ₹0/- entry fee.',
+    desc: 'Entry fees are ₹100/- per participant per individual regular event, and ₹100/- for each of the first 4 members of a relay squad (max ₹400/-) (4x100m, 4x400m, Mixed Relay). Reserve nominations carry ₹0/- entry fee.',
   },
   {
     id: 4,

@@ -14,7 +14,12 @@ export interface FeeBreakdown {
   hmCount: number;
   hmFeeRate: number;
   relayTeamsCount: number;
+  /** ₹ per relay member, charged for the first 4 members of each team */
   relayFeeRate: number;
+  /** Members charged across all relay teams (max 4 per team) */
+  relayMembersBilled: number;
+  relayFeeTotal: number;
+  relayTeams: { eventId: string; code: string; name: string; members: number; billedMembers: number; fee: number }[];
   totalAmount: number;
   totalPaid: number;
   balanceDue: number;
@@ -123,6 +128,9 @@ export async function getSquadFeeBreakdownAction(): Promise<{
       hmFeeRate: feeCalc.hmFeeRate,
       relayTeamsCount: feeCalc.relayTeamsCount,
       relayFeeRate: feeCalc.relayFeeRate,
+      relayMembersBilled: feeCalc.relayMembersBilled,
+      relayFeeTotal: feeCalc.relayFeeTotal,
+      relayTeams: feeCalc.relayTeams,
       totalAmount,
       totalPaid,
       balanceDue,
@@ -210,7 +218,7 @@ export async function submitPaymentAction(formData: FormData): Promise<{ success
       };
     }
 
-    // Get expected total fee calculated accurately with flat ₹400 per relay team
+    // Get expected total fee calculated accurately with ₹100 per relay member (first 4 per team)
     const feeCalc = await calculateSquadFees(session.squadId);
     const totalAmount = feeCalc.totalAmount;
     if (totalAmount <= 0) {
