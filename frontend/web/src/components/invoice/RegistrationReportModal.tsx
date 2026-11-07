@@ -246,7 +246,7 @@ export default function RegistrationReportModal({
                       <tr key={athlete.id}>
                         <td className="text-center" style={{ color: '#64748b' }}>{idx + 1}</td>
                         <td className="text-center font-bold" style={{ color: '#1e3a8a' }}>
-                          #{athlete.bid_number || '—'}
+                          {athlete.bid_number ? `#${athlete.bid_number}` : 'Pending'}
                         </td>
                         <td>
                           <strong>{athlete.sslc_name}</strong>

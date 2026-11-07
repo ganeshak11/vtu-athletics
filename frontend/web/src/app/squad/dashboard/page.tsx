@@ -370,8 +370,12 @@ export default async function SquadDashboardPage() {
                     <tr key={athlete.id}>
                       {/* Bib & Status */}
                       <td>
-                        <div className="squad-bib-badge">
-                          <span>#{athlete.bid_number || 100}</span>
+                        {/* Bibs are generated only after registration closes — never show a placeholder number */}
+                        <div
+                          className="squad-bib-badge"
+                          title={athlete.bid_number ? undefined : 'Bib numbers are allotted after registration closes'}
+                        >
+                          <span>{athlete.bid_number ? `#${athlete.bid_number}` : 'Bib pending'}</span>
                         </div>
                         <div>
                           <span className="squad-reg-status-pill">

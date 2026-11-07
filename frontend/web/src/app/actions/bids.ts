@@ -100,8 +100,8 @@ export async function substituteAthleteAction(formData: FormData) {
     return { success: false, error: 'All substitution fields are required.' };
   }
 
-  if (!Number.isInteger(newSemester) || newSemester < 1 || newSemester > 8) {
-    return { success: false, error: 'Semester must be between 1 and 8.' };
+  if (!Number.isInteger(newSemester) || newSemester < 1 || newSemester > 10) {
+    return { success: false, error: 'Semester must be between 1 and 10.' };
   }
 
   const { data, error } = await supabaseAdmin.rpc('substitute_athlete', {

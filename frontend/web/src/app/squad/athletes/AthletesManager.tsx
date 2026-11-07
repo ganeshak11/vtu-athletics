@@ -725,8 +725,11 @@ export default function AthletesManager({
                       >
                         <td style={{ padding: '1rem' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', alignItems: 'flex-start' }}>
-                            <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                              #{athlete.bid_number || 'TBD'}
+                            <span
+                              style={{ fontWeight: 800, fontSize: athlete.bid_number ? '0.95rem' : '0.8rem', color: athlete.bid_number ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+                              title={athlete.bid_number ? undefined : 'Bib numbers are allotted after registration closes'}
+                            >
+                              {athlete.bid_number ? `#${athlete.bid_number}` : 'Bib pending'}
                             </span>
                             <Badge
                               variant={athlete.accreditation_status === 'ACCREDITED' ? 'success' : 'default'}
