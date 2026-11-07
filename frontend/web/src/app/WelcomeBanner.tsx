@@ -49,7 +49,7 @@ export default function WelcomeBanner() {
       className="welcome-banner-overlay"
       role="dialog"
       aria-modal="true"
-      aria-label="Dr. ACS AURA 2026 announcement"
+      aria-label="Dr. ACS-AURA 2026 announcement"
       onClick={close}
     >
       <div className="welcome-banner-frame" onClick={(e) => e.stopPropagation()}>
@@ -64,7 +64,7 @@ export default function WelcomeBanner() {
         </button>
         <img
           src="/banner.jpeg"
-          alt="28th VTU Inter-Collegiate State Level Athletic Meet 2026 — Dr. ACS AURA 2026"
+          alt="28th VTU Inter-Collegiate State Level Athletic Meet 2026 — Dr. ACS-AURA 2026"
           className="welcome-banner-img"
           width={1200}
           height={628}

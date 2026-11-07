@@ -99,6 +99,15 @@
   line-height: 1.15;
 }
 
+.univ-meet-line {
+  font-size: clamp(0.85rem, 1.25vw, 1.2rem);
+  font-weight: 800;
+  color: #b45309;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  margin-top: 0.15rem;
+}
+
 .univ-sub-state {
   font-size: 0.825rem;
   font-weight: 600;

@@ -301,14 +301,13 @@
 .hero-editorial-title {
   font-family: var(--font-curvy, 'Cinzel Decorative', Georgia, serif);
   font-weight: 700;
-  font-size: clamp(3.2rem, 7.8vw, 6rem);
-  line-height: 1.05;
-  letter-spacing: 0.02em;
+  /* "Dr. ACS-AURA 2026" always on ONE line, one font, one size — shrinks with the screen */
+  font-size: clamp(1.35rem, 4.6vw, 4.25rem);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
   margin: 0 0 1.15rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35em;
+  display: block;
+  white-space: nowrap;
   background: none;
 }
 
@@ -2741,7 +2740,7 @@
     padding: 2.5rem 1rem;
   }
   .hero-editorial-title {
-    font-size: 2.2rem;
+    font-size: clamp(1.35rem, 6.4vw, 2.2rem);
   }
   .hero-edition-line {
     font-size: 1rem;
@@ -2819,8 +2818,7 @@
     height: 240px;
   }
   .hero-editorial-title {
-    font-size: clamp(2.4rem, 8.5vw, 3.8rem);
-    gap: 0.25em;
+    font-size: clamp(1.35rem, 6.4vw, 3.2rem);
   }
   .editorial-section-title {
     font-size: clamp(1.1rem, 3.5vw, 1.45rem);
@@ -2838,8 +2836,8 @@
     padding: 0.35rem 0.8rem;
   }
   .hero-editorial-title {
-    font-size: clamp(1.85rem, 9.2vw, 2.6rem);
-    line-height: 1.08;
+    font-size: clamp(1.2rem, 6.4vw, 2.2rem);
+    line-height: 1.1;
   }
   .editorial-section-title {
     font-size: 1.05rem;

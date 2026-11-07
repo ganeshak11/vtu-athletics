@@ -35,17 +35,11 @@ export default function HomePage() {
             <div className="hero-editorial-main">
 
               {/* Taxonomy / Classification Header */}
-              <div className="hero-kicker-bar">
-                <span className="hero-kicker-dept">DIRECTORATE OF PHYSICAL EDUCATION &amp; SPORTS</span>
-                <span className="hero-kicker-sep">/</span>
-                <span className="hero-kicker-meet">28TH VTU STATE ATHLETICS</span>
-              </div>
+
 
               {/* Display Headline */}
               <h1 className="hero-editorial-title">
-                <span className="hero-title-brand">
-                  D<span className="hero-title-dr-r">r</span>. ACS AURA
-                </span>{' '}
+                <span className="hero-title-brand">Dr. ACS-AURA</span>{' '}
                 <span className="hero-title-year">2026</span>
               </h1>
 
@@ -236,7 +230,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Points matrix (Individual 5-3-1), Relay &amp; Team Championships(10-6-2)</span>
+                    <span>Points matrix (Individual 5-3-1), Relay &amp; Team Championships(10-6-</span>
                   </li>
                 </ul>
               </div>
@@ -923,7 +917,7 @@ export default function HomePage() {
             <ul>
               <li>
                 <Link href="/login/squad" style={{ color: '#1d4ed8', fontWeight: 700 }}>
-                  Institution Squad Login
+                  College Student Registration Login
                 </Link>
               </li>
               <li>

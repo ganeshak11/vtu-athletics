@@ -89,7 +89,7 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
 
   if (!squad) {
     await recordLoginFailure('squad', throttleKey, ip);
-    return { success: false, error: 'Invalid college code, division, or passphrase.' };
+    return { success: false, error: 'Wrong college code, Boys/Girls choice or password. Please check and try again.' };
   }
 
   // Issued passphrases are lowercase (e.g. swift-falcon-84); tolerate Caps Lock / auto-capitalised
@@ -100,7 +100,7 @@ export async function loginSquad(formData: FormData): Promise<AuthResponse> {
   }
   if (!isValid) {
     await recordLoginFailure('squad', throttleKey, ip);
-    return { success: false, error: 'Invalid college code, division, or passphrase.' };
+    return { success: false, error: 'Wrong college code, Boys/Girls choice or password. Please check and try again.' };
   }
   await clearLoginFailures('squad', throttleKey);
 

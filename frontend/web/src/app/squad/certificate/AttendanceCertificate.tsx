@@ -65,7 +65,7 @@ export default function AttendanceCertificate({
           <div className="att-dates">
             (7<sup>th</sup> – 10<sup>th</sup> December 2026)
           </div>
-          <div className="att-dates">(Dr. ACS AURA 2026)</div>
+          <div className="att-dates">(Dr. ACS-AURA 2026)</div>
         </div>
 
         <p className="att-body">

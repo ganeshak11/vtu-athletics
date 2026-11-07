@@ -145,7 +145,7 @@ export default function RegistrationReportModal({
 
           {/* 2. MEET BANNER & REPORT TITLE */}
           <div className="report-meet-banner">
-            <div className="report-meet-tag">Dr. ACS AURA – 2026</div>
+            <div className="report-meet-tag">Dr. ACS-AURA – 2026</div>
             <h1 className="report-meet-title">
               28th VTU Inter-Collegiate State Level Athletic Meet 2026
             </h1>

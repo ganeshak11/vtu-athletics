@@ -35,7 +35,7 @@ export function SquadNav({ collegeName, collegeCode, gender }: SquadNavProps) {
             <img src="/logo.jpeg" alt="ACSCE" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.15, letterSpacing: '-0.01em' }}>
-                ACS AURA
+                ACS-AURA
               </span>
               <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#b45309', letterSpacing: '0.04em' }}>
                 CONTINGENT PORTAL &bull; 2026

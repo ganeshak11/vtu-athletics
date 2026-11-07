@@ -31,10 +31,10 @@ export default function SquadLoginPage() {
         router.push(res.redirectTo);
         router.refresh();
       } else {
-        setError(res.error || 'Authentication failed. Please check credentials.');
+        setError(res.error || 'Login failed. Please check your college code, Boys/Girls and password.');
       }
     } catch {
-      setError('An unexpected network error occurred.');
+      setError('Could not connect. Please check your internet and try again.');
     } finally {
       setLoading(false);
     }
@@ -48,10 +48,10 @@ export default function SquadLoginPage() {
             🏛️
           </div>
           <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0f172a' }}>
-            Institution Contingent Portal
+            Institutional Student Registration Portal
           </h1>
           <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.35rem' }}>
-            VTU Affiliated Colleges &bull; Athletes Delegation Desk
+            For colleges to register their students for the 28th VTU Athletic Meet
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export default function SquadLoginPage() {
                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                 }}
               >
-                <span>📘</span> Help Manual: How to Register (Step by Step)
+                <span>📘</span> How to Register &mdash; Step-by-Step Guide
               </button>
             </div>
 
@@ -151,7 +151,7 @@ export default function SquadLoginPage() {
                     type="text"
                     value={collegeCode}
                     onChange={(e) => setCollegeCode(e.target.value.toUpperCase())}
-                    placeholder="Enter official college code (e.g. 1AH, ACSCE)"
+                    placeholder="Your college code (e.g. ACSCE)"
                     required
                     className="login-input"
                     autoComplete="off"
@@ -167,14 +167,14 @@ export default function SquadLoginPage() {
                   )}
                 </div>
                 <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.35rem' }}>
-                  Enter your official VTU college abbreviation code
+                  The college code given to you along with your password
                 </span>
               </div>
 
               {/* Prompt 2: Division (Gender) */}
               <div>
                 <label className="login-label">
-                  2. Division (Gender)
+                  2. Choose Boys or Girls
                 </label>
                 <input type="hidden" name="gender" value={gender} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -198,7 +198,7 @@ export default function SquadLoginPage() {
                     }}
                     id="btn-select-male"
                   >
-                    <span>🚹</span> Boys (Men)
+                    <span>🚹</span> Boys
                   </button>
                   <button
                     type="button"
@@ -220,7 +220,7 @@ export default function SquadLoginPage() {
                     }}
                     id="btn-select-female"
                   >
-                    <span>🚺</span> Girls (Women)
+                    <span>🚺</span> Girls
                   </button>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function SquadLoginPage() {
               {/* Prompt 3: Passphrase */}
               <div>
                 <label htmlFor="passphrase" className="login-label">
-                  3. Confidential Passphrase
+                  3. Password
                 </label>
                 <input
                   id="passphrase"
@@ -236,13 +236,13 @@ export default function SquadLoginPage() {
                   type="password"
                   value={passphrase}
                   onChange={(e) => setPassphrase(e.target.value)}
-                  placeholder="e.g. swift-falcon-84"
+                  placeholder="e.g. word-word-word-word-1234"
                   required
                   className="login-input"
                   style={{ textTransform: 'none', letterSpacing: 'normal', fontSize: '0.95rem' }}
                 />
                 <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginTop: '0.35rem' }}>
-                  Confidential passphrase issued by VTU Athletics Directorate
+                  The password given to your college for Boys or Girls. Type it exactly, including the dashes ( - ).
                 </span>
               </div>
 
@@ -253,14 +253,14 @@ export default function SquadLoginPage() {
                 id="btn-squad-submit"
                 style={{ marginTop: '0.75rem' }}
               >
-                {loading ? 'Authenticating Institution...' : 'Sign In to Institution Portal →'}
+                {loading ? 'Logging in…' : 'Login →'}
               </button>
             </form>
 
             <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.25rem', textAlign: 'center', fontSize: '0.85rem', color: '#64748b' }}>
-              VTU Directorate or Meet Official?{' '}
+              Meet staff or admin?{' '}
               <Link href="/login/admin" style={{ color: '#2563eb', fontWeight: 700 }}>
-                Directorate Admin Login &rarr;
+                Staff / Admin Login &rarr;
               </Link>
             </div>
           </div>

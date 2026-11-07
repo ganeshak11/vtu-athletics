@@ -3,7 +3,7 @@ import { OfficialBanner } from '@/components/layout/OfficialBanner';
 import '@/components/layout/Navbar.css';
 
 export const metadata = {
-  title: 'VTU Athletics — Secure Authentication Desk',
+  title: 'Login — 28th VTU Athletic Meet 2026',
   description: 'Official Secure Access Desk for Affiliated Institutions and Directorate Administration',
 };
 
@@ -15,20 +15,20 @@ export default function LoginLayout({
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
       {/* 1. Official Top Banner with Bilingual Crest & Dual Emblems (ACSCE left, VTU right) */}
-      <OfficialBanner portalBadge="SECURE AUTHENTICATION DESK &bull; 28TH VTU ATHLETIC MEET 2026" />
+      <OfficialBanner portalBadge="LOGIN &bull; 28TH VTU ATHLETIC MEET 2026" />
 
       {/* 2. Solid Deep Navy Sub-Navigation Bar */}
       <nav className="univ-main-nav">
         <div className="univ-nav-inner">
           <div className="univ-nav-menu">
             <Link href="/" className="univ-nav-link">
-              <span>&larr; Back to Championship Information</span>
+              <span>&larr; Back to Home</span>
             </Link>
             <Link href="/#schedule" className="univ-nav-link">
               <span>📅 Event Schedule</span>
             </Link>
             <Link href="/#rules" className="univ-nav-link">
-              <span>📜 Technical Rules</span>
+              <span>📜 Rules</span>
             </Link>
             <Link href="/#venue" className="univ-nav-link">
               <span>📍 Host Venue &amp; Map</span>
@@ -41,7 +41,7 @@ export default function LoginLayout({
               className="univ-btn-portal univ-btn-institution"
               style={{ padding: '0.45rem 0.9rem', fontSize: '0.8rem' }}
             >
-              🏛️ Institution Login
+              🏛️ College Login
             </Link>
             <Link
               href="/login/admin"

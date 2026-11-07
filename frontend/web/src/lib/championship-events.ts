@@ -107,7 +107,7 @@ export const OFFICIAL_CHAMPIONSHIP_RULES = [
   {
     num: 3,
     title: 'Event Quotas, Standalone Events & Reserve Rule',
-    text: 'Every kind of relay (4x100m, 4x400m, 4x400m Mixed Relay) and 21km Road Half Marathon can be entered as standalone disciplines. An athlete may register for up to 2 individual events and may nominate 1 reserve event (free), even when registered for both Event 1 and Event 2. The reserve must be a different event. Athletes can still participate in 4x400m Mixed Relay and Half Marathon unrestricted.',
+    text: 'Every kind of relay (4x100m, 4x400m, 4x400m Mixed Relay) and 21km Road Half Marathon can be entered as standalone disciplines. An athlete may register for up to 2 individual events and may nominate 1 reserve event , even when registered for both Event 1 and Event 2. The reserve must be a different event. Athletes can still participate in 4x400m Mixed Relay and Half Marathon unrestricted.',
   },
   {
     num: 4,

@@ -30,6 +30,9 @@ export function OfficialBanner({ portalBadge }: Props) {
           <div className="univ-english-name">
             VISVESVARAYA TECHNOLOGICAL UNIVERSITY, BELAGAVI
           </div>
+          <div className="univ-meet-line">
+            28th VTU Inter-Collegiate State Level Athletic Meet
+          </div>
           <div className="univ-host-clg">
             Dr. ACS COLLEGE OF ENGINEERING, BENGALURU
           </div>
