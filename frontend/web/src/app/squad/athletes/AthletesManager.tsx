@@ -11,7 +11,7 @@ import { DB_CODE_TO_OFFICIAL_MAP } from '@/lib/championship-events';
 import RegistrationReportModal from '@/components/invoice/RegistrationReportModal';
 import EditAthleteModal from './EditAthleteModal';
 import DobQuickFill from './DobQuickFill';
-import { validateDateOfBirth, EARLIEST_ELIGIBLE_DOB } from '@/lib/eligibility';
+import { validateDateOfBirth, EARLIEST_DOB } from '@/lib/eligibility';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -294,7 +294,6 @@ export default function AthletesManager({
       return;
     }
 
-    // 1b. Validate date of birth (VTU Rule 11 age limit; also the AURA Athletes app login)
     const dobError = validateDateOfBirth(dateOfBirth);
     if (dobError) {
       setError(dobError);
@@ -1221,14 +1220,14 @@ export default function AthletesManager({
                             id="add-dob"
                             type="date"
                             required
-                            min={EARLIEST_ELIGIBLE_DOB}
+                            min={EARLIEST_DOB}
                             max={new Date().toISOString().slice(0, 10)}
                             value={dateOfBirth}
                             onChange={(e) => setDateOfBirth(e.target.value)}
                             style={inputStyle}
                           />
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginTop: '0.25rem' }}>
-                            Must be below 25 years on 1 July 2026. The athlete logs in to the AURA Athletes app with bib number + this date.
+                            The athlete logs in to the AURA Athletes app with bib number + this date.
                           </span>
                         </div>
 

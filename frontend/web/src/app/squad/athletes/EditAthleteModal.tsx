@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { updateAthleteAction, UpdateAthleteResult } from '@/app/actions/athletes';
-import { validateDateOfBirth, EARLIEST_ELIGIBLE_DOB } from '@/lib/eligibility';
+import { validateDateOfBirth, EARLIEST_DOB } from '@/lib/eligibility';
 
 export interface EditableAthlete {
   id: string;
@@ -274,7 +274,7 @@ export default function EditAthleteModal({ athlete, onClose, onSaved }: Props) {
             <input
               id="edit-dob"
               type="date"
-              min={EARLIEST_ELIGIBLE_DOB}
+              min={EARLIEST_DOB}
               max={today}
               value={dateOfBirth}
               onChange={(e) => setDateOfBirth(e.target.value)}

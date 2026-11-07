@@ -182,7 +182,6 @@ export default async function SquadDashboardPage() {
             style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: '12px', padding: '1rem 1.25rem', color: '#92400e', fontSize: '0.9rem', lineHeight: 1.5 }}
           >
             ⚠️ <strong>{missingDob.length} athlete{missingDob.length === 1 ? '' : 's'} missing date of birth.</strong>{' '}
-            Athletes log in to the <strong>AURA Athletes</strong> app with their bib number + date of birth, and it is checked against the age limit.{' '}
             <Link href="/squad/athletes" style={{ fontWeight: 700, color: '#92400e', textDecoration: 'underline' }}>Add it on the Athlete Roster →</Link>
           </section>
         );

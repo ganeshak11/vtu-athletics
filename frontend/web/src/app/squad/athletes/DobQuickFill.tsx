@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { setAthleteDateOfBirthAction } from '@/app/actions/athletes';
-import { validateDateOfBirth, EARLIEST_ELIGIBLE_DOB } from '@/lib/eligibility';
+import { validateDateOfBirth, EARLIEST_DOB } from '@/lib/eligibility';
 
 /**
  * Inline one-time date-of-birth entry for athletes registered before DOB was collected.
@@ -65,7 +65,7 @@ export default function DobQuickFill({
         <input
           type="date"
           aria-label="Date of birth"
-          min={EARLIEST_ELIGIBLE_DOB}
+          min={EARLIEST_DOB}
           max={new Date().toISOString().slice(0, 10)}
           value={dob}
           onChange={(e) => setDob(e.target.value)}

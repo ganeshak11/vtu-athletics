@@ -310,10 +310,6 @@ export default function RegistrationReportModal({
               </div>
               <div className="rule-item">
                 <span className="check-box">☑</span>
-                <span><strong>Age Limit:</strong> Below 25 years as on 1st July 2026 with attested SSLC / DOB certificate (Rule 11 &amp; 45).</span>
-              </div>
-              <div className="rule-item">
-                <span className="check-box">☑</span>
                 <span><strong>Academic Proof:</strong> Attested copies of PUC / Degree certificates and valid College ID Card (Rule 44 &amp; 46).</span>
               </div>
               <div className="rule-item">

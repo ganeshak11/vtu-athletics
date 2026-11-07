@@ -1,24 +1,12 @@
 /**
- * Athlete eligibility helpers shared by the registration forms and server actions.
+ * Athlete date-of-birth helpers shared by the registration forms and server actions.
  *
- * VTU Rule 11 / 45: the student-athlete must be below 25 years of age as on 1st July 2026.
- * Someone born on 1 July 2001 turns 25 on the cut-off date, so the earliest eligible
- * date of birth is 2 July 2001.
+ * There is NO age limit for registration. The date of birth is still collected because
+ * athletes log in to the AURA Athletes app with bib number + date of birth, so it only
+ * has to be a real, non-future date.
  */
-export const AGE_CUTOFF_DATE = '2026-07-01';
-export const MAX_AGE_ON_CUTOFF = 25;
-/** Earliest eligible DOB (inclusive) */
-export const EARLIEST_ELIGIBLE_DOB = '2001-07-02';
-/** Typo guard only (not a VTU rule): a university athlete younger than this on the cut-off is almost certainly a mistyped year */
-const MIN_PLAUSIBLE_AGE_ON_CUTOFF = 14;
-
-function ageOn(dobIso: string, onIso: string): number {
-  const [by, bm, bd] = dobIso.split('-').map(Number);
-  const [oy, om, od] = onIso.split('-').map(Number);
-  let age = oy - by;
-  if (om < bm || (om === bm && od < bd)) age -= 1;
-  return age;
-}
+/** Lower bound for the date picker — a typo guard (e.g. "0200"), not an eligibility rule. */
+export const EARLIEST_DOB = '1900-01-01';
 
 /** Returns an error message, or null when the date of birth is acceptable. */
 export function validateDateOfBirth(dob: string | null | undefined, todayIso?: string): string | null {
@@ -28,12 +16,6 @@ export function validateDateOfBirth(dob: string | null | undefined, todayIso?: s
   }
   const today = todayIso || new Date().toISOString().slice(0, 10);
   if (v > today) return 'Date of birth cannot be in the future.';
-  const age = ageOn(v, AGE_CUTOFF_DATE);
-  if (age >= MAX_AGE_ON_CUTOFF) {
-    return `Not eligible (VTU Rule 11): the athlete must be below ${MAX_AGE_ON_CUTOFF} years as on 1 July 2026 (born on or after 2 July 2001).`;
-  }
-  if (age < MIN_PLAUSIBLE_AGE_ON_CUTOFF) {
-    return 'Please check the date of birth — the year looks incorrect.';
-  }
+  if (v < EARLIEST_DOB) return 'Please check the date of birth — the year looks incorrect.';
   return null;
 }
