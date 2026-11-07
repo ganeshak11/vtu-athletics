@@ -925,7 +925,7 @@ export default function AthletesManager({
                             >
                               {(() => {
                                 const meta = reserveRegs[0].events?.code ? DB_CODE_TO_OFFICIAL_MAP[reserveRegs[0].events.code] : null;
-                                return meta ? `Code ${meta.codeNum}: ${meta.officialName} (FREE)` : `${reserveRegs[0].events?.name} (FREE)`;
+                                return meta ? `Code ${meta.codeNum}: ${meta.officialName} (Reserve)` : `${reserveRegs[0].events?.name} (Reserve)`;
                               })()}
                             </span>
                           ) : (
