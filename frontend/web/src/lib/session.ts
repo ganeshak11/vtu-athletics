@@ -9,6 +9,7 @@ export type UserRole =
   | 'warden'
   | 'call_room_official'
   | 'referee'
+  | 'registration_desk'
   | 'spectator';
 
 export interface SessionData {

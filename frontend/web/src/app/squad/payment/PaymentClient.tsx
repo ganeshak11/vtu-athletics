@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { submitPaymentAction, FeeBreakdown, PaymentRecord } from '@/app/actions/payment';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import FeeInvoiceModal from '@/components/invoice/FeeInvoiceModal';
+import FeeInvoiceModal, { type InvoiceAthlete } from '@/components/invoice/FeeInvoiceModal';
 import Link from 'next/link';
 import { OFFICIAL_UPI_QR_SRC } from '@/lib/payment-config';
 import { creditedAmount } from '@/lib/payment-status';
@@ -13,6 +13,7 @@ interface Props {
   breakdown: FeeBreakdown;
   payments: PaymentRecord[];
   squadCode: string;
+  athletes?: InvoiceAthlete[];
 }
 
 function formatDate(dateStr: string): string {
@@ -31,7 +32,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-export default function PaymentClient({ breakdown, payments, squadCode }: Props) {
+export default function PaymentClient({ breakdown, payments, squadCode, athletes = [] }: Props) {
   const payableTarget = breakdown.balanceDue > 0 ? breakdown.balanceDue : (breakdown.totalPaid > 0 ? 0 : breakdown.totalAmount);
   // The amount is fixed to the balance due (the server rejects anything else); Finance then
   // records what was actually credited in the bank when verifying.
@@ -648,6 +649,7 @@ export default function PaymentClient({ breakdown, payments, squadCode }: Props)
         breakdown={breakdown}
         payments={payments}
         squadCode={squadCode}
+        athletes={athletes}
       />
 
     </div>

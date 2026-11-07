@@ -47,6 +47,9 @@ export default async function AdminLayout({
             <Link href="/admin/delegations" className="univ-nav-link">
               <span>📋 Delegations</span>
             </Link>
+            <Link href="/registration-desk" className="univ-nav-link">
+              <span>✅ Registration Desk</span>
+            </Link>
             <Link href="/admin/audit" className="univ-nav-link">
               <span>📜 Audit Log</span>
             </Link>

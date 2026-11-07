@@ -577,11 +577,7 @@ export default async function SquadDashboardPage() {
             </div>
             <div className="squad-advisory-item">
               <strong>🥇 5 Major Championship Trophies</strong>
-              Best Male Athlete, Best Female Athlete, Best Men&rsquo;s College, Best Women&rsquo;s Team, Overall Championship.
-            </div>
-            <div className="squad-advisory-item">
-              <strong>⚡ Track Progression Rule</strong>
-              Top 2 from each preliminary heat automatically advance to Finals (position-based, not based on time).
+              Best Male Athlete, Best Female Athlete, Best Men&rsquo;s College Team and Best Women&rsquo;s College Team (Champions &amp; Runners-up), Overall Championship.
             </div>
             <div className="squad-advisory-item">
               <strong>🏃 Jump &amp; Throw Pass Protocols</strong>

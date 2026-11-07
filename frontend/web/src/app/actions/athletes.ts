@@ -156,13 +156,7 @@ export async function addAthleteAction(formData: FormData): Promise<AddAthleteRe
     return { success: false, error: 'Event 1 and Event 2 cannot be the same event.' };
   }
 
-  // Rule: If an athlete chooses both Event 1 and Event 2, they cannot nominate a reserve event
-  if (event1Id && event2Id && reserveEventId) {
-    return {
-      success: false,
-      error: 'VTU Regulation: An athlete registered for both Event 1 and Event 2 cannot nominate a reserve event.',
-    };
-  }
+  // 1 reserve event is allowed with one or both individual events (not blocked by Event 2).
 
   // Rule 36: A reserve participant must also be a participant of one of the regular events
   if (!event1Id && !event2Id && reserveEventId) {

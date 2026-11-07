@@ -190,6 +190,9 @@ export async function loginAdmin(formData: FormData): Promise<AuthResponse> {
   if (staffMember.role === 'finance_desk') {
     return { success: true, redirectTo: '/admin/payments' };
   }
+  if (staffMember.role === 'registration_desk') {
+    return { success: true, redirectTo: '/registration-desk' };
+  }
 
   return { success: true, redirectTo: '/admin' };
 }
@@ -260,6 +263,7 @@ export async function loginStaffPin(formData: FormData): Promise<AuthResponse> {
   else if (matchedStaff.role === 'referee') redirectTo = '/referee';
   else if (matchedStaff.role === 'meet_admin') redirectTo = '/admin/colleges';
   else if (matchedStaff.role === 'finance_desk') redirectTo = '/finance';
+  else if (matchedStaff.role === 'registration_desk') redirectTo = '/registration-desk';
 
   return { success: true, redirectTo };
 }

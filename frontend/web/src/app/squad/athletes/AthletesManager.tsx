@@ -356,13 +356,7 @@ export default function AthletesManager({
       return;
     }
 
-    // Rule: If athlete chooses both Event 1 and Event 2, reserve cannot be nominated
-    if (event1 && event2 && reserveEvent) {
-      setError('VTU Regulation: An athlete registered for both Event 1 and Event 2 cannot nominate a reserve event.');
-      setLoading(false);
-      return;
-    }
-
+    // 1 reserve event is allowed with one or both individual events (it is not blocked by Event 2).
     // Rule 36: A reserve participant must also be a participant of one of the regular events
     if (!event1 && !event2 && reserveEvent) {
       setError('VTU Regulation (Rule 36): A reserve event can only be nominated if the athlete is registered for an individual regular event.');
@@ -1276,9 +1270,9 @@ export default function AthletesManager({
                       {(() => {
                         const isRelaySelected = Boolean(relayChoice === '4x100' || relayChoice === '4x400' || isMixedRelay);
                         const isStandaloneAllowed = Boolean(isRelaySelected || isHalfMarathon);
-                        const isReserveDisabled = Boolean(event1 && event2);
+                        // A reserve needs at least one individual event (Rule 36); it is allowed with 1 or 2 events.
                         const isReserveNotApplicable = !event1 && !event2;
-                        const isReserveBlocked = isReserveDisabled || isReserveNotApplicable;
+                        const isReserveBlocked = isReserveNotApplicable;
 
                         return (
                           <>
@@ -1295,8 +1289,7 @@ export default function AthletesManager({
                                 onChange={(e) => {
                                   setEvent1(e.target.value);
                                   if (e.target.value === event2) setEvent2('');
-                                  if (e.target.value && event2) setReserveEvent('');
-                                  else if (e.target.value === reserveEvent) setReserveEvent('');
+                                  if (e.target.value === reserveEvent) setReserveEvent('');
                                 }}
                                 style={inputStyle}
                               >
@@ -1319,8 +1312,7 @@ export default function AthletesManager({
                                 value={event2}
                                 onChange={(e) => {
                                   setEvent2(e.target.value);
-                                  if (e.target.value && event1) setReserveEvent('');
-                                  else if (e.target.value === reserveEvent) setReserveEvent('');
+                                  if (e.target.value === reserveEvent) setReserveEvent('');
                                 }}
                                 style={inputStyle}
                               >
@@ -1335,7 +1327,7 @@ export default function AthletesManager({
                               </select>
                             </div>
 
-                            {/* Reserve Event (Optional — Disabled if both Event 1 & 2 selected or no event selected) */}
+                            {/* Reserve Event (Optional, 1 max — needs at least one individual event) */}
                             <div style={{
                               background: 'var(--bg-tertiary)',
                               padding: '1rem',
@@ -1345,7 +1337,7 @@ export default function AthletesManager({
                             }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
                                 <label style={{ ...labelStyle, marginBottom: 0, fontWeight: 700 }}>
-                                  Reserve Event {isReserveDisabled ? '(Disabled — 2 Individual Events Chosen)' : isReserveNotApplicable ? '(Requires Event 1 Selection — Rule 36)' : '(Optional)'}
+                                  Reserve Event {isReserveNotApplicable ? '(Requires Event 1 Selection — Rule 36)' : '(Optional — 1 Reserve)'}
                                 </label>
                                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: isReserveBlocked ? 'var(--text-muted)' : 'var(--success)' }}>
                                   {isReserveBlocked ? 'N/A' : 'FREE'}
@@ -1362,11 +1354,9 @@ export default function AthletesManager({
                                 }}
                               >
                                 <option value="">
-                                  {isReserveDisabled
-                                    ? '-- Reserve Blocked When 2 Events Selected --'
-                                    : isReserveNotApplicable
-                                      ? '-- Select Event 1 First to Nominate Reserve (Rule 36) --'
-                                      : '-- None (No Reserve Discipline) --'}
+                                  {isReserveNotApplicable
+                                    ? '-- Select Event 1 First to Nominate Reserve (Rule 36) --'
+                                    : '-- None (No Reserve Discipline) --'}
                                 </option>
                                 {!isReserveBlocked && individualEvents
                                   .filter((ev) => ev.id !== event1 && ev.id !== event2)
@@ -1377,11 +1367,9 @@ export default function AthletesManager({
                                   ))}
                               </select>
                               <span style={{ fontSize: '0.75rem', color: isReserveBlocked ? 'var(--danger)' : 'var(--text-secondary)', display: 'block', marginTop: '0.35rem' }}>
-                                {isReserveDisabled
-                                  ? 'Per VTU regulations, reserve events cannot be nominated when an athlete competes in two individual disciplines.'
-                                  : isReserveNotApplicable
-                                    ? 'Per VTU Rule 36: A reserve participant must also be a participant in at least one individual regular event.'
-                                    : 'If the athlete is unable to compete in Event 1, they can be substituted into their reserve event during call room.'}
+                                {isReserveNotApplicable
+                                  ? 'Per VTU Rule 36: A reserve participant must also be a participant in at least one individual regular event.'
+                                  : 'One free reserve event, allowed even with both Event 1 and Event 2. It must be a different event.'}
                               </span>
                             </div>
                           </>

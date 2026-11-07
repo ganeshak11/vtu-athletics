@@ -160,15 +160,15 @@ export default function HomePage() {
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Student athlete nomination with 12-digit Aadhaar &amp; photo uploads</span>
+                    <span>Student athlete nomination with USN, 12-digit Aadhaar &amp; photo uploads</span>
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Enforce event quotas (Compulsory 1, Optional 2, Distinct Reserve)</span>
+                    <span>Enforce event quotas (Compulsory 1, Optional 2, 1 Reserve)</span>
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Configure 4&times;100m relay squads &amp; 21km Road Half Marathon runners</span>
+                    <span>Configure 4&times;100m, 4&times;400m &amp; 4&times;400m Mixed relay squads &amp; 21km Road Half Marathon runners</span>
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
@@ -228,11 +228,7 @@ export default function HomePage() {
                 <ul className="card-feature-list">
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
-                    <span>AFI certified electronic track timing and ultrasonic wind gauge standards</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Day-by-day 4-day athletics timetable with call-room reporting</span>
+                    <span>Day-by-day 4-day athletics time table with call-room reporting</span>
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
@@ -240,11 +236,7 @@ export default function HomePage() {
                   </li>
                   <li>
                     <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Trophy scoring matrix (7-5-4-3-2-1) &amp; Team Championships</span>
-                  </li>
-                  <li>
-                    <span className="check" aria-hidden="true">&bull;</span>
-                    <span>Selection criteria for All India Inter-University Athletics Meet</span>
+                    <span>Points matrix (Individual 5-3-1, Relay 10-6-2) &amp; Team Championships</span>
                   </li>
                 </ul>
               </div>
@@ -281,11 +273,11 @@ export default function HomePage() {
             <div className="regulation-card">
               <div className="reg-card-header">
                 <span className="reg-norm-code">NORM 01</span>
-                <span className="reg-badge-quota">MAX 2 EVENTS + RESERVE RULE</span>
+                <span className="reg-badge-quota">MAX 2 EVENTS + 1 RESERVE</span>
               </div>
               <h3 className="reg-card-title">Individual Discipline Quota &amp; Reserve Rule</h3>
               <p className="reg-card-desc">
-                Each athlete may compete in a maximum of 2 individual track or field events. <strong>If an athlete chooses both Event 1 and Event 2, they cannot nominate a reserve event</strong> (reserve is strictly disabled). Athletes can still register for 4&times;400m Mixed Relay and 21km Half Marathon unrestricted.
+                Each athlete may compete in a maximum of 2 individual track or field events and may nominate <strong>1 reserve event (free), even when registered for both Event 1 and Event 2</strong>. The reserve must be a different event from Event 1 and Event 2. Athletes can still register for 4&times;400m Mixed Relay and 21km Half Marathon unrestricted.
               </p>
             </div>
 
@@ -297,7 +289,7 @@ export default function HomePage() {
               </div>
               <h3 className="reg-card-title">Standalone Relays &amp; Relay Team Quota</h3>
               <p className="reg-card-desc">
-                All relays (4&times;100m, 4&times;400m, Mixed Relay) and 21km Half Marathon can be registered <strong>standalone</strong> (no Event 1 required). A college can enter up to 3 relay teams with <strong>6 members per relay team</strong> (4 active runners + 2 reserves). Only 1 divisional relay team per member. Call Room Officials can approve and update substitutes before race start.
+                All relays (4&times;100m, 4&times;400m, Mixed Relay) and 21km Half Marathon can be registered <strong>standalone</strong> (no Event 1 required). A college can enter up to 3 relay teams with <strong>6 members per relay team</strong> (4 active runners + 2 reserves). Only 1 divisional relay team per member. Call Room Officials can approve and update substitutes <strong>up to 24 hours before the race start</strong>.
               </p>
             </div>
 
@@ -309,7 +301,7 @@ export default function HomePage() {
               </div>
               <h3 className="reg-card-title">Official Hurdle Height Specifications</h3>
               <p className="reg-card-desc">
-                World Athletics &amp; VTU standard hurdle heights: <strong>110m Hurdles (Men) &ndash; 1.067 m</strong> (3.5 ft / 42 in); <strong>100m Hurdles (Women) &ndash; 0.838 m</strong> (2.75 ft / 33 in); <strong>400m Hurdles (Men) &ndash; 0.914 m</strong> (3.0 ft / 36 in); <strong>400m Hurdles (Women) &ndash; 0.762 m</strong> (2.5 ft / 30 in).
+                Standard hurdle heights: <strong>110m Hurdles (Men) &ndash; 1.067 m</strong> (3.5 ft / 42 in); <strong>100m Hurdles (Women) &ndash; 0.838 m</strong> (2.75 ft / 33 in); <strong>400m Hurdles (Men) &ndash; 0.914 m</strong> (3.0 ft / 36 in); <strong>400m Hurdles (Women) &ndash; 0.762 m</strong> (2.5 ft / 30 in).
               </p>
             </div>
 
@@ -333,38 +325,26 @@ export default function HomePage() {
               </div>
               <h3 className="reg-card-title">Championship Points &amp; Scoring Matrix</h3>
               <p className="reg-card-desc">
-                <strong>Team / Relay Events:</strong> 1st = 10 pts, 2nd = 6 pts, 3rd = 2 pts (<strong>only the final 4 running members who compete in the relay receive points</strong>). <strong>Individual Events:</strong> 1st = 5 pts, 2nd = 3 pts, 3rd = 1 pt.
-              </p>
-            </div>
-
-            {/* Rule 6: Track Heats Progression */}
-            <div className="regulation-card">
-              <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 06</span>
-                <span className="reg-badge-quota">TOP 2 ADVANCE TO FINALS</span>
-              </div>
-              <h3 className="reg-card-title">Preliminary Track Progression Rule</h3>
-              <p className="reg-card-desc">
-                <strong>Top 2 athletes from each preliminary heat automatically advance to the Finals</strong> (position-based Q1 &amp; Q2). Progression is <strong>strictly position-based, NOT based on fastest times</strong> for preliminary heats.
+                <strong>Individual Events:</strong> 1st = 5 pts, 2nd = 3 pts, 3rd = 1 pt. <strong>Relay Events (4&times;100m &amp; 4&times;400m):</strong> 1st = 10 pts, 2nd = 6 pts, 3rd = 2 pts &mdash; <strong>counted only for the Overall College Championship</strong>, not for the individual championship. <strong>4&times;400m Mixed Relay points count for neither.</strong>
               </p>
             </div>
 
             {/* Rule 7: 5 Major Championship Awards */}
             <div className="regulation-card">
               <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 07</span>
+                <span className="reg-norm-code">NORM 06</span>
                 <span className="reg-badge-quota">5 CHAMPIONSHIP TROPHIES</span>
               </div>
               <h3 className="reg-card-title">Championship Trophies &amp; Best Athletes</h3>
               <p className="reg-card-desc">
-                Five major championship trophies will be awarded: (1) <strong>Best Male Athlete</strong> (Individual Champion), (2) <strong>Best Female Athlete</strong> (Individual Champion), (3) <strong>Best Men&rsquo;s College Team</strong>, (4) <strong>Best Women&rsquo;s College Team</strong>, and (5) <strong>Overall Championship Trophy</strong>.
+                Five major championship trophies will be awarded: (1) <strong>Best Male Athlete</strong> (Individual Champion), (2) <strong>Best Female Athlete</strong> (Individual Champion), (3) <strong>Best Men&rsquo;s College Team</strong> (Champions &amp; Runners-up), (4) <strong>Best Women&rsquo;s College Team</strong> (Champions &amp; Runners-up), and (5) <strong>Overall Championship Trophy</strong>.
               </p>
             </div>
 
             {/* Rule 8: Results & Attendance to College PEDs */}
             <div className="regulation-card">
               <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 08</span>
+                <span className="reg-norm-code">NORM 07</span>
                 <span className="reg-badge-quota">PED DESK DISTRIBUTION</span>
               </div>
               <h3 className="reg-card-title">Results Bulletins &amp; Contingent Attendance</h3>
@@ -376,12 +356,12 @@ export default function HomePage() {
             {/* Rule 9: Entry Fee Structure & Differential Settlement */}
             <div className="regulation-card">
               <div className="reg-card-header">
-                <span className="reg-norm-code">NORM 09</span>
+                <span className="reg-norm-code">NORM 08</span>
                 <span className="reg-badge-quota">FLAT ₹400 RELAY &bull; ₹100 INDIVIDUAL</span>
               </div>
               <h3 className="reg-card-title">Transparent Fee Structure &amp; Differential Pay</h3>
               <p className="reg-card-desc">
-                Individual &amp; 21km Half Marathon: <strong>₹100/entry</strong>. Reserves: <strong>FREE (₹0)</strong>. Relays: <strong>Flat ₹400 per relay team</strong> (even with 6 members: 4 runners + 2 reserves free). If colleges register more athletes later, they pay only the differential balance due. Printable official invoice with VTU &amp; ACSCE logos provided.
+                Individual &amp; 21km Half Marathon: <strong>₹100/entry</strong>. Reserves: <strong>FREE (₹0)</strong>. Relays: <strong>Flat ₹400 per relay team</strong> (even with 6 members: 4 runners + 2 reserves free). If colleges register more athletes later, they pay only the differential balance due. Printable official invoice with ACSCE logo provided.
               </p>
             </div>
 
@@ -403,7 +383,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="editorial-header-right">
-              <span className="editorial-header-badge">DEC 08 – 11, 2026</span>
+              <span className="editorial-header-badge">DEC 07 – 10, 2026</span>
             </div>
           </div>
 

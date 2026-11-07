@@ -171,7 +171,7 @@ const STEPS: Step[] = [
           <tbody>
             <tr><td style={td}><strong>Event 1</strong></td><td style={td}>Required, unless the athlete is entered only for a relay or the Half Marathon</td><td style={td}>₹100</td></tr>
             <tr><td style={td}><strong>Event 2</strong></td><td style={td}>Optional; must be different from Event 1. <strong>Max 2 individual events</strong> per athlete</td><td style={td}>₹100</td></tr>
-            <tr><td style={td}><strong>Reserve event</strong></td><td style={td}>Allowed <strong>only if the athlete has exactly ONE</strong> individual event. Not allowed with 2 events. Must be a different event</td><td style={td}>Free</td></tr>
+            <tr><td style={td}><strong>Reserve event</strong></td><td style={td}><strong>1 reserve allowed</strong> when the athlete has at least one individual event &mdash; <strong>even with 2 events</strong>. Must be a different event</td><td style={td}>Free</td></tr>
             <tr><td style={td}><strong>Divisional relay</strong></td><td style={td}>Choose <strong>4×100m OR 4×400m</strong>, never both. Max 6 athletes per relay (4 runners + 2 reserves)</td><td style={td}>₹400 per team</td></tr>
             <tr><td style={td}><strong>4×400m Mixed relay</strong></td><td style={td}>Optional tick box. Max 6 per college (Boys + Girls together); needs at least 2 girls and 2 boys</td><td style={td}>₹400 per team (once per college)</td></tr>
             <tr><td style={td}><strong>Half Marathon (21 km)</strong></td><td style={td}>Optional tick box; can be the only event</td><td style={td}>₹100</td></tr>
@@ -346,7 +346,6 @@ const STEPS: Step[] = [
           <tr><td style={td}>&quot;Invalid USN&quot;</td><td style={td}>Use the full VTU USN without spaces, e.g. <code>1RV21CS001</code></td></tr>
           <tr><td style={td}>&quot;…USN / Aadhaar is already registered&quot;</td><td style={td}>This student is already registered (possibly by another college). Check the number; contact the Directorate if it&apos;s wrong</td></tr>
           <tr><td style={td}>&quot;VTU Quota Exceeded … maximum of 2 athletes&quot;</td><td style={td}>Your college already has 2 athletes in that event. Choose another event</td></tr>
-          <tr><td style={td}>&quot;…cannot nominate a reserve event&quot;</td><td style={td}>Athletes with 2 events can&apos;t have a reserve. Remove Event 2 or the reserve</td></tr>
           <tr><td style={td}>&quot;Quota full (6/6)&quot; on a relay</td><td style={td}>6 athletes are already nominated for that relay</td></tr>
           <tr><td style={td}>&quot;Not nominated for … Relay&quot;</td><td style={td}>Only athletes who chose that relay at registration can be placed in the team</td></tr>
           <tr><td style={td}>&quot;Complete your relay teams before paying&quot;</td><td style={td}>Go to Relay Teams and save all 4 legs for each listed relay (or remove the nominations)</td></tr>

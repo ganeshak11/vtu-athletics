@@ -18,6 +18,8 @@ export async function requireAuth(allowedRoles?: UserRole[]): Promise<SessionDat
       redirect('/squad/dashboard');
     } else if (session.role === 'meet_admin') {
       redirect('/admin');
+    } else if (session.role === 'registration_desk') {
+      redirect('/registration-desk');
     } else {
       redirect('/');
     }
@@ -55,6 +57,15 @@ export async function requireStaff(allowedRoles?: UserRole[]): Promise<SessionDa
     'warden',
     'call_room_official',
     'referee',
+    'registration_desk',
   ];
   return requireAuth(allowedRoles || defaultStaffRoles);
+}
+
+/**
+ * Guard for the venue Registration Desk (contingent reporting / attendance).
+ * The Meet Admin can use the desk too.
+ */
+export async function requireRegistrationDesk(): Promise<SessionData> {
+  return requireAuth(['registration_desk', 'meet_admin']);
 }

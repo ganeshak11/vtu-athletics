@@ -81,10 +81,6 @@ export default function CountdownTimer() {
       {/* Tournament Operational Parameters (Tabular Data) */}
       <div className="control-deck-params">
         <div className="param-row">
-          <span className="param-title">Sanction Authority</span>
-          <span className="param-detail">VTU Directorate of Physical Education</span>
-        </div>
-        <div className="param-row">
           <span className="param-title">Host Institution</span>
           <span className="param-detail">Dr. ACS College of Engineering (ACSCE)</span>
         </div>

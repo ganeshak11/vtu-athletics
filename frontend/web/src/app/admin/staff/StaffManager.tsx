@@ -58,6 +58,8 @@ export default function StaffManager({ initialStaff }: Props) {
         return 'Meet Director (Admin)';
       case 'finance_desk':
         return 'Finance Verification Desk';
+      case 'registration_desk':
+        return 'Registration Desk (Attendance)';
       case 'accreditation_volunteer':
         return 'Gate Accreditation Scanner';
       case 'warden':
@@ -200,7 +202,7 @@ export default function StaffManager({ initialStaff }: Props) {
                   defaultValue="accreditation_volunteer"
                   onChange={(e) => {
                     const r = e.target.value;
-                    if (r === 'meet_admin' || r === 'finance_desk') {
+                    if (r === 'meet_admin' || r === 'finance_desk' || r === 'registration_desk') {
                       setAuthType('password');
                     } else {
                       setAuthType('pin');
@@ -212,6 +214,7 @@ export default function StaffManager({ initialStaff }: Props) {
                   <option value="call_room_official">Call Room Marshal / Track Marshal</option>
                   <option value="referee">Field / Track Judge (Referee)</option>
                   <option value="finance_desk">Finance Verification Desk</option>
+                  <option value="registration_desk">Registration Desk (Contingent Attendance)</option>
                   <option value="meet_admin">Technical / Meet Director</option>
                 </select>
               </div>

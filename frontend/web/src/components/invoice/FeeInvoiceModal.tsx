@@ -1,9 +1,21 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { creditedAmount } from '@/lib/payment-status';
 import { createPortal } from 'react-dom';
+import { creditedAmount } from '@/lib/payment-status';
 import { FeeBreakdown, PaymentRecord } from '@/app/actions/payment';
+import { OFFICIAL_CHAMPIONSHIP_EVENTS, DB_CODE_TO_OFFICIAL_MAP } from '@/lib/championship-events';
+
+export interface InvoiceAthlete {
+  id: string;
+  sslc_name: string;
+  usn: string;
+  registrations: {
+    id: string;
+    kind: string;
+    events?: { code?: string; name?: string } | null;
+  }[];
+}
 
 interface Props {
   isOpen: boolean;
@@ -11,15 +23,31 @@ interface Props {
   breakdown: FeeBreakdown;
   payments: PaymentRecord[];
   squadCode: string;
+  athletes?: InvoiceAthlete[];
 }
 
-export default function FeeInvoiceModal({
-  isOpen,
-  onClose,
-  breakdown,
-  payments,
-  squadCode,
-}: Props) {
+/** Official event code number (1–25) for a DB event code like '100M-M'. */
+function officialCode(dbCode?: string): number | null {
+  if (!dbCode) return null;
+  return DB_CODE_TO_OFFICIAL_MAP[dbCode.toUpperCase()]?.codeNum ?? null;
+}
+
+function codesFor(athlete: InvoiceAthlete, kinds: string[]): string {
+  const codes = athlete.registrations
+    .filter((r) => kinds.includes(r.kind))
+    .map((r) => officialCode(r.events?.code) ?? r.events?.code ?? '?')
+    .sort((a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b))));
+  return codes.length ? codes.join(', ') : '';
+}
+
+const SECTION_LABEL: Record<string, string> = {
+  'Men & Women': 'M / W',
+  Men: 'M',
+  Women: 'W',
+  'Mix Relay': 'Mixed',
+};
+
+export default function FeeInvoiceModal({ isOpen, onClose, breakdown, payments, squadCode, athletes = [] }: Props) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -27,11 +55,7 @@ export default function FeeInvoiceModal({
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
     };
@@ -40,342 +64,266 @@ export default function FeeInvoiceModal({
   if (!isOpen || !mounted) return null;
 
   const invoiceNumber = `INV-VTU2026-${squadCode.toUpperCase()}`;
-  const currentDate = new Date().toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-
+  const issueDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const genderLetter = breakdown.gender === 'women' ? 'F' : breakdown.gender === 'men' ? 'M' : '—';
+  const divisionLabel = breakdown.gender === 'women' ? 'Women' : breakdown.gender === 'men' ? 'Men' : 'Squad';
+  const listedPayments = payments.filter((p) => p.status !== 'REJECTED');
   const isFullySettled = breakdown.balanceDue === 0 && breakdown.totalPaid > 0 && breakdown.squadPaymentStatus === 'VERIFIED';
 
-  function handlePrint() {
-    window.print();
-  }
+  // Always print at least 12 roster lines so the sheet reads like the official form
+  const minRows = Math.max(0, 12 - athletes.length);
 
   return createPortal(
-    <div className="invoice-modal-overlay">
-      {/* Top Action Bar (hidden when printing) */}
-      <div className="invoice-action-bar no-print">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontSize: '1.25rem' }}>📄</span>
-          <span style={{ fontWeight: 800, color: '#fff', fontSize: '1.1rem' }}>
-            Official Contingent Entry Fee Invoice — {squadCode}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="invoice-btn-print"
-            id="btn-print-invoice-pdf"
-          >
+    <div className="kit-invoice-overlay">
+      {/* Action bar (hidden when printing) */}
+      <div className="kit-action-bar no-print">
+        <span className="kit-action-title">📄 Registration Form &amp; Fee Invoice — {squadCode}</span>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <button type="button" onClick={() => window.print()} className="kit-btn-print" id="btn-print-invoice-pdf">
             🖨️ Download / Save as PDF
           </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="invoice-btn-close"
-          >
+          <button type="button" onClick={onClose} className="kit-btn-close">
             ✕ Close
           </button>
         </div>
       </div>
 
-      {/* Printable Sheet */}
-      <div className="invoice-sheet-container">
-        <div className="invoice-paper" id="printable-fee-invoice">
-
-          {/* 1. OFFICIAL HEADER WITH BOTH LOGOS */}
-          <div className="invoice-header">
-            {/* Top Left: VTU Logo */}
-            <div className="invoice-logo-left">
-              <img
-                src="/vtu.png"
-                alt="VTU Belagavi Logo"
-                className="invoice-logo-img"
-              />
-              <div className="invoice-inst-text">
-                <div className="invoice-inst-name">VISVESVARAYA TECHNOLOGICAL UNIVERSITY</div>
-                <div className="invoice-inst-sub">Directorate of Physical Education &amp; Sports</div>
-                <div className="invoice-inst-loc">Jnana Sangama, Belagavi – 590018, Karnataka</div>
+      <div className="kit-sheet-container">
+        <div className="kit-paper" id="printable-fee-invoice">
+          {/* 1. Host letterhead */}
+          <div className="kit-letterhead">
+            <img src="/logo.jpeg" alt="Dr. ACSCE logo" className="kit-logo" />
+            <div className="kit-letterhead-text">
+              <div className="kit-host-sub">Visvesvaraya Technological University, Belagavi</div>
+              <div className="kit-host-name">Dr. ACS COLLEGE OF ENGINEERING</div>
+              <div className="kit-host-sub">Kambipura, Mysore Road, Bengaluru – 560074, Karnataka</div>
+              <div className="kit-meet-line">
+                28th VTU State Level Inter-Collegiate Athletic Meet 2026 &bull; Dr. ACS AURA 2026 &bull; 7th – 10th December 2026
               </div>
+              <div className="kit-form-title">Registration Form</div>
             </div>
-
-            {/* Top Right: ACSCE Logo */}
-            <div className="invoice-logo-right">
-              <div className="invoice-inst-text text-right">
-                <div className="invoice-inst-name">Dr. ACS COLLEGE OF ENGINEERING</div>
-                <div className="invoice-inst-sub">Department of Physical Education &amp; Sports</div>
-                <div className="invoice-inst-loc">Kambipura, Mysore Road, Bengaluru – 560074</div>
-              </div>
-              <img
-                src="/logo.jpeg"
-                alt="Dr. ACSCE Logo"
-                className="invoice-logo-img"
-              />
-            </div>
+            {/* Spacer the width of the logo keeps the letterhead text centred (ACSCE logo only) */}
+            <div className="kit-logo-spacer" aria-hidden="true" />
           </div>
 
-          <div className="invoice-divider-thick" />
+          {/* 2. College & PED row */}
+          <table className="kit-info-table">
+            <tbody>
+              <tr>
+                <th>Name of the College &amp; Address</th>
+                <td>
+                  <strong>{breakdown.collegeName || 'Participating College'}</strong>
+                  {breakdown.district ? `, ${breakdown.district}` : ''}
+                  <div className="kit-info-sub">
+                    College Code: <strong>{breakdown.collegeCode || squadCode.split('-')[0]}</strong> &bull; Squad: <strong>{squadCode}</strong> ({divisionLabel})
+                  </div>
+                </td>
+                <th>Name of the PED / Manager with Contact No.</th>
+                <td>
+                  <strong>{breakdown.pedName || '—'}</strong>
+                  <div className="kit-info-sub">{breakdown.pedPhone || ''}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-          {/* 2. MEET BANNER & INVOICE TITLE */}
-          <div className="invoice-meet-banner">
-            <div className="invoice-meet-tag">Dr. ACS AURA – 2026</div>
-            <h1 className="invoice-meet-title">
-              28th VTU Inter-Collegiate State Level Athletic Meet 2026
-            </h1>
-            <div className="invoice-doc-type">
-              OFFICIAL PARTICIPATION ENTRY FEE INVOICE &amp; RECEIPT
-            </div>
-          </div>
-
-          {/* 3. METADATA & STATUS BAR */}
-          <div className="invoice-meta-row">
-            <div className="invoice-meta-block">
-              <span className="meta-lbl">INVOICE NUMBER:</span>
-              <span className="meta-val highlight">{invoiceNumber}</span>
-            </div>
-            <div className="invoice-meta-block">
-              <span className="meta-lbl">DATE OF ISSUE:</span>
-              <span className="meta-val">{currentDate}</span>
-            </div>
-            <div className="invoice-meta-block">
-              <span className="meta-lbl">HOST MEET DATES:</span>
-              <span className="meta-val">Dec 07 – 10, 2026</span>
-            </div>
-            <div className="invoice-meta-block">
-              <span className="meta-lbl">PAYMENT STATUS:</span>
-              <span className={`meta-status-pill ${isFullySettled ? 'status-settled' : 'status-pending'}`}>
-                {isFullySettled ? '✓ FULLY SETTLED' : breakdown.totalPaid > 0 ? 'PARTIAL PAYMENT' : 'PAYMENT PENDING'}
-              </span>
-            </div>
-          </div>
-
-          {/* 4. INSTITUTION & DELEGATION INFO */}
-          <div className="invoice-delegation-card">
-            <div className="delegation-col">
-              <div className="sec-lbl">PARTICIPATING INSTITUTION</div>
-              <div className="college-title">
-                {breakdown.collegeName || 'VTU Affiliated Institution'}
-              </div>
-              <div className="college-detail">
-                <span>College Code: <strong>{breakdown.collegeCode || squadCode.split('-')[0]}</strong></span>
-                {breakdown.district && <span> &bull; District: <strong>{breakdown.district}</strong></span>}
-              </div>
-              <div className="college-detail">
-                Division / Squad: <strong>{breakdown.gender === 'men' ? "Men's Squad" : breakdown.gender === 'women' ? "Women's Squad" : 'College Delegation'} ({squadCode})</strong>
-              </div>
-            </div>
-
-            <div className="delegation-col">
-              <div className="sec-lbl">CONTINGENT IN-CHARGE (PED)</div>
-              <div className="ped-name">{breakdown.pedName || 'Physical Education Director'}</div>
-              <div className="ped-contact">
-                {breakdown.pedPhone && <span>Phone: <strong>{breakdown.pedPhone}</strong></span>}
-                {breakdown.pedEmail && <span> &bull; Email: <strong>{breakdown.pedEmail}</strong></span>}
-              </div>
-              <div className="ped-contact">
-                Total Athletes Enrolled: <strong>{breakdown.athletesCount || 0} Students</strong>
-              </div>
-            </div>
-          </div>
-
-          {/* 5. ITEMIZED FEE SCHEDULE TABLE */}
-          <div className="invoice-table-wrap">
-            <div className="sec-lbl" style={{ marginBottom: '0.4rem' }}>FEE BREAKDOWN SCHEDULE</div>
-            <table className="invoice-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '45px' }}>#</th>
-                  <th>Nomination / Discipline Category</th>
-                  <th className="text-center" style={{ width: '100px' }}>Unit Rate</th>
-                  <th className="text-center" style={{ width: '90px' }}>Qty</th>
-                  <th className="text-right" style={{ width: '130px' }}>Amount (INR)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="text-center">1</td>
-                  <td>
-                    <strong>Individual Regular Events</strong>
-                    <div className="table-sub">Track sprint, middle/long distance, hurdles &amp; field throws/jumps</div>
-                  </td>
-                  <td className="text-center">₹100</td>
-                  <td className="text-center">{breakdown.regularEventsCount}</td>
-                  <td className="text-right">₹{(breakdown.regularEventsCount * 100).toLocaleString('en-IN')}</td>
-                </tr>
-
-                <tr>
-                  <td className="text-center">2</td>
-                  <td>
-                    <strong>Reserve Nominations</strong>
-                    <div className="table-sub">Emergency substitution disciplines (strictly free of charge)</div>
-                  </td>
-                  <td className="text-center" style={{ color: '#16a34a', fontWeight: 700 }}>FREE</td>
-                  <td className="text-center">{breakdown.reserveEventsCount}</td>
-                  <td className="text-right" style={{ color: '#16a34a', fontWeight: 700 }}>₹0</td>
-                </tr>
-
-                <tr>
-                  <td className="text-center">3</td>
-                  <td>
-                    <strong>Relay Squad Teams</strong>
-                    <div className="table-sub">4x100m, 4x400m &amp; 4x400m Mixed Relay (Flat ₹400/team: 4 active runners + 2 reserves free)</div>
-                  </td>
-                  <td className="text-center">₹400 / Team</td>
-                  <td className="text-center">{breakdown.relayTeamsCount} {breakdown.relayTeamsCount === 1 ? 'Team' : 'Teams'}</td>
-                  <td className="text-right">₹{(breakdown.relayTeamsCount * 400).toLocaleString('en-IN')}</td>
-                </tr>
-
-                <tr>
-                  <td className="text-center">4</td>
-                  <td>
-                    <strong>21 km Road Half Marathon</strong>
-                    <div className="table-sub">Official championship endurance road discipline</div>
-                  </td>
-                  <td className="text-center">₹100</td>
-                  <td className="text-center">{breakdown.hmCount}</td>
-                  <td className="text-right">₹{(breakdown.hmCount * 100).toLocaleString('en-IN')}</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr className="tfoot-subtotal">
-                  <td colSpan={4} className="text-right"><strong>Gross Total Computed Fee:</strong></td>
-                  <td className="text-right"><strong>₹{breakdown.totalAmount.toLocaleString('en-IN')}</strong></td>
-                </tr>
-                <tr className="tfoot-paid">
-                  <td colSpan={4} className="text-right">Verified Settlement Received (Paid):</td>
-                  <td className="text-right" style={{ color: '#16a34a', fontWeight: 700 }}>
-                    - ₹{breakdown.totalPaid.toLocaleString('en-IN')}
-                  </td>
-                </tr>
-                <tr className="tfoot-balance">
-                  <td colSpan={4} className="text-right">
-                    <strong>Net Remaining Balance Due:</strong>
-                  </td>
-                  <td className="text-right" style={{ color: breakdown.balanceDue > 0 ? '#dc2626' : '#16a34a', fontSize: '1.1rem', fontWeight: 800 }}>
-                    ₹{breakdown.balanceDue.toLocaleString('en-IN')}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-
-          {/* 6. PAYMENT TRANSACTIONS LOG */}
-          {payments.length > 0 && (
-            <div className="invoice-payments-section">
-              <div className="sec-lbl" style={{ marginBottom: '0.4rem' }}>TRANSACTION SETTLEMENT LEDGER</div>
-              <table className="payments-log-table">
+          {/* 3. Athletes (left) + list of events with code (right) */}
+          <div className="kit-body">
+            <div className="kit-roster-wrap">
+              <table className="kit-roster">
                 <thead>
                   <tr>
-                    <th>Date &amp; Time</th>
-                    <th>Bank Reference / UTR Number</th>
-                    <th className="text-center">Status</th>
-                    <th className="text-right">Amount Submitted</th>
+                    <th rowSpan={2} style={{ width: '34px' }}>Sl.</th>
+                    <th rowSpan={2}>Name of the Athlete</th>
+                    <th rowSpan={2} style={{ width: '112px' }}>University Seat No.</th>
+                    <th rowSpan={2} style={{ width: '52px' }}>Gender</th>
+                    <th colSpan={2}>Event code participating</th>
+                    <th rowSpan={2} style={{ width: '70px' }}>Reserve Event code</th>
+                  </tr>
+                  <tr>
+                    <th style={{ width: '70px' }}>Event</th>
+                    <th style={{ width: '60px' }}>Relay</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {payments.map((p) => (
-                    <tr key={p.id}>
-                      <td>{new Date(p.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                      <td style={{ fontFamily: 'monospace', fontWeight: 700 }}>{p.utr_number}</td>
-                      <td className="text-center">
-                        <span className={`status-badge-sm ${p.status === 'VERIFIED' ? 'badge-ver' : p.status === 'REJECTED' ? 'badge-rej' : 'badge-sub'}`}>
-                          {p.status}
-                        </span>
-                      </td>
-                      <td className="text-right" style={{ fontWeight: 700 }}>
-                        ₹{(p.status === 'VERIFIED' ? creditedAmount(p) : p.amount_submitted).toLocaleString('en-IN')}
-                      </td>
+                  {athletes.map((a, idx) => (
+                    <tr key={a.id}>
+                      <td className="c">{idx + 1}</td>
+                      <td className="name">{a.sslc_name}</td>
+                      <td className="mono">{a.usn}</td>
+                      <td className="c">{genderLetter}</td>
+                      <td className="c b">{codesFor(a, ['regular', 'half_marathon'])}</td>
+                      <td className="c b">{codesFor(a, ['relay'])}</td>
+                      <td className="c">{codesFor(a, ['reserve'])}</td>
+                    </tr>
+                  ))}
+                  {Array.from({ length: minRows }).map((_, i) => (
+                    <tr key={`blank-${i}`} className="blank">
+                      <td className="c">{athletes.length + i + 1}</td>
+                      <td />
+                      <td />
+                      <td />
+                      <td />
+                      <td />
+                      <td />
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          )}
 
-          {/* 7. SIGNATURES & OFFICIAL SEALS */}
-          <div className="invoice-signatures">
-            <div className="sig-block">
-              <div className="sig-line" />
-              <div className="sig-title">Physical Education Director</div>
-              <div className="sig-sub">{breakdown.collegeName || 'Participating College'}</div>
-            </div>
-
-            <div className="sig-block">
-              <div className="sig-seal-box">
-                <span className="seal-text">VTU DPE&amp;S<br />OFFICIAL SEAL</span>
-              </div>
-              <div className="sig-title">Finance Scrutiny Desk</div>
-              <div className="sig-sub">Dr. ACS AURA – 2026</div>
-            </div>
-
-            <div className="sig-block">
-              <div className="sig-line" />
-              <div className="sig-title">Organising Chairman / Principal</div>
-              <div className="sig-sub">Dr. ACS College of Engineering</div>
+            <div className="kit-events-wrap">
+              <table className="kit-events">
+                <thead>
+                  <tr>
+                    <th colSpan={3}>List of events with code</th>
+                  </tr>
+                  <tr>
+                    <th style={{ width: '38px' }}>Code</th>
+                    <th>Event</th>
+                    <th style={{ width: '48px' }}>Section</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {OFFICIAL_CHAMPIONSHIP_EVENTS.map((ev) => (
+                    <tr key={ev.code}>
+                      <td className="c b">{ev.code}</td>
+                      <td>{ev.name}</td>
+                      <td className="c">{SECTION_LABEL[ev.sections] || ev.sections}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          {/* 8. FOOTER NOTE */}
-          <div className="invoice-footer-note">
-            This is an official computer-generated fee invoice &amp; participation voucher issued under the authority of Visvesvaraya Technological University (VTU) and Dr. ACS College of Engineering, Bengaluru. Any subsequent student additions will accrue differential dues to be settled prior to bib clearance.
+          {/* 4. Fees payment detail */}
+          <table className="kit-fees">
+            <tbody>
+              <tr>
+                <th rowSpan={Math.max(1, listedPayments.length) + 1} className="kit-fees-head">
+                  Fees Payment
+                  <br />
+                  Detail
+                </th>
+                <th>DD / Cheque No. / Transaction ID</th>
+                <th>Date</th>
+                <th>Name of the Bank</th>
+                <th>Status</th>
+                <th>Amount Rs.</th>
+              </tr>
+              {listedPayments.length === 0 ? (
+                <tr>
+                  <td>&nbsp;</td>
+                  <td />
+                  <td />
+                  <td className="c">Not yet paid</td>
+                  <td />
+                </tr>
+              ) : (
+                listedPayments.map((p) => (
+                  <tr key={p.id}>
+                    <td className="mono b">{p.utr_number}</td>
+                    <td className="c">
+                      {new Date(p.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </td>
+                    <td className="c">UPI / Bank Transfer</td>
+                    <td className="c">{p.status === 'VERIFIED' ? 'Verified' : 'Awaiting verification'}</td>
+                    <td className="r b">
+                      {(p.status === 'VERIFIED' ? creditedAmount(p) : p.amount_submitted).toLocaleString('en-IN')}/-
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          <div className="kit-fee-summary">
+            <span>
+              Individual events {breakdown.regularEventsCount} × ₹{breakdown.regularFeeRate || 100}
+            </span>
+            <span>Half Marathon {breakdown.hmCount} × ₹{breakdown.hmFeeRate || 100}</span>
+            <span>
+              Relay teams {breakdown.relayTeamsCount} × ₹{breakdown.relayFeeRate || 400}
+            </span>
+            <span>Reserve events {breakdown.reserveEventsCount} (free)</span>
+            <span className="kit-total">Total fee: ₹{breakdown.totalAmount.toLocaleString('en-IN')}/-</span>
+            <span>Paid (verified): ₹{breakdown.totalPaid.toLocaleString('en-IN')}/-</span>
+            <span className={breakdown.balanceDue > 0 ? 'kit-due' : 'kit-clear'}>
+              Balance due: ₹{breakdown.balanceDue.toLocaleString('en-IN')}/-
+            </span>
           </div>
 
+          {/* 5. Signatures */}
+          <div className="kit-signatures">
+            <div className="kit-sig">
+              <div className="kit-sig-space" />
+              <div className="kit-sig-title">Physical Education Director</div>
+              <div className="kit-sig-sub">{breakdown.pedName || ''}</div>
+              <div className="kit-sig-sub">{breakdown.collegeName || ''}</div>
+            </div>
+            <div className="kit-sig kit-sig-mid">
+              <div className="kit-ref">Ref: {invoiceNumber}</div>
+              <div className="kit-ref">Date: {issueDate}</div>
+              {isFullySettled && <div className="kit-stamp">FEES PAID</div>}
+            </div>
+            <div className="kit-sig">
+              <div className="kit-sig-space" />
+              <div className="kit-sig-title">Principal</div>
+              <div className="kit-sig-sub">(Signature &amp; Seal)</div>
+              <div className="kit-sig-sub">{breakdown.collegeName || ''}</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <style jsx>{`
-        .invoice-modal-overlay {
+        .kit-invoice-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(15, 23, 42, 0.85);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          inset: 0;
           z-index: 100000;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 1.5rem;
+          padding: 1.25rem 16px;
+          background: rgba(15, 23, 42, 0.88);
         }
-
-        .invoice-action-bar {
+        .kit-action-bar {
           width: 100%;
-          max-width: 820px;
+          max-width: 1120px;
           display: flex;
           justify-content: space-between;
           align-items: center;
+          flex-wrap: wrap;
+          gap: 0.75rem;
           margin-bottom: 1rem;
           padding: 0.75rem 1rem;
           background: #1e293b;
-          border-radius: 8px;
           border: 1px solid #334155;
+          border-radius: 8px;
         }
-
-        .invoice-btn-print {
+        .kit-action-title {
+          color: #fff;
+          font-weight: 800;
+          font-size: 1rem;
+        }
+        .kit-btn-print {
           background: #2563eb;
           color: #fff;
           border: none;
-          padding: 0.6rem 1.25rem;
+          padding: 0.6rem 1.15rem;
           border-radius: 6px;
           font-weight: 700;
           font-size: 0.9rem;
           cursor: pointer;
-          transition: background 0.2s ease;
         }
-
-        .invoice-btn-print:hover {
+        .kit-btn-print:hover {
           background: #1d4ed8;
         }
-
-        .invoice-btn-close {
+        .kit-btn-close {
           background: rgba(255, 255, 255, 0.1);
-          color: #cbd5e1;
+          color: #e2e8f0;
           border: 1px solid #475569;
           padding: 0.6rem 1rem;
           border-radius: 6px;
@@ -383,356 +331,254 @@ export default function FeeInvoiceModal({
           font-size: 0.9rem;
           cursor: pointer;
         }
-
-        .invoice-btn-close:hover {
-          background: rgba(255, 255, 255, 0.2);
-          color: #fff;
-        }
-
-        .invoice-sheet-container {
+        .kit-sheet-container {
           width: 100%;
-          max-width: 820px;
+          max-width: 1120px;
           margin-bottom: 3rem;
         }
-
-        .invoice-paper {
-          background: #ffffff;
-          color: #0f172a;
-          padding: 2.5rem 3rem;
-          border-radius: 8px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        .kit-paper {
+          background: #fff;
+          color: #000;
+          padding: 1.5rem 1.75rem;
+          border-radius: 6px;
+          font-family: 'Times New Roman', Times, serif;
+          overflow-x: auto;
         }
 
-        .invoice-header {
+        /* Letterhead */
+        .kit-letterhead {
           display: flex;
+          align-items: center;
           justify-content: space-between;
-          align-items: center;
-          gap: 1.5rem;
+          gap: 1rem;
+          border-bottom: 2px solid #000;
+          padding-bottom: 0.5rem;
+          margin-bottom: 0.6rem;
         }
-
-        .invoice-logo-left, .invoice-logo-right {
-          display: flex;
-          align-items: center;
-          gap: 0.85rem;
-        }
-
-        .invoice-logo-img {
+        .kit-logo {
           height: 64px;
           width: auto;
           object-fit: contain;
         }
-
-        .invoice-inst-name {
-          font-size: 0.85rem;
-          font-weight: 900;
-          color: #0f172a;
-          letter-spacing: -0.01em;
+        .kit-logo-spacer {
+          width: 64px;
+          flex-shrink: 0;
         }
-
-        .invoice-inst-sub {
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: #475569;
-          margin-top: 1px;
-        }
-
-        .invoice-inst-loc {
-          font-size: 0.65rem;
-          color: #64748b;
-        }
-
-        .text-right {
-          text-align: right;
-        }
-
-        .invoice-divider-thick {
-          height: 3px;
-          background: linear-gradient(to right, #1e3a8a, #d97706, #1e3a8a);
-          margin: 1.25rem 0 1rem;
-        }
-
-        .invoice-meet-banner {
+        .kit-letterhead-text {
           text-align: center;
-          margin-bottom: 1.25rem;
+          flex: 1;
         }
-
-        .invoice-meet-tag {
-          font-size: 0.75rem;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          color: #b45309;
-          text-transform: uppercase;
-        }
-
-        .invoice-meet-title {
+        .kit-host-name {
           font-size: 1.35rem;
           font-weight: 900;
-          color: #0f172a;
-          margin: 0.2rem 0;
+          letter-spacing: 0.02em;
         }
-
-        .invoice-doc-type {
-          font-size: 0.85rem;
-          font-weight: 800;
-          color: #1e3a8a;
-          letter-spacing: 0.05em;
+        .kit-host-sub {
+          font-size: 0.75rem;
         }
-
-        .invoice-meta-row {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 0.75rem;
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 6px;
-          padding: 0.75rem 1rem;
-          margin-bottom: 1.25rem;
-        }
-
-        .invoice-meta-block {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        .meta-lbl {
-          font-size: 0.65rem;
+        .kit-meet-line {
+          font-size: 0.8rem;
           font-weight: 700;
-          color: #64748b;
+          margin-top: 0.15rem;
+        }
+        .kit-form-title {
+          display: inline-block;
+          margin-top: 0.25rem;
+          font-size: 1rem;
+          font-weight: 800;
+          text-decoration: underline;
+        }
+
+        /* Shared table look */
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        th,
+        td {
+          border: 1px solid #000;
+          padding: 0.25rem 0.4rem;
+          font-size: 0.78rem;
+          vertical-align: middle;
+        }
+        th {
+          font-weight: 700;
+          text-align: center;
+          background: #f3f4f6;
+        }
+        .c {
+          text-align: center;
+        }
+        .r {
+          text-align: right;
+        }
+        .b {
+          font-weight: 700;
+        }
+        .mono {
+          font-family: 'Courier New', monospace;
+          font-size: 0.76rem;
+        }
+        .name {
           text-transform: uppercase;
         }
 
-        .meta-val {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: #0f172a;
+        .kit-info-table th {
+          width: 17%;
+          text-align: left;
         }
-
-        .meta-val.highlight {
-          color: #1e3a8a;
-          font-family: monospace;
-          font-size: 0.9rem;
+        .kit-info-table td {
+          width: 33%;
         }
-
-        .meta-status-pill {
-          display: inline-block;
-          padding: 0.2rem 0.5rem;
-          border-radius: 4px;
+        .kit-info-sub {
           font-size: 0.72rem;
-          font-weight: 800;
-          text-align: center;
-          width: fit-content;
+          margin-top: 0.1rem;
         }
 
-        .status-settled {
-          background: #dcfce7;
+        /* Body: roster left, events right */
+        .kit-body {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 250px;
+          gap: 0.6rem;
+          margin-top: 0.6rem;
+          align-items: start;
+        }
+        .kit-roster-wrap {
+          overflow-x: auto;
+        }
+        .kit-roster {
+          min-width: 560px;
+        }
+        .kit-roster tbody tr {
+          height: 24px;
+        }
+        .kit-events th,
+        .kit-events td {
+          font-size: 0.7rem;
+          padding: 0.15rem 0.3rem;
+        }
+
+        /* Fees */
+        .kit-fees {
+          margin-top: 0.6rem;
+        }
+        .kit-fees-head {
+          width: 90px;
+        }
+        .kit-fee-summary {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.25rem 1.1rem;
+          margin-top: 0.4rem;
+          font-size: 0.75rem;
+        }
+        .kit-total {
+          font-weight: 800;
+        }
+        .kit-due {
+          font-weight: 800;
+          color: #b91c1c;
+        }
+        .kit-clear {
+          font-weight: 800;
           color: #15803d;
         }
 
-        .status-pending {
-          background: #fef3c7;
-          color: #b45309;
-        }
-
-        .invoice-delegation-card {
+        /* Signatures */
+        .kit-signatures {
           display: grid;
-          grid-template-columns: 1.2fr 1fr;
-          gap: 1.5rem;
-          border: 1px solid #e2e8f0;
-          border-radius: 6px;
-          padding: 1rem 1.25rem;
-          margin-bottom: 1.25rem;
-          background: #ffffff;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 1rem;
+          margin-top: 1rem;
+          align-items: end;
         }
-
-        .sec-lbl {
-          font-size: 0.7rem;
+        .kit-sig {
+          text-align: center;
+        }
+        .kit-sig-space {
+          height: 42px;
+          border-bottom: 1px solid #000;
+          margin: 0 1.5rem 0.3rem;
+        }
+        .kit-sig-title {
           font-weight: 800;
-          color: #1e3a8a;
-          letter-spacing: 0.05em;
+          font-size: 0.8rem;
           text-transform: uppercase;
-          margin-bottom: 0.25rem;
         }
-
-        .college-title {
-          font-size: 1rem;
-          font-weight: 800;
-          color: #0f172a;
-        }
-
-        .college-detail, .ped-contact {
-          font-size: 0.8rem;
-          color: #475569;
-          margin-top: 2px;
-        }
-
-        .ped-name {
-          font-size: 0.95rem;
-          font-weight: 800;
-          color: #0f172a;
-        }
-
-        .invoice-table-wrap {
-          margin-bottom: 1.25rem;
-        }
-
-        .invoice-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 0.85rem;
-        }
-
-        .invoice-table th {
-          background: #0f172a;
-          color: #ffffff;
-          padding: 0.55rem 0.75rem;
-          font-weight: 700;
-          text-align: left;
-          font-size: 0.75rem;
-        }
-
-        .invoice-table td {
-          padding: 0.55rem 0.75rem;
-          border-bottom: 1px solid #e2e8f0;
-          color: #334155;
-        }
-
-        .table-sub {
+        .kit-sig-sub {
           font-size: 0.72rem;
-          color: #64748b;
-          margin-top: 1px;
+        }
+        .kit-sig-mid {
+          align-self: center;
+        }
+        .kit-ref {
+          font-size: 0.72rem;
+        }
+        .kit-stamp {
+          display: inline-block;
+          margin-top: 0.3rem;
+          padding: 0.15rem 0.6rem;
+          border: 2px solid #15803d;
+          color: #15803d;
+          font-weight: 900;
+          letter-spacing: 0.08em;
+          transform: rotate(-4deg);
         }
 
-        .tfoot-subtotal td, .tfoot-paid td, .tfoot-balance td {
-          padding: 0.45rem 0.75rem;
-          border-bottom: 1px solid #cbd5e1;
+        @media (max-width: 900px) {
+          .kit-body {
+            grid-template-columns: 1fr;
+          }
+          .kit-paper {
+            padding: 1rem;
+          }
+          .kit-info-table th,
+          .kit-info-table td {
+            display: block;
+            width: auto;
+          }
+          .kit-signatures {
+            grid-template-columns: 1fr;
+          }
         }
 
-        .tfoot-balance {
-          background: #f8fafc;
-        }
-
-        .invoice-payments-section {
-          margin-bottom: 1.5rem;
-        }
-
-        .payments-log-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 0.8rem;
-        }
-
-        .payments-log-table th {
-          background: #f1f5f9;
-          color: #475569;
-          padding: 0.4rem 0.6rem;
-          font-weight: 700;
-          text-align: left;
-          font-size: 0.7rem;
-        }
-
-        .payments-log-table td {
-          padding: 0.4rem 0.6rem;
-          border-bottom: 1px solid #e2e8f0;
-        }
-
-        .status-badge-sm {
-          padding: 0.15rem 0.4rem;
-          border-radius: 4px;
-          font-size: 0.7rem;
-          font-weight: 700;
-        }
-
-        .badge-ver { background: #dcfce7; color: #16a34a; }
-        .badge-sub { background: #fef3c7; color: #d97706; }
-        .badge-rej { background: #fee2e2; color: #dc2626; }
-
-        .invoice-signatures {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 2rem;
-          margin-top: 2rem;
-          padding-top: 1rem;
-          text-align: center;
-        }
-
-        .sig-block {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .sig-line {
-          width: 150px;
-          height: 1px;
-          background: #94a3b8;
-          margin-bottom: 0.5rem;
-        }
-
-        .sig-seal-box {
-          width: 80px;
-          height: 80px;
-          border: 2px dashed #94a3b8;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 0.5rem;
-        }
-
-        .seal-text {
-          font-size: 0.55rem;
-          font-weight: 800;
-          color: #64748b;
-          text-align: center;
-        }
-
-        .sig-title {
-          font-size: 0.75rem;
-          font-weight: 800;
-          color: #0f172a;
-        }
-
-        .sig-sub {
-          font-size: 0.68rem;
-          color: #64748b;
-        }
-
-        .invoice-footer-note {
-          margin-top: 1.5rem;
-          padding-top: 0.75rem;
-          border-top: 1px solid #e2e8f0;
-          font-size: 0.65rem;
-          color: #64748b;
-          line-height: 1.4;
-          text-align: center;
-        }
-
-        /* PRINT STYLES */
         @media print {
           .no-print {
             display: none !important;
           }
-
-          .invoice-modal-overlay {
+          .kit-invoice-overlay {
             position: static !important;
             background: transparent !important;
             padding: 0 !important;
-            backdrop-filter: none !important;
+            overflow: visible !important;
           }
-
-          .invoice-sheet-container {
+          .kit-sheet-container {
             max-width: 100% !important;
             margin: 0 !important;
           }
-
-          .invoice-paper {
-            padding: 0.5cm 0.75cm !important;
-            box-shadow: none !important;
+          .kit-paper {
+            padding: 0 !important;
             border-radius: 0 !important;
+            overflow: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          .kit-body {
+            grid-template-columns: minmax(0, 1fr) 230px !important;
+          }
+          .kit-roster {
+            min-width: 0 !important;
+          }
+        }
+      `}</style>
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 landscape;
+            margin: 8mm;
+          }
+          body > *:not(.kit-invoice-overlay) {
+            display: none !important;
           }
         }
       `}</style>
@@ -740,4 +586,3 @@ export default function FeeInvoiceModal({
     document.body
   );
 }
-
